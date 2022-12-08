@@ -1,8 +1,15 @@
+import React from "react"
 import { useSession, signIn, signOut } from "next-auth/react"
 
 export default function Component() {
-    const { data: session } = useSession()
-    if (session) {
+    const { data: session, status } = useSession()
+
+    if (status === 'loading') {
+        // Add loading spinner here
+        return (<>Loading...</>)
+    }
+
+    if (session?.user) {
         return (
             <>
                 Signed in as {session.user.email} <br />
@@ -10,6 +17,7 @@ export default function Component() {
             </>
         )
     }
+
     return (
         <>
             Not signed in <br />

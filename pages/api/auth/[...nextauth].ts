@@ -4,14 +4,13 @@ import prisma from "../../../lib/prismadb"
 import GithubProvider from "next-auth/providers/github"
 import EmailProvider from "next-auth/providers/email"
 
-
 export const authOptions = {
     adapter: PrismaAdapter(prisma),
     // Configure one or more authentication providers
     providers: [
         GithubProvider({
-            clientId: process.env.GITHUB_ID,
-            clientSecret: process.env.GITHUB_SECRET,
+            clientId: process.env.GITHUB_ID ?? '',
+            clientSecret: process.env.GITHUB_SECRET ?? '',
         }),
         EmailProvider({
             server: {
@@ -22,11 +21,18 @@ export const authOptions = {
                     pass: process.env.EMAIL_SERVER_PASSWORD,
                 },
             },
-            from: 'NextAuth <noreply@example.com>',
+            from: process.env.NEXTAUTH_FROM_EMAIL,
         }),
         // Add more providers here
     ],
-
+    callbacks: {
+        async session({ session, user }: { session: any, user: any }) {
+            if (session.user && user) {
+                session.user.role = user.role; // Add role value to user object so it is passed along with session
+            }
+            return session;
+        }
+    },
 }
 
 export default NextAuth(authOptions)
