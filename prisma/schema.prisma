@@ -41,10 +41,25 @@ model User {
     name          String?
     email         String?   @unique
     emailVerified DateTime?
-    role          String?   @default("basic")
     image         String?
+    role          RoleEnum  @default(user)
     accounts      Account[]
     sessions      Session[]
+}
+
+model Permission {
+    id             String           @id @default(cuid())
+    name           String           @unique
+    description    String
+    RolePermission RolePermission[]
+}
+
+model RolePermission {
+    id           String     @id @default(cuid())
+    role         RoleEnum
+    permission   Permission @relation(fields: [permissionId], references: [id])
+    roleId       String
+    permissionId String
 }
 
 model VerificationToken {
@@ -53,4 +68,9 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+enum RoleEnum {
+    user
+    admin
 }
