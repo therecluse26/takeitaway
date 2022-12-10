@@ -1,19 +1,9 @@
 import { PrismaClient } from '@prisma/client'
-import { permissionData, rolePermissionData } from './permissions';
+import { Permissions, Roles, RolePermissions } from './permissions';
 const prisma = new PrismaClient()
 
 async function main() {
-    // Create base permissions
-    await prisma.permission.createMany({
-        data: permissionData,
-        skipDuplicates: true
-    });
-
-    // Assign permissions to roles
-    await prisma.rolePermission.createMany({
-        data: rolePermissionData.flat(),
-        skipDuplicates: true
-    });
+    // run seeders here
 }
 main()
     .then(async () => {

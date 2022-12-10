@@ -45,20 +45,8 @@ model User {
     role          RoleEnum  @default(subscriber)
     accounts      Account[]
     sessions      Session[]
-}
-
-model Permission {
-    id             String           @id @default(cuid())
-    name           String           @unique
-    description    String
-    RolePermission RolePermission[]
-}
-
-model RolePermission {
-    id           String     @id @default(cuid())
-    role         RoleEnum
-    permission   Permission @relation(fields: [permissionId], references: [id])
-    permissionId String
+    createdAt     DateTime  @default(now())
+    deleted       Boolean   @default(false)
 }
 
 model VerificationToken {
