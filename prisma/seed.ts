@@ -1,17 +1,19 @@
-import { PrismaClient, RoleEnum } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
+import { permissionData, rolePermissionData } from './permissions';
 const prisma = new PrismaClient()
 
 async function main() {
+    // Create base permissions
+    await prisma.permission.createMany({
+        data: permissionData,
+        skipDuplicates: true
+    });
 
-    await prisma.user.upsert({
-        where: { email: 'braddmagyar@gmail.com' },
-        update: {
-            email: 'braddmagyar@gmail.com',
-            name: 'therecluse26',
-            role: RoleEnum.admin,
-        },
-        create: {}
-    })
+    // Assign permissions to roles
+    await prisma.rolePermission.createMany({
+        data: rolePermissionData.flat(),
+        skipDuplicates: true
+    });
 }
 main()
     .then(async () => {

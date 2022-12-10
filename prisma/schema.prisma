@@ -42,7 +42,7 @@ model User {
     email         String?   @unique
     emailVerified DateTime?
     image         String?
-    role          RoleEnum  @default(user)
+    role          RoleEnum  @default(subscriber)
     accounts      Account[]
     sessions      Session[]
 }
@@ -58,7 +58,6 @@ model RolePermission {
     id           String     @id @default(cuid())
     role         RoleEnum
     permission   Permission @relation(fields: [permissionId], references: [id])
-    roleId       String
     permissionId String
 }
 
@@ -71,6 +70,8 @@ model VerificationToken {
 }
 
 enum RoleEnum {
-    user
+    subscriber
+    provider
     admin
+    superadmin
 }
