@@ -1,4 +1,4 @@
-import NextAuth, { Awaitable, NextAuthOptions } from "next-auth"
+import NextAuth, { NextAuthOptions } from "next-auth"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import prisma from "../../../lib/prismadb"
 import GithubProvider from "next-auth/providers/github"
@@ -30,7 +30,8 @@ export const authOptions: NextAuthOptions = {
     callbacks: {
         async signIn({ user }) {
             // Set first user to superadmin if only one user exists
-            if (await getUserCount()) {
+            const userCount = await getUserCount();
+            if (userCount === 1) {
                 user = await prisma.user.update({ where: { id: user.id }, data: { role: 'superadmin' } }).finally(() => {
                     prisma.$disconnect();
                 });
