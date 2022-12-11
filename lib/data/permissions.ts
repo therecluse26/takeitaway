@@ -1,26 +1,30 @@
-type Permission = {
+/**
+ * Types and enums for permissions
+ */
+
+type TPermission = {
     name: string;
     description: string;
 }
 
-type RolePermission = {
-    role: Role;
-    permission: Permission;
+type TRolePermission = {
+    role: TRole;
+    permission: TPermission;
 }
 
-type Role = {
+type TRole = {
     name: string;
     description: string;
 }
 
-const Roles: Role[] = [
+const Roles: TRole[] = [
     { name: 'subscriber', description: "Subscriber" },
     { name: 'provider', description: "Provider" },
     { name: 'admin', description: "Admin" },
     { name: 'superadmin', description: "Superadmin" }
 ]
 
-const Permissions: Permission[] = [
+const Permissions: TPermission[] = [
     {
         name: 'users:permissions',
         description: 'Assign user roles and permissions'
@@ -76,7 +80,7 @@ const Permissions: Permission[] = [
 ];
 
 
-const RolePermissions: RolePermission[] = [
+const RolePermissions: TRolePermission[] = [
     // Subscriber
     Permissions.filter(p =>
         p.name === 'users:read-basic' ||
@@ -84,7 +88,7 @@ const RolePermissions: RolePermission[] = [
         p.name === 'services:purchase' ||
         p.name === 'schedule:read-basic' ||
         p.name === 'schedule:request')
-        .map((p) => { return { role: Roles[0], permission: p } as RolePermission }).flat(),
+        .map((p) => { return { role: Roles[0], permission: p } }).flat(),
 
     // Provider
     Permissions.filter(p =>
@@ -113,5 +117,5 @@ const RolePermissions: RolePermission[] = [
     Permissions.map((p) => { return { role: Roles[3], permission: p } }).flat()
 ].flat()
 
-
-export { Permissions, RolePermissions, Roles }
+export { Permissions, RolePermissions, Roles };
+export type { TPermission, TRole, TRolePermission };

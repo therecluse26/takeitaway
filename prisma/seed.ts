@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client'
-import { Permissions, Roles, RolePermissions } from './permissions';
 const prisma = new PrismaClient()
 
 async function main() {

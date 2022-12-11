@@ -2,7 +2,6 @@ import { useSession } from "next-auth/react"
 
 export default function Page() {
     const { data: session } = useSession()
-    console.log(session?.user)
 
     if (session && session.user.role === "admin") {
         return (
