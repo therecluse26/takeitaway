@@ -1,10 +1,9 @@
-import NextAuth, { Awaitable, NextAuthOptions } from "next-auth"
+import NextAuth, { NextAuthOptions } from "next-auth"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import prisma from "../../../lib/prismadb"
 import GithubProvider from "next-auth/providers/github"
 import EmailProvider from "next-auth/providers/email"
 import { getUserCount } from "../../../lib/services/UserService"
-import { rolePermissions } from "./permissions"
 
 export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(prisma),
@@ -30,7 +29,8 @@ export const authOptions: NextAuthOptions = {
     callbacks: {
         async signIn({ user }) {
             // Set first user to superadmin if only one user exists
-            if (await getUserCount()) {
+            const userCount = await getUserCount();
+            if (userCount === 1) {
                 user = await prisma.user.update({ where: { id: user.id }, data: { role: 'superadmin' } }).finally(() => {
                     prisma.$disconnect();
                 });
@@ -41,7 +41,6 @@ export const authOptions: NextAuthOptions = {
             // Add role value to user object so it is passed along with session
             if (session.user && user) {
                 session.user.role = user.role;
-                session.user.permissions = rolePermissions(user.role)
             }
             return session;
         }

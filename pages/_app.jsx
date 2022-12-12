@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { SessionProvider, useSession } from "next-auth/react"
+import { MantineProvider } from '@mantine/core';
+import Layout from '../components/layout';
 
 export default function App({
     Component,
@@ -18,15 +20,28 @@ export default function App({
 
     return (
         <div suppressHydrationWarning>
-            <SessionProvider session={session}>
-                {Component.auth ? (
-                    <Auth>
-                        <Component {...pageProps} />
-                    </Auth>
-                ) : (
-                    <Component {...pageProps} />
-                )}
-            </SessionProvider>
+            <MantineProvider
+                withGlobalStyles
+                withNormalizeCSS
+                theme={{
+                    /** Put your mantine theme override here */
+                    colorScheme: 'light',
+                }}
+            >
+                <SessionProvider session={session}>
+                    {Component.auth ? (
+                        <Auth>
+                            <Layout>
+                                <Component {...pageProps} />
+                            </Layout>
+                        </Auth>
+                    ) : (
+                        <Layout>
+                            <Component {...pageProps} />
+                        </Layout>
+                    )}
+                </SessionProvider>
+            </MantineProvider>
         </div >
     )
 }

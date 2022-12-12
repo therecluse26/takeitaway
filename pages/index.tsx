@@ -1,14 +1,4 @@
-import { getSession } from 'next-auth/react'
-import LoginBtn from '../components/login-btn'
-
-export default function Page(): JSX.Element {
+export default function Index(): JSX.Element {
   return (<>
-    <p>
-
-    </p>
-    <p>
-
-    </p>
-    <LoginBtn />
   </>)
 }
