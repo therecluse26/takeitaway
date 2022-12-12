@@ -1,4 +1,4 @@
-import { TRole } from "../../../lib/data/permissions";
+import { TRole } from "../../../data/permissions";
 import { getRoleByName, getRolePermissions } from "../../../lib/services/PermissionService";
 
 

@@ -4,7 +4,6 @@ import prisma from "../../../lib/prismadb"
 import GithubProvider from "next-auth/providers/github"
 import EmailProvider from "next-auth/providers/email"
 import { getUserCount } from "../../../lib/services/UserService"
-import { rolePermissions } from "./permissions"
 
 export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(prisma),
@@ -42,7 +41,6 @@ export const authOptions: NextAuthOptions = {
             // Add role value to user object so it is passed along with session
             if (session.user && user) {
                 session.user.role = user.role;
-                session.user.permissions = rolePermissions(user.role)
             }
             return session;
         }
