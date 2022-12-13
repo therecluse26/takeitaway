@@ -1,15 +1,15 @@
 const NavBarLinks = [
     {
-        "link": "/about",
-        "label": "Features"
+        "link": "/test",
+        "label": "Test"
     },
     {
         "link": "#1",
         "label": "Learn",
         "links": [
             {
-                "link": "/docs",
-                "label": "Documentation"
+                "link": "/test",
+                "label": "Test"
             },
             {
                 "link": "/resources",

@@ -1,24 +1,29 @@
-import React, { useEffect, useState } from "react"
+import React, { FC, useCallback, useEffect, useState } from "react"
 import { SessionProvider, useSession } from "next-auth/react"
 import { MantineProvider } from '@mantine/core';
 import Layout from '../components/layout';
+import AppSkeleton from '../components/app-skeleton';
+import { ReactJSXElement } from "@emotion/react/types/jsx-namespace";
 
 export default function App({
     Component,
     pageProps: { session, ...pageProps },
 }) {
     const [hasMounted, setHasMounted] = useState(false)
+    const [loaded, setLoaded] = useState(false)
+    const loadedCallback = useCallback(() => {
+        setLoaded(true)
+      }, []);
 
     useEffect(() => {
         setHasMounted(true)
     }, [])
 
     if (!hasMounted) {
-        // Insert Skeleton here
-        return (<>Loading...</>)
+        return <AppSkeleton />
     }
 
-    return (
+    return ( 
         <div suppressHydrationWarning>
             <MantineProvider
                 withGlobalStyles
@@ -29,30 +34,27 @@ export default function App({
                 }}
             >
                 <SessionProvider session={session}>
-                    {Component.auth ? (
-                        <Auth>
+                    <Auth setLoaded={loadedCallback}>
+                        {hasMounted && loaded ?
                             <Layout>
                                 <Component {...pageProps} />
-                            </Layout>
-                        </Auth>
-                    ) : (
-                        <Layout>
-                            <Component {...pageProps} />
-                        </Layout>
-                    )}
+                            </Layout> : 
+                            <AppSkeleton />}
+                    </Auth>
                 </SessionProvider>
+              
             </MantineProvider>
-        </div >
-    )
+        </div > )
 }
 
-function Auth({ children }) {
-    // if `{ required: true }` is supplied, `status` can only be "loading" or "authenticated"
-    const { status } = useSession({ required: true })
+const Auth = ({ children, setLoaded } : { children: any, setLoaded: CallableFunction} ): ReactJSXElement => {
+    const { status } = useSession({ required: false })
 
-    if (status === "loading") {
-        return <div>Loading...</div>
+    console.log(status)
+
+    if (status !== "loading") {
+        setLoaded(true)
     }
 
-    return children
+    return (children)
 }

@@ -1,32 +1,19 @@
-import { useState } from 'react';
 import {
     createStyles,
     Container,
-    Avatar,
-    UnstyledButton,
     Group,
-    Text,
     Menu,
-    Tabs,
     Burger,
-    Button,
     Center,
+    Image,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import {
-    IconLogout,
-    IconHeart,
-    IconStar,
-    IconMessage,
-    IconSettings,
-    IconPlayerPause,
-    IconTrash,
-    IconSwitchHorizontal,
     IconChevronDown,
 } from '@tabler/icons';
-import { MantineLogo } from '@mantine/ds';
-import { useSession } from 'next-auth/react';
-import LoginBtn from './login-btn';
+
+import UserButton from './user-button';
+import Link from 'next/link';
 
 const useStyles = createStyles((theme) => ({
     header: {
@@ -93,7 +80,6 @@ const useStyles = createStyles((theme) => ({
 }));
 
 interface HeaderTabsProps {
-    user: { name: string; image: string };
     links: any[];
 }
 
@@ -110,16 +96,14 @@ export default function HeaderTabs({ links }: HeaderTabsProps) {
           return (
             <Menu key={link.label} trigger="hover" exitTransitionDuration={0}>
               <Menu.Target>
-                <a
-                  href={link.link}
+                <Link href={link.link}
                   className={classes.link}
-                  onClick={(event) => event.preventDefault()}
                 >
                   <Center>
                     <span className={classes.linkLabel}>{link.label}</span>
                     <IconChevronDown size={12} stroke={1.5} />
                   </Center>
-                </a>
+                </Link>
               </Menu.Target>
               <Menu.Dropdown>{menuItems}</Menu.Dropdown>
             </Menu>
@@ -127,21 +111,23 @@ export default function HeaderTabs({ links }: HeaderTabsProps) {
         }
     
         return (
-          <a
+          <Link
             key={link.label}
             href={link.link}
             className={classes.link}
-            onClick={(event) => event.preventDefault()}
           >
             {link.label}
-          </a>
+          </Link>
         );
       });
     return (
         <div className={classes.header}>
             <Container className={classes.mainSection}>
                 <Group position="apart">
-                    <MantineLogo size={28} />
+
+                    <Link href={"/"}>
+                        <Image src={"/logo-small.png"} alt={"logo"} height={50} width={"auto"} />
+                    </Link>
 
                     <Burger opened={opened} onClick={toggle} className={classes.burger} size="sm" />
 
@@ -149,7 +135,7 @@ export default function HeaderTabs({ links }: HeaderTabsProps) {
                         {items}
                     </Group>
 
-                    <LoginBtn classes={classes} theme={theme} cx={cx} />
+                    <UserButton classes={classes} theme={theme} cx={cx} />
                 </Group>
             </Container>
            

@@ -26,6 +26,10 @@ const Roles: TRole[] = [
 
 const Permissions: TPermission[] = [
     {
+        name: 'app:config',
+        description: 'Configure application settings'
+    },
+    {
         name: 'users:permissions',
         description: 'Assign user roles and permissions'
     },
