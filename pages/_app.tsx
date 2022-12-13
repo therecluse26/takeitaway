@@ -11,12 +11,10 @@ export default function App({
 }) {
     const [hasMounted, setHasMounted] = useState(false)
     const [loaded, setLoaded] = useState(false)
-    const loadedCallback = useCallback(() => {
-        setLoaded(true)
-      }, []);
-
+   
     useEffect(() => {
         setHasMounted(true)
+        setLoaded(true)
     }, [])
 
     if (!hasMounted) {
@@ -34,7 +32,7 @@ export default function App({
                 }}
             >
                 <SessionProvider session={session}>
-                    <Auth setLoaded={loadedCallback}>
+                    <Auth>
                         {hasMounted && loaded ?
                             <Layout>
                                 <Component {...pageProps} />
@@ -47,13 +45,11 @@ export default function App({
         </div > )
 }
 
-const Auth = ({ children, setLoaded } : { children: any, setLoaded: CallableFunction} ): ReactJSXElement => {
+const Auth = ({ children } : { children: any } ): ReactJSXElement => {
     const { status } = useSession({ required: false })
 
-    console.log(status)
-
-    if (status !== "loading") {
-        setLoaded(true)
+    if (status === "loading") {
+        return <></>
     }
 
     return (children)

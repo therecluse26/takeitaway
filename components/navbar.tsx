@@ -89,16 +89,18 @@ export default function HeaderTabs({ links }: HeaderTabsProps) {
 
     const items = links.map((link) => {
         const menuItems = link.links?.map((item) => (
-          <Menu.Item key={item.link}>{item.label}</Menu.Item>
+          <Menu.Item key={item.link}>
+            <Link key={item.label} href={item.link} className={classes.link}>
+              {item.label}
+            </Link>
+          </Menu.Item>
         ));
     
         if (menuItems) {
           return (
             <Menu key={link.label} trigger="hover" exitTransitionDuration={0}>
               <Menu.Target>
-                <Link href={link.link}
-                  className={classes.link}
-                >
+                <Link key={link.label} href={link.link} className={classes.link}>
                   <Center>
                     <span className={classes.linkLabel}>{link.label}</span>
                     <IconChevronDown size={12} stroke={1.5} />
@@ -111,11 +113,7 @@ export default function HeaderTabs({ links }: HeaderTabsProps) {
         }
     
         return (
-          <Link
-            key={link.label}
-            href={link.link}
-            className={classes.link}
-          >
+          <Link key={link.label} href={link.link} className={classes.link}>
             {link.label}
           </Link>
         );

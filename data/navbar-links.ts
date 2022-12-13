@@ -1,28 +1,19 @@
-const NavBarLinks = [
+import { User } from "next-auth";
+import { userCan } from "../lib/services/PermissionService";
+
+const defaultNavBarLinks = [
     {
         "link": "/test",
         "label": "Test"
     },
     {
-        "link": "#1",
+        "link": "#",
         "label": "Learn",
         "links": [
             {
                 "link": "/test",
                 "label": "Test"
             },
-            {
-                "link": "/resources",
-                "label": "Resources"
-            },
-            {
-                "link": "/community",
-                "label": "Community"
-            },
-            {
-                "link": "/blog",
-                "label": "Blog"
-            }
         ]
     },
     {
@@ -34,7 +25,7 @@ const NavBarLinks = [
         "label": "Pricing"
     },
     {
-        "link": "#2",
+        "link": "#",
         "label": "Support",
         "links": [
             {
@@ -51,6 +42,45 @@ const NavBarLinks = [
             }
         ]
     }
-]
+];
 
-export default NavBarLinks;
+let restrictedLinks = [
+    {
+        "permission": "users:read",
+        "link": "/admin/users",
+        "label": "Users"
+    }
+];
+
+function buildNavbarLinks(user?: User) {
+    
+    let links = defaultNavBarLinks;
+
+    if(!user){
+        return links;
+    }
+
+    // Build navbar links that require user permissions
+    let permissionLinks = [];
+
+    for( let i = 0; i < restrictedLinks.length; i++ ){
+
+        if(userCan(user, restrictedLinks[i].permission)){
+
+            permissionLinks.push(restrictedLinks[i]);
+        }
+    }
+
+    // Appends allowed permission links to navbar
+    if(permissionLinks.length > 0){
+        links.push({
+            "link": "#",
+            "label": "Admin",
+            "links": permissionLinks
+        })
+    }
+    
+    return links;
+}
+
+export {defaultNavBarLinks, buildNavbarLinks};

@@ -30,6 +30,15 @@ async function sessionUserCan(permission: string): Promise<boolean> {
     }
 }
 
+function userCan(user: User, permission: string): boolean {
+    return can(
+        getUserRole(user),
+        permission
+    )
+
+    return false;
+}
+
 // Checks if a given role can perform a given action by permission
 function can(role: TRole, permission: string): boolean {
     return getRolePermissions(
@@ -37,4 +46,4 @@ function can(role: TRole, permission: string): boolean {
     ).includes(permission);
 }
 
-export { can, sessionUserCan, getRoleByName, getRolePermissions };
+export { can, sessionUserCan, getRoleByName, getRolePermissions, userCan };
