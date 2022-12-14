@@ -134,6 +134,7 @@ export default function HeaderTabs({ links }: HeaderTabsProps) {
                     </Group>
 
                     <UserButton classes={classes} theme={theme} cx={cx} />
+                    
                 </Group>
             </Container>
            

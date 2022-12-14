@@ -44,7 +44,7 @@ const defaultNavBarLinks = [
     }
 ];
 
-let restrictedLinks = [
+const restrictedLinks = [
     {
         "permission": "users:read",
         "link": "/admin/users",
@@ -53,21 +53,19 @@ let restrictedLinks = [
 ];
 
 function buildNavbarLinks(user?: User) {
-    
-    let links = defaultNavBarLinks;
 
     if(!user){
-        return links;
+        return defaultNavBarLinks;
     }
+
+    let links = defaultNavBarLinks;
 
     // Build navbar links that require user permissions
     let permissionLinks = [];
 
-    for( let i = 0; i < restrictedLinks.length; i++ ){
-
-        if(userCan(user, restrictedLinks[i].permission)){
-
-            permissionLinks.push(restrictedLinks[i]);
+    for(const restrictedLink of restrictedLinks){
+        if(userCan(user, restrictedLink.permission)){
+            permissionLinks.push(restrictedLink);
         }
     }
 

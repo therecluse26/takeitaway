@@ -35,8 +35,6 @@ function userCan(user: User, permission: string): boolean {
         getUserRole(user),
         permission
     )
-
-    return false;
 }
 
 // Checks if a given role can perform a given action by permission

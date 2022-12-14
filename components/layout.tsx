@@ -8,13 +8,18 @@ import React from 'react';
 const Layout = ({ children }) => {
     const { data: session, status } = useSession()
     const [links, setLinks] = useState(defaultNavBarLinks);
+    const [linksHaveBeenBuilt, setLinksHaveBeenBuilt] = useState(false);
 
     useEffect(()=>{
-        setLinks(
-            buildNavbarLinks(session?.user)
-        )
-    }, [status, session])
-    
+        if(!linksHaveBeenBuilt){
+            setLinks(
+                buildNavbarLinks(session?.user)
+            )
+            setLinksHaveBeenBuilt(true);
+        }        
+       
+    }, [status, session, linksHaveBeenBuilt])
+   
     return (
         <>
             <Navbar links={links} />
@@ -24,4 +29,4 @@ const Layout = ({ children }) => {
     )
 }
 
-export default React.memo(Layout)
+export default Layout

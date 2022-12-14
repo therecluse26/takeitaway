@@ -5,3 +5,13 @@ export default function Account() {
     </div>
   )
 }
+
+export async function getStaticProps() {
+  return {
+    props: {
+      authorization: {
+        requiresSession: true,
+      }
+    },
+  }
+}
