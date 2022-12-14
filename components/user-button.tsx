@@ -3,8 +3,9 @@ import { useSession, signIn, signOut } from "next-auth/react"
 import { Avatar, Group, Menu, UnstyledButton, Text, Loader } from "@mantine/core";
 import { IconChevronDown, IconSettings, IconLogout, IconUser } from "@tabler/icons";
 import Link from "next/link";
+import { userCan } from "../lib/services/PermissionService";
 
-export default function UserButton({ classes, theme, cx }) {
+export default function UserButton({ classes, cx }) {
     const { data: session, status } = useSession()
     const user = session?.user;
 
@@ -47,11 +48,15 @@ export default function UserButton({ classes, theme, cx }) {
                 
                 <Menu.Dropdown>
 
-                    <Menu.Item component={Link} href={"/admin/users"} icon={<IconUser size={14} stroke={1.5} />}>
-                        Manage Users
-                    </Menu.Item>
-                
-                    <Menu.Divider />
+                    { userCan(user, "users:read") &&
+                        <>
+                            <Menu.Item component={Link} href={"/admin/users"} icon={<IconUser size={14} stroke={1.5} />}>
+                                Manage Users
+                            </Menu.Item>
+                        
+                            <Menu.Divider /> 
+                        </> 
+                    }
 
                     <Menu.Item component={Link} href={"/account"} icon={<IconSettings size={14} stroke={1.5} />}>Account settings</Menu.Item>
 
