@@ -124,7 +124,7 @@ export default function HeaderTabs({ links }: HeaderTabsProps) {
                 <Group position="apart">
 
                     <Link href={"/"}>
-                        <Image src={"/logo-small.png"} alt={"logo"} height={50} width={"auto"} />
+                        <Image src={"/logo-small.png"} alt={"logo"} height={52} width={120} />
                     </Link>
 
                     <Burger opened={opened} onClick={toggle} className={classes.burger} size="sm" />

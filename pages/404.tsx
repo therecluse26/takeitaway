@@ -1,7 +1,12 @@
-import { Title, Text, Container, Group } from '@mantine/core';
 import errorStyles from '../styles/errors/error-styles';
 import { HomeButton } from '../components/errors/take-me-home-button';
 import { errorMessages }  from '../data/messaging';
+
+import dynamic from 'next/dynamic';
+const Title = dynamic(() => import('@mantine/core').then((mod) => mod.Title))
+const Text = dynamic(() => import('@mantine/core').then((mod) => mod.Text))
+const Container = dynamic(() => import('@mantine/core').then((mod) => mod.Container))
+const Group = dynamic(() => import('@mantine/core').then((mod) => mod.Group))
 
 export default function NotFoundPage() {
   const { classes } = errorStyles();

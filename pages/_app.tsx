@@ -1,10 +1,13 @@
-import React, { FC, useCallback, useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { SessionProvider, useSession } from "next-auth/react"
 import { ColorScheme, ColorSchemeProvider, MantineProvider } from '@mantine/core';
-import Layout from '../components/layout';
-import AppSkeleton from '../components/app-skeleton';
 import { ReactJSXElement } from "@emotion/react/types/jsx-namespace";
-import { GuardContent } from "../components/auth-guard";
+import dynamic from "next/dynamic";
+
+// Dynamic imports
+const Layout = dynamic(() => import('../components/layout'))
+const GuardContent = dynamic(() => import('../components/auth-guard'))
+const AppSkeleton = dynamic(() => import('../components/app-skeleton'))
 
 export default function App({
     Component,

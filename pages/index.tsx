@@ -1,4 +1,3 @@
-export default function Index(): JSX.Element {
-  return (<>
-  </>)
+export default function HomePage () {
+    return <h1>Homepage</h1>
 }

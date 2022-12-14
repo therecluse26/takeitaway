@@ -28,6 +28,108 @@ model Account {
     @@unique([provider, providerAccountId])
 }
 
+model Address {
+    id        String @id @default(cuid())
+    userId    String
+    street    String
+    city      String
+    state     String
+    zip       String
+    country   String
+    latitude  Float?
+    longitude Float?
+
+    user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+    ServiceLog     ServiceLog[]
+    ServiceRequest ServiceRequest[]
+}
+
+// A billing cycle is a period of time for which a user is billed
+model BillingCycle {
+    id             String   @id @default(cuid())
+    userId         String
+    subscriptionId String
+    startDate      DateTime
+    endDate        DateTime
+    amount         Float
+    paid           Boolean  @default(false)
+
+    user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+    ServiceLog     ServiceLog[]
+    Payment        Payment[]
+    ServiceRequest ServiceRequest[]
+    Subscription   Subscription[]
+}
+
+// A payment made by a user and applied to a billing cycle
+model Payment {
+    id             String   @id @default(cuid())
+    userId         String
+    billingCycleId String
+    amount         Float
+    paid           Boolean  @default(false)
+    createdAt      DateTime @default(now())
+    updatedAt      DateTime @updatedAt
+    deleted        Boolean  @default(false)
+
+    user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+    billingCycle BillingCycle @relation(fields: [billingCycleId], references: [id], onDelete: Cascade)
+}
+
+// A service is this app's equivalent of a product
+model Service {
+    id             String           @id @default(cuid())
+    type           ServiceType      @default(recurring)
+    name           String
+    description    String
+    price          Float
+    perCycle       Int?             @default(1)
+    createdAt      DateTime         @default(now())
+    updatedAt      DateTime         @updatedAt
+    deleted        Boolean          @default(false)
+    ServiceLog     ServiceLog[]
+    ServiceRequest ServiceRequest[]
+    Subscription   Subscription[]
+}
+
+// A service request is a request for a service to be performed at a specific address
+model ServiceRequest {
+    id             String   @id @default(cuid())
+    serviceId      String
+    billingCycleId String
+    addressId      String
+    requestDate    DateTime
+
+    instructions String?
+
+    completed Boolean  @default(false)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    deleted   Boolean  @default(false)
+
+    service      Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+    billingCycle BillingCycle @relation(fields: [billingCycleId], references: [id], onDelete: Cascade)
+    address      Address      @relation(fields: [addressId], references: [id], onDelete: Cascade)
+}
+
+model ServiceLog {
+    id             String   @id @default(cuid())
+    serviceId      String
+    billingCycleId String
+    addressId      String
+    notes          String?
+    photo          String?
+    completed      Boolean  @default(false)
+    notified       Boolean  @default(false)
+    createdAt      DateTime @default(now())
+    updatedAt      DateTime @updatedAt
+    deleted        Boolean  @default(false)
+
+    service      Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+    billingCycle BillingCycle @relation(fields: [billingCycleId], references: [id], onDelete: Cascade)
+    address      Address      @relation(fields: [addressId], references: [id], onDelete: Cascade)
+}
+
 model Session {
     id           String   @id @default(cuid())
     sessionToken String   @unique
@@ -36,17 +138,37 @@ model Session {
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model Subscription {
+    id        String  @id @default(cuid())
+    userId    String
+    serviceId String
+    active    Boolean @default(true)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    deleted   Boolean  @default(false)
+
+    user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    service        Service       @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+    BillingCycle   BillingCycle? @relation(fields: [billingCycleId], references: [id])
+    billingCycleId String?
+}
+
 model User {
-    id            String    @id @default(cuid())
+    id            String         @id @default(cuid())
     name          String?
-    email         String?   @unique
+    email         String?        @unique
     emailVerified DateTime?
     image         String?
-    role          RoleEnum  @default(subscriber)
+    role          RoleEnum       @default(subscriber)
     accounts      Account[]
     sessions      Session[]
-    createdAt     DateTime  @default(now())
-    deleted       Boolean   @default(false)
+    createdAt     DateTime       @default(now())
+    deleted       Boolean        @default(false)
+    Address       Address[]
+    BillingCycle  BillingCycle[]
+    Payment       Payment[]
+    Subscription  Subscription[]
 }
 
 model VerificationToken {
@@ -55,6 +177,12 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+enum ServiceType {
+    recurring
+    oneTime
+    addOn
 }
 
 enum RoleEnum {

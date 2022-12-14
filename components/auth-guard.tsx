@@ -19,4 +19,4 @@ const GuardContent = ({children, authorization}): ReactJSXElement => {
     return children;
 };
 
-export { GuardContent }
+export default GuardContent

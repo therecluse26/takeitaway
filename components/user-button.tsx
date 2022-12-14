@@ -5,7 +5,7 @@ import { IconChevronDown, IconSettings, IconLogout, IconUser } from "@tabler/ico
 import Link from "next/link";
 import { userCan } from "../lib/services/PermissionService";
 
-export default function UserButton({ classes, cx }) {
+export default function UserButton({ classes, theme, cx }) {
     const { data: session, status } = useSession()
     const user = session?.user;
 
