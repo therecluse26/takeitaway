@@ -88,7 +88,7 @@ export default function HeaderTabs({ links }: HeaderTabsProps) {
     const [opened, { toggle }] = useDisclosure(false);
 
     const items = links.map((link) => {
-        const menuItems = link.links?.map((item) => (
+        const menuItems = link.links?.map((item: any) => (
           <Menu.Item key={item.link}>
             <Link key={item.label} href={item.link} className={classes.link}>
               {item.label}

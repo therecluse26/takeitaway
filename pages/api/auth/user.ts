@@ -1,3 +1,5 @@
+// User API
+
 
 import { Session } from "next-auth";
 import { getSession } from "next-auth/react";
@@ -9,7 +11,7 @@ export default async function user(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
-    const session: Session = await getSession({ req });
+    const session: Session | null = await getSession({ req });
 
     if (session) {
         res.status(200).json(session.user);

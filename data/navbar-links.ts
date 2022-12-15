@@ -1,7 +1,7 @@
 import { User } from "next-auth";
 import { userCan } from "../lib/services/PermissionService";
 
-const defaultNavBarLinks = [
+const defaultNavBarLinks: Array<any> = [
     {
         "link": "/test",
         "label": "Test"
@@ -46,7 +46,7 @@ const defaultNavBarLinks = [
 
 const restrictedLinks = [
     {
-        "permission": "users:read",
+        "permissions": ["users:read"],
         "link": "/admin/users",
         "label": "Users"
     }
@@ -64,7 +64,7 @@ function buildNavbarLinks(user?: User) {
     let permissionLinks = [];
 
     for(const restrictedLink of restrictedLinks){
-        if(userCan(user, restrictedLink.permission)){
+        if(userCan(user, restrictedLink.permissions)){
             permissionLinks.push(restrictedLink);
         }
     }
@@ -72,7 +72,8 @@ function buildNavbarLinks(user?: User) {
     // Appends allowed permission links to navbar
     if(permissionLinks.length > 0){
         links.push({
-            "link": "#",
+            "permissions": ["admin:dashboard"],
+            "link": "/admin",
             "label": "Admin",
             "links": permissionLinks
         })

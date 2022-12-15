@@ -1,10 +1,11 @@
 import errorStyles from '../styles/errors/error-styles';
 import { HomeButton } from '../components/errors/take-me-home-button';
 import { errorMessages } from '../data/messaging';
+import { JSXElementConstructor } from 'react';
 
 import dynamic from 'next/dynamic';
 const Title = dynamic(() => import('@mantine/core').then((mod) => mod.Title))
-const Text = dynamic(() => import('@mantine/core').then((mod) => mod.Text))
+const Text = dynamic(() => import('@mantine/core').then((mod) => mod.Text as JSXElementConstructor<any>))
 const Container = dynamic(() => import('@mantine/core').then((mod) => mod.Container))
 const Group = dynamic(() => import('@mantine/core').then((mod) => mod.Group))
 

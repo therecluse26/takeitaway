@@ -2,17 +2,15 @@ import React, { useEffect, useState } from "react"
 import { SessionProvider, useSession } from "next-auth/react"
 import { ColorScheme, ColorSchemeProvider, MantineProvider } from '@mantine/core';
 import { ReactJSXElement } from "@emotion/react/types/jsx-namespace";
-import dynamic from "next/dynamic";
+import GuardContent from "../components/auth-guard";
 
 // Dynamic imports
+import dynamic from "next/dynamic";
 const Layout = dynamic(() => import('../components/layout'))
-const GuardContent = dynamic(() => import('../components/auth-guard'))
 const AppSkeleton = dynamic(() => import('../components/app-skeleton'))
 
-export default function App({
-    Component,
-    pageProps: { session, ...pageProps },
-}) {
+export default function App({Component, pageProps: { session, ...pageProps }}: {Component: any, pageProps: any}): ReactJSXElement
+{
     const [hasMounted, setHasMounted] = useState(false)
     const [colorScheme, setColorScheme] = useState<ColorScheme>('light');
     const toggleColorScheme = (value?: ColorScheme) =>
@@ -54,7 +52,7 @@ export default function App({
         </div > )
 }
 
-const Authenticated = ({ children } ): ReactJSXElement => {
+const Authenticated = ({ children } : { children: any} ): ReactJSXElement => {
     const { status } = useSession({ required: false })
 
     if (status === "loading") {

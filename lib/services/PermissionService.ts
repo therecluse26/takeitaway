@@ -9,7 +9,7 @@ function getRolePermissions(role: TRole): string[] {
 
 // Gets role type by name
 function getRoleByName(name: string): TRole {
-    return Roles.find((r) => r.name === name);
+    return Roles.find((r) => r.name === name) ?? {name: "Unknown", description: "Unknown"};
 }
 
 // Get a user's role
@@ -17,12 +17,29 @@ function getUserRole(user: User): TRole {
     return getRoleByName(user.role);
 }
 
+// Checks if a given role can perform a given action by permission
+function can(role: TRole, permissions: string|string[]): boolean {
+    if(typeof permissions === "string"){
+        permissions = [permissions];
+    }
+    const rolePermissions = getRolePermissions(role);
+    return permissions.every((p) => {
+        return rolePermissions.includes(p);
+    });
+}
+
 // Checks if current session user can perform a given action by permission
 async function sessionUserCan(permission: string): Promise<boolean> {
     try {
+        const session = await getSession();
+        
+        if(!session){
+            return false;
+        } 
+
         return can(
             getUserRole(
-                await getSession().then(s => s.user)
+                session.user
             ),
             permission)
     } catch (e) {
@@ -30,18 +47,13 @@ async function sessionUserCan(permission: string): Promise<boolean> {
     }
 }
 
-function userCan(user: User, permission: string): boolean {
-    return can(
-        getUserRole(user),
-        permission
-    )
+// Checks if user can perform a given action by permission list
+function userCan(user: User, permissions: string[]): boolean {    
+    if( !can(getUserRole(user), permissions )){
+        return false
+    }
+    return true
 }
 
-// Checks if a given role can perform a given action by permission
-function can(role: TRole, permission: string): boolean {
-    return getRolePermissions(
-        role
-    ).includes(permission);
-}
 
-export { can, sessionUserCan, getRoleByName, getRolePermissions, userCan };
+export { can, getRoleByName, getRolePermissions, userCan }

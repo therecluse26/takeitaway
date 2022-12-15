@@ -11,7 +11,7 @@ export async function getStaticProps() {
       props: {
         authorization: {
           requiresSession: true,
-          requiredPermission: 'users:read'
+          requiredPermissions: ['users:read']
         }
       },
     }

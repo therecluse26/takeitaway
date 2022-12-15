@@ -1,11 +1,11 @@
 import React, { useState } from "react"
 import { useSession, signIn, signOut } from "next-auth/react"
-import { Avatar, Group, Menu, UnstyledButton, Text, Loader } from "@mantine/core";
+import { Avatar, Group, Menu, UnstyledButton, Text, Loader, MantineTheme, ClassNames } from "@mantine/core";
 import { IconChevronDown, IconSettings, IconLogout, IconUser } from "@tabler/icons";
 import Link from "next/link";
 import { userCan } from "../lib/services/PermissionService";
 
-export default function UserButton({ classes, theme, cx }) {
+export default function UserButton({ classes, theme, cx }: { classes: any, theme: MantineTheme, cx: CallableFunction }) {
     const { data: session, status } = useSession()
     const user = session?.user;
 
@@ -32,7 +32,7 @@ export default function UserButton({ classes, theme, cx }) {
                     >
                         <Group spacing={7}>
 
-                            <Avatar src={user.image} alt={user.name} radius="xl" size={20} />
+                            <Avatar src={user.image} alt={user.name ?? 'User Avatar'} radius="xl" size={20} />
                             
                             <Text weight={500} size="sm" sx={{ lineHeight: 1 }} mr={3}>
                                 {user.name ?? user.email}
@@ -48,7 +48,7 @@ export default function UserButton({ classes, theme, cx }) {
                 
                 <Menu.Dropdown>
 
-                    { userCan(user, "users:read") &&
+                    { userCan(user, ["users:read"]) &&
                         <>
                             <Menu.Item component={Link} href={"/admin/users"} icon={<IconUser size={14} stroke={1.5} />}>
                                 Manage Users

@@ -1,4 +1,4 @@
-import NextAuth, { Account, NextAuthOptions, User } from "next-auth"
+import NextAuth, { Account, NextAuthOptions, Profile, User } from "next-auth"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import prisma from "../../../lib/prismadb"
 
@@ -13,6 +13,7 @@ import Auth0Provider from "next-auth/providers/auth0";
 
 // Custom services
 import { getUserCount } from "../../../lib/services/UserService"
+import { AdapterUser } from "next-auth/adapters";
 
 function buildProviders(){
     const providers = []
@@ -54,7 +55,7 @@ function buildProviders(){
         process.env.FaceBOOK_CLIENT_SECRET ){
             FacebookProvider({
                 clientId: process.env.FACEBOOK_CLIENT_ID,
-                clientSecret: process.env.FACEBOOK_CLIENT_SECRET
+                clientSecret: process.env.FACEBOOK_CLIENT_SECRET ?? ""
               })
         }
         
@@ -124,9 +125,9 @@ export const authOptions: NextAuthOptions = {
         buttonText: "" // Hex color code
     },
     callbacks: {
-        async signIn({ user, account, profile }: { user: User, account: Account, profile: any }) {
-            if (account.provider === "google") {
-                return !!profile.email_verified;
+        async signIn({ user, account, profile }: { user: User|AdapterUser, account: Account|null, profile?: Profile }) {
+            if (account?.provider === "google") {
+                return !!profile?.email_verified;
             }
 
             // Set first user to superadmin if only one user exists
