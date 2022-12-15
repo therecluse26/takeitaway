@@ -17,6 +17,20 @@ const errorMessages = {
             title: "Server error",
             description: "The server encountered an error and could not complete your request."
         },
+    },
+    api: {
+        unauthorized: {
+            code: 403,
+            message: "You are not authorized to perform this action",
+        },
+        notFound: {
+            code: 404,
+            message: "The requested resource was not found"
+        },
+        serverError: {
+            code: 500,
+            message: "The server encountered an error and could not complete your request."
+        },
     }
 }
 

@@ -6,13 +6,15 @@ import GuardContent from "../components/auth-guard";
 
 // Dynamic imports
 import dynamic from "next/dynamic";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const Layout = dynamic(() => import('../components/layout'))
 const AppSkeleton = dynamic(() => import('../components/app-skeleton'))
+const queryClient = new QueryClient()
 
 export default function App({Component, pageProps: { session, ...pageProps }}: {Component: any, pageProps: any}): ReactJSXElement
 {
     const [hasMounted, setHasMounted] = useState(false)
-    const [colorScheme, setColorScheme] = useState<ColorScheme>('light');
+    const [colorScheme, setColorScheme] = useState<ColorScheme>('dark');
     const toggleColorScheme = (value?: ColorScheme) =>
       setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
    
@@ -26,29 +28,32 @@ export default function App({Component, pageProps: { session, ...pageProps }}: {
 
     return ( 
         <div suppressHydrationWarning>
-            <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
-                <MantineProvider
-                    withGlobalStyles
-                    withNormalizeCSS
-                    theme={{
-                        /** Put your mantine theme override here */
-                        colorScheme: colorScheme,
-                    }}
-                >
-                    <SessionProvider session={session}>
-                        <Authenticated>
-                            {hasMounted ?
-                                <Layout>
-                                    <GuardContent authorization={pageProps.authorization}>
-                                        <Component {...pageProps} />
-                                    </GuardContent>
-                                </Layout> : 
-                                <AppSkeleton />}
-                        </Authenticated>
-                    </SessionProvider>
-                
-                </MantineProvider>
-                </ColorSchemeProvider>
+            <QueryClientProvider client={queryClient}>
+
+                <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
+                    <MantineProvider
+                        withGlobalStyles
+                        withNormalizeCSS
+                        theme={{
+                            /** Put your mantine theme override here */
+                            colorScheme: colorScheme,
+                        }}
+                    >
+                        <SessionProvider session={session}>
+                            <Authenticated>
+                                {hasMounted ?
+                                    <Layout>
+                                        <GuardContent authorization={pageProps.authorization}>
+                                            <Component {...pageProps} />
+                                        </GuardContent>
+                                    </Layout> : 
+                                    <AppSkeleton />}
+                            </Authenticated>
+                        </SessionProvider>
+                    
+                    </MantineProvider>
+                    </ColorSchemeProvider>
+            </QueryClientProvider>
         </div > )
 }
 

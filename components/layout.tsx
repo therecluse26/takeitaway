@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import {defaultNavBarLinks, buildNavbarLinks} from '../data/navbar-links';
 import { ReactElement, useEffect, useState } from 'react';
 import React from 'react';
+import { Container } from '@mantine/core';
 
 const Layout = ({ children } : { children: ReactElement<any> }) => {
     const { data: session, status } = useSession()
@@ -23,7 +24,11 @@ const Layout = ({ children } : { children: ReactElement<any> }) => {
     return (
         <>
             <Navbar links={links} />
-            <main> {children} </main>
+                <main> 
+                    <Container> 
+                        {children} 
+                    </Container>
+                </main>
             <Footer />
         </>
     )

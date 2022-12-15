@@ -12,8 +12,13 @@ import LinkedInProvider from "next-auth/providers/linkedin";
 import Auth0Provider from "next-auth/providers/auth0";
 
 // Custom services
-import { getUserCount } from "../../../lib/services/UserService"
 import { AdapterUser } from "next-auth/adapters";
+
+async function getUserCount(): Promise<number> {
+    return await prisma.user.count().finally(() => {
+        prisma.$disconnect();
+    });
+}
 
 function buildProviders(){
     const providers = []
@@ -145,8 +150,12 @@ export const authOptions: NextAuthOptions = {
                 session.user.role = user.role;
             }
             return session;
-        }
+        },
     },
+    session: {
+       // Seconds - How long until an idle session expires and is no longer valid.
+        maxAge: 30 * 24 * 60 * 60, // 30 days    
+      }
 }
 
 export default NextAuth(authOptions)
