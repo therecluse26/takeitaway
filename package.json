@@ -7,6 +7,7 @@
     "start": "next start",
     "docker-up": "docker compose up -d",
     "docker-down": "docker compose down",
+    "prisma-generate": "npx prisma generate",
     "db-migrate": "npx prisma migrate dev --skip-seed",
     "db-reset": "npx prisma migrate reset --skip-seed && npx prisma db push && npx prisma db seed",
     "db-push": "npx prisma db push --skip-generate",

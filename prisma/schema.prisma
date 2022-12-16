@@ -193,10 +193,3 @@ enum RoleEnum {
     admin
     superadmin
 }
-
-generator trpc {
-    provider       = "prisma-trpc-generator"
-    withMiddleware = false
-    withShield     = false
-    contextPath    = "../../../../src/context"
-}
