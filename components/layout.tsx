@@ -1,15 +1,37 @@
-// components/layout.js
-
 import Navbar from './navbar'
 import Footer from './footer'
-import NavBarLinks from '../data/navbar-links';
+import { useSession } from "next-auth/react";
+import {defaultNavBarLinks, buildNavbarLinks} from '../data/navbar-links';
+import { ReactElement, useEffect, useState } from 'react';
+import React from 'react';
+import { Container } from '@mantine/core';
 
-export default function Layout({ children, user }) {
+const Layout = ({ children } : { children: ReactElement<any> }) => {
+    const { data: session, status } = useSession()
+    const [links, setLinks] = useState(defaultNavBarLinks);
+    const [linksHaveBeenBuilt, setLinksHaveBeenBuilt] = useState(false);
+
+    useEffect(()=>{
+        if(!linksHaveBeenBuilt){
+            setLinks(
+                buildNavbarLinks(session?.user)
+            )
+            setLinksHaveBeenBuilt(true);
+        }        
+       
+    }, [status, session, linksHaveBeenBuilt])
+   
     return (
         <>
-            <Navbar links={NavBarLinks} user={user} />
-            <main> {children} </main>
+            <Navbar links={links} />
+                <main> 
+                    <Container fluid={true}> 
+                        {children} 
+                    </Container>
+                </main>
             <Footer />
         </>
     )
 }
+
+export default Layout

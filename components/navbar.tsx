@@ -1,32 +1,19 @@
-import { useState } from 'react';
 import {
     createStyles,
     Container,
-    Avatar,
-    UnstyledButton,
     Group,
-    Text,
     Menu,
-    Tabs,
     Burger,
-    Button,
     Center,
+    Image,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import {
-    IconLogout,
-    IconHeart,
-    IconStar,
-    IconMessage,
-    IconSettings,
-    IconPlayerPause,
-    IconTrash,
-    IconSwitchHorizontal,
     IconChevronDown,
 } from '@tabler/icons';
-import { MantineLogo } from '@mantine/ds';
-import { useSession } from 'next-auth/react';
-import LoginBtn from './login-btn';
+
+import UserButton from './user-button';
+import Link from 'next/link';
 
 const useStyles = createStyles((theme) => ({
     header: {
@@ -34,7 +21,7 @@ const useStyles = createStyles((theme) => ({
         backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
         borderBottom: `1px solid ${theme.colorScheme === 'dark' ? 'transparent' : theme.colors.gray[2]
             }`,
-        marginBottom: 120,
+        marginBottom: 40,
     },
 
     mainSection: {
@@ -93,33 +80,32 @@ const useStyles = createStyles((theme) => ({
 }));
 
 interface HeaderTabsProps {
-    user: { name: string; image: string };
     links: any[];
 }
 
 export default function HeaderTabs({ links }: HeaderTabsProps) {
-    const { classes, theme, cx } = useStyles();
+    const { classes, cx } = useStyles();
     const [opened, { toggle }] = useDisclosure(false);
 
     const items = links.map((link) => {
-        const menuItems = link.links?.map((item) => (
-          <Menu.Item key={item.link}>{item.label}</Menu.Item>
+        const menuItems = link.links?.map((item: any) => (
+          <Menu.Item key={item.link}>
+            <Link key={item.label} href={item.link} className={classes.link}>
+              {item.label}
+            </Link>
+          </Menu.Item>
         ));
     
         if (menuItems) {
           return (
             <Menu key={link.label} trigger="hover" exitTransitionDuration={0}>
               <Menu.Target>
-                <a
-                  href={link.link}
-                  className={classes.link}
-                  onClick={(event) => event.preventDefault()}
-                >
+                <Link key={link.label} href={link.link} className={classes.link}>
                   <Center>
                     <span className={classes.linkLabel}>{link.label}</span>
                     <IconChevronDown size={12} stroke={1.5} />
                   </Center>
-                </a>
+                </Link>
               </Menu.Target>
               <Menu.Dropdown>{menuItems}</Menu.Dropdown>
             </Menu>
@@ -127,21 +113,19 @@ export default function HeaderTabs({ links }: HeaderTabsProps) {
         }
     
         return (
-          <a
-            key={link.label}
-            href={link.link}
-            className={classes.link}
-            onClick={(event) => event.preventDefault()}
-          >
+          <Link key={link.label} href={link.link} className={classes.link}>
             {link.label}
-          </a>
+          </Link>
         );
       });
     return (
         <div className={classes.header}>
             <Container className={classes.mainSection}>
                 <Group position="apart">
-                    <MantineLogo size={28} />
+
+                    <Link href={"/"}>
+                        <Image src={"/logo-small.png"} alt={"logo"} height={52} width={120} />
+                    </Link>
 
                     <Burger opened={opened} onClick={toggle} className={classes.burger} size="sm" />
 
@@ -149,7 +133,8 @@ export default function HeaderTabs({ links }: HeaderTabsProps) {
                         {items}
                     </Group>
 
-                    <LoginBtn classes={classes} theme={theme} cx={cx} />
+                    <UserButton classes={classes} cx={cx} />
+                    
                 </Group>
             </Container>
            

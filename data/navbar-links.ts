@@ -1,28 +1,20 @@
-const NavBarLinks = [
+
+import { User } from "next-auth/core/types";
+import { userCan } from "../lib/services/PermissionService";
+
+const defaultNavBarLinks: Array<any> = [
     {
-        "link": "/about",
-        "label": "Features"
+        "link": "/test",
+        "label": "Test"
     },
     {
-        "link": "#1",
+        "link": "#",
         "label": "Learn",
         "links": [
             {
-                "link": "/docs",
-                "label": "Documentation"
+                "link": "/test",
+                "label": "Test"
             },
-            {
-                "link": "/resources",
-                "label": "Resources"
-            },
-            {
-                "link": "/community",
-                "label": "Community"
-            },
-            {
-                "link": "/blog",
-                "label": "Blog"
-            }
         ]
     },
     {
@@ -34,7 +26,7 @@ const NavBarLinks = [
         "label": "Pricing"
     },
     {
-        "link": "#2",
+        "link": "#",
         "label": "Support",
         "links": [
             {
@@ -51,6 +43,44 @@ const NavBarLinks = [
             }
         ]
     }
-]
+];
 
-export default NavBarLinks;
+const restrictedLinks = [
+    {
+        "permissions": ["users:read"],
+        "link": "/admin/users",
+        "label": "Users"
+    }
+];
+
+function buildNavbarLinks(user?: User) {
+
+    if(!user){
+        return defaultNavBarLinks;
+    }
+
+    let links = defaultNavBarLinks;
+
+    // Build navbar links that require user permissions
+    let permissionLinks = [];
+
+    for(const restrictedLink of restrictedLinks){
+        if(userCan(user, restrictedLink.permissions)){
+            permissionLinks.push(restrictedLink);
+        }
+    }
+
+    // Appends allowed permission links to navbar
+    if(permissionLinks.length > 0){
+        links.push({
+            "permissions": ["admin:dashboard"],
+            "link": "/admin",
+            "label": "Admin",
+            "links": permissionLinks
+        })
+    }
+    
+    return links;
+}
+
+export {defaultNavBarLinks, buildNavbarLinks};

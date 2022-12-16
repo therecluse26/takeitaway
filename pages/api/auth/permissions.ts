@@ -1,12 +1,14 @@
+// Permissions API
+
 import { TRole } from "../../../data/permissions";
 import { getRoleByName, getRolePermissions } from "../../../lib/services/PermissionService";
 
 
-export function roleByName(name: string): TRole {
+export async function roleByName(name: string): Promise<TRole> {
     return getRoleByName(name);
 }
 
-export function rolePermissions(role: string): string[] {
+export async function rolePermissions(role: string): Promise<string[]> {
     return getRolePermissions(
         getRoleByName(role)
     );

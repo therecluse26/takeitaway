@@ -26,6 +26,14 @@ const Roles: TRole[] = [
 
 const Permissions: TPermission[] = [
     {
+        name: 'admin:dashboard',
+        description: 'View/Interact with admin dashboard'
+    },
+    {
+        name: 'app:config',
+        description: 'Configure application settings'
+    },
+    {
         name: 'users:permissions',
         description: 'Assign user roles and permissions'
     },
@@ -101,6 +109,7 @@ const RolePermissions: TRolePermission[] = [
 
     // Admin
     Permissions.filter(p =>
+        p.name === 'admin:dashboard' ||
         p.name === 'users:read' ||
         p.name === 'users:write' ||
         p.name === 'services:read' ||
