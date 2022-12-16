@@ -1,5 +1,5 @@
-import { Session, User } from "next-auth";
-import { getSession } from "next-auth/react";
+
+import { User } from "next-auth/core/types";
 import { Roles, RolePermissions, TRole } from "../../data/permissions";
 
 // Get all permissions for a given role

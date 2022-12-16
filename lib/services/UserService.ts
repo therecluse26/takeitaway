@@ -1,4 +1,3 @@
-import { User } from '@prisma/client'
 import { DataTableSortStatus } from 'mantine-datatable/dist/types/DataTableSortStatus';
 import axios from 'axios';
 

@@ -84,7 +84,7 @@ interface HeaderTabsProps {
 }
 
 export default function HeaderTabs({ links }: HeaderTabsProps) {
-    const { classes, theme, cx } = useStyles();
+    const { classes, cx } = useStyles();
     const [opened, { toggle }] = useDisclosure(false);
 
     const items = links.map((link) => {
@@ -133,7 +133,7 @@ export default function HeaderTabs({ links }: HeaderTabsProps) {
                         {items}
                     </Group>
 
-                    <UserButton classes={classes} theme={theme} cx={cx} />
+                    <UserButton classes={classes} cx={cx} />
                     
                 </Group>
             </Container>

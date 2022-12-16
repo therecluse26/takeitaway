@@ -5,6 +5,7 @@ import { NextApiRequest, NextApiResponse } from 'next/types';
 import { errorMessages } from '../../data/messaging';
 import { buildFindManyParams, buildPaginatedData } from '../../lib/services/DataTableService';
 import { userCan } from '../../lib/services/PermissionService';
+
 const prisma = new PrismaClient()
 
 export default async function getUsers(req: NextApiRequest, res: NextApiResponse)

@@ -1,4 +1,5 @@
-import { User } from "next-auth";
+
+import { User } from "next-auth/core/types";
 import { userCan } from "../lib/services/PermissionService";
 
 const defaultNavBarLinks: Array<any> = [

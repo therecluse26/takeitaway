@@ -20,11 +20,8 @@ export default function UserTable() {
   const { data, isFetching } = useQuery(
     ["users", sortStatus.columnAccessor, sortStatus.direction, page],
     async () => getUsers({ recordsPerPage: PAGE_SIZE, page, sortStatus, cursor: cursor }),
-    { refetchOnWindowFocus: false, onSuccess: (d) => {setCursor(d.cursor)}, onError: (e) => {setCursor(null)}}
+    { refetchOnWindowFocus: false, onSuccess: (d) => {setCursor(d.cursor)}, onError: () => {setCursor(null)}}
   );
-
-  console.log(data);
-
 
   const {
     breakpoints: { xs: xsBreakpoint },

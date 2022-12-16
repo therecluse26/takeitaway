@@ -1,5 +1,4 @@
 // User API
-
 import {Session} from "next-auth/core/types";
 import { getSession } from "next-auth/react";
 import { NextApiRequest, NextApiResponse } from "next/types";

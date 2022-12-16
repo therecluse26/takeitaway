@@ -17,4 +17,4 @@ export default function GuardContent({children, authorization} : {children: Reac
     }
     
     return children;
-};
+}
