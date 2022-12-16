@@ -1,4 +1,4 @@
-import { User } from "next-auth";
+import { Session, User } from "next-auth";
 import { getSession } from "next-auth/react";
 import { Roles, RolePermissions, TRole } from "../../data/permissions";
 
@@ -28,32 +28,18 @@ function can(role: TRole, permissions: string|string[]): boolean {
     });
 }
 
-// Checks if current session user can perform a given action by permission
-async function sessionUserCan(permission: string): Promise<boolean> {
-    try {
-        const session = await getSession();
-        
-        if(!session){
-            return false;
-        } 
-
-        return can(
-            getUserRole(
-                session.user
-            ),
-            permission)
-    } catch (e) {
-        return false
-    }
-}
 
 // Checks if user can perform a given action by permission list
-function userCan(user: User, permissions: string[]): boolean {    
+function userCan(user: User|null|undefined, permissions: string|string[]): boolean {
+
+    if(!user){
+        return false;
+    }
+
     if( !can(getUserRole(user), permissions )){
         return false
     }
     return true
 }
-
 
 export { can, getRoleByName, getRolePermissions, userCan }

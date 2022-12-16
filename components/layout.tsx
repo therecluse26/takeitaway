@@ -25,7 +25,7 @@ const Layout = ({ children } : { children: ReactElement<any> }) => {
         <>
             <Navbar links={links} />
                 <main> 
-                    <Container> 
+                    <Container fluid={true}> 
                         {children} 
                     </Container>
                 </main>

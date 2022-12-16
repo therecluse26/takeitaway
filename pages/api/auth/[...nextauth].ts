@@ -15,9 +15,7 @@ import Auth0Provider from "next-auth/providers/auth0";
 import { AdapterUser } from "next-auth/adapters";
 
 async function getUserCount(): Promise<number> {
-    return await prisma.user.count().finally(() => {
-        prisma.$disconnect();
-    });
+    return await prisma.user.count();
 }
 
 function buildProviders(){
@@ -131,17 +129,16 @@ export const authOptions: NextAuthOptions = {
     },
     callbacks: {
         async signIn({ user, account, profile }: { user: User|AdapterUser, account: Account|null, profile?: Profile }) {
-            if (account?.provider === "google") {
-                return !!profile?.email_verified;
-            }
-
             // Set first user to superadmin if only one user exists
             const userCount = await getUserCount();
             if (userCount === 1) {
-                user = await prisma.user.update({ where: { id: user.id }, data: { role: 'superadmin' } }).finally(() => {
-                    prisma.$disconnect();
-                });
+                user = await prisma.user.update({ where: { id: user.id }, data: { role: 'superadmin' } });
             }
+
+            if (account?.provider === "google") {
+                return !!profile?.email_verified;
+            }
+            
             return user.id ? true : false;
         },
         async session({ session, user }: { session: any, user: any }) {

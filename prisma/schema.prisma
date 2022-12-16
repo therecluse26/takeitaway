@@ -169,6 +169,8 @@ model User {
     BillingCycle  BillingCycle[]
     Payment       Payment[]
     Subscription  Subscription[]
+
+    @@index([id, name, email])
 }
 
 model VerificationToken {

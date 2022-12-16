@@ -9,7 +9,7 @@
     "docker-down": "docker compose down",
     "db-migrate": "npx prisma migrate dev --skip-seed",
     "db-reset": "npx prisma migrate reset --skip-seed && npx prisma db push && npx prisma db seed",
-    "db-push": "npx prisma db push",
+    "db-push": "npx prisma db push --skip-generate",
     "db-seed": "npx prisma db seed"
   },
   "dependencies": {
@@ -40,6 +40,7 @@
     "mantine-datatable": "^1.7.25",
     "next": "^13.0.6",
     "next-auth": "^4.18.0",
+    "node-cache": "^5.1.2",
     "nodemailer": "^6.8.0",
     "react": "18.2.0",
     "react-dom": "18.2.0"
@@ -48,7 +49,7 @@
     "@faker-js/faker": "^7.6.0",
     "@next/bundle-analyzer": "^13.0.6",
     "@tanstack/react-query-devtools": "^4.20.4",
-    "@types/node": "18.11.11",
+    "@types/node": "^18.11.11",
     "@types/react": "18.0.26",
     "eslint-config-next": "13.0.6",
     "eslint-config-prettier": "^8.5.0",
