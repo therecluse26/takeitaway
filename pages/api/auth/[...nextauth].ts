@@ -10,6 +10,7 @@ import EmailProvider from "next-auth/providers/email"
 import AzureADProvider from "next-auth/providers/azure-ad";
 import LinkedInProvider from "next-auth/providers/linkedin";
 import Auth0Provider from "next-auth/providers/auth0";
+import { log } from `next-axiom`;
 
 // Custom services
 import { AdapterUser } from "next-auth/adapters";
@@ -119,6 +120,17 @@ function buildProviders(){
 
 export const authOptions: NextAuthOptions = {
     debug: !!process.env.NEXTAUTH_DEBUG === true || process.env.NODE_ENV !== "production",
+    logger: {
+        error: (code, metadata) => {
+            if (!(metadata instanceof Error) &&  metadata.provider) {
+              // redact the provider secret here
+              delete metadata.provider
+              log.error(code, metadata)
+            } else {
+              log.error(code, metadata)
+            }
+        }
+    },
     adapter: PrismaAdapter(prisma),
     // Configure one or more authentication providers
     providers: buildProviders(),
