@@ -118,6 +118,7 @@ function buildProviders(){
 }
 
 export const authOptions: NextAuthOptions = {
+    debug: !!process.env.NEXTAUTH_DEBUG === true || process.env.NODE_ENV !== "production",
     adapter: PrismaAdapter(prisma),
     // Configure one or more authentication providers
     providers: buildProviders(),
