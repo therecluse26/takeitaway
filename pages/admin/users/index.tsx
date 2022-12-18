@@ -2,25 +2,27 @@ import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getUsers } from '../../../lib/services/UserService';
-import { useMantineTheme, Box, Center } from '@mantine/core';
+import { useMantineTheme, Box, Center, Grid, TextInput } from '@mantine/core';
 import { User } from '@prisma/client';
-import { useViewportSize } from '@mantine/hooks';
+import { useDebouncedValue, useViewportSize } from '@mantine/hooks';
+import { IconSearch } from '@tabler/icons';
 
 const PAGE_SIZE = 15;
 
 export default function UserTable() {
   const { height, width } = useViewportSize();
   const [page, setPage] = useState(1);
-  const [cursor, setCursor] = useState(null)
   const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({ columnAccessor: 'name', direction: 'asc' });
   const handleSortStatusChange = (status: DataTableSortStatus) => { setPage(1); setSortStatus(status); };
   const [selectedRecords, setSelectedRecords] = useState<User[]>([]);
+  const [search, setSearch] = useState({name: "", email: ""});
+  const [debouncedSearch] = useDebouncedValue(search, 500);
 
   // Users query
   const { data, isFetching } = useQuery(
-    ["users", sortStatus.columnAccessor, sortStatus.direction, page],
-    async () => getUsers({ recordsPerPage: PAGE_SIZE, page, sortStatus, cursor: cursor }),
-    { refetchOnWindowFocus: false, onSuccess: (d) => {setCursor(d.cursor)}, onError: () => {setCursor(null)}}
+    ["users", sortStatus.columnAccessor, sortStatus.direction, page, debouncedSearch],
+    async () => getUsers({ recordsPerPage: PAGE_SIZE, page, sortStatus, searchQuery: JSON.stringify(debouncedSearch) }),
+    { refetchOnWindowFocus: false }
   );
 
   const {
@@ -37,6 +39,26 @@ export default function UserTable() {
           </h1>
         </Center>
 
+        <Grid align="center" mb="md">
+        <Grid.Col xs={2} >
+          <TextInput
+            sx={{ flexBasis: '60%' }}
+            placeholder="Search name..."
+            icon={<IconSearch size={16} />}
+            value={search.name}
+            onChange={(e) => setSearch({...search, name: e.currentTarget.value})}
+          />
+        </Grid.Col>
+        <Grid.Col xs={2} >
+          <TextInput
+            sx={{ flexBasis: '60%' }}
+            placeholder="Search email..."
+            icon={<IconSearch size={16} />}
+            value={search.email}
+            onChange={(e) => setSearch({...search, email: e.currentTarget.value})}
+          />
+        </Grid.Col>
+      </Grid>
         <DataTable
           withBorder
           borderRadius="sm"

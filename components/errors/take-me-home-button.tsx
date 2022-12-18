@@ -7,7 +7,7 @@ const Link = dynamic(() => import('next/link'))
 
 export function HomeButton(){
     return (
-        <Button text="Return Home" component={Link} href="/"  variant="subtle" size="md">
+        <Button component={Link} href="/"  variant="subtle" size="md">
             { uiMessages.homeBtnVerbose ?? "Return Home"}
         </Button>
     )

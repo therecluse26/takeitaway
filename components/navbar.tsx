@@ -137,10 +137,9 @@ export default function HeaderTabs({ links, mounted = true }: HeaderTabsProps) {
                     {mounted ? 
                       <UserButton classes={classes} cx={cx} />
                     : null}
-                    
+
                 </Group>
             </Container>
-           
         </div>
     );
 }

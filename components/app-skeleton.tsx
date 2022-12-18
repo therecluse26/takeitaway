@@ -6,7 +6,7 @@ import Navbar from './navbar';
 export default function AppSkeleton() {
   return (
     <>
-      <Navbar links={defaultNavBarLinks} />
+      <Navbar links={defaultNavBarLinks} mounted={false} />
         <main>
           <Container fluid={true}/>
         </main>
