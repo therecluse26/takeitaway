@@ -3,7 +3,6 @@ import { SessionProvider, useSession } from "next-auth/react"
 import { ColorScheme, ColorSchemeProvider, MantineProvider } from '@mantine/core';
 import { ReactJSXElement } from "@emotion/react/types/jsx-namespace";
 import GuardContent from "../components/auth-guard";
-export { reportWebVitals } from 'next-axiom';
 
 // Dynamic imports
 import dynamic from "next/dynamic";
