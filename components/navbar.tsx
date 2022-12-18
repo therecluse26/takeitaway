@@ -81,9 +81,10 @@ const useStyles = createStyles((theme) => ({
 
 interface HeaderTabsProps {
     links: any[];
+    mounted?: boolean;
 }
 
-export default function HeaderTabs({ links }: HeaderTabsProps) {
+export default function HeaderTabs({ links, mounted = true }: HeaderTabsProps) {
     const { classes, cx } = useStyles();
     const [opened, { toggle }] = useDisclosure(false);
 
@@ -133,7 +134,9 @@ export default function HeaderTabs({ links }: HeaderTabsProps) {
                         {items}
                     </Group>
 
-                    <UserButton classes={classes} cx={cx} />
+                    {mounted ? 
+                      <UserButton classes={classes} cx={cx} />
+                    : null}
                     
                 </Group>
             </Container>

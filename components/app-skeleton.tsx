@@ -1,12 +1,16 @@
-import { Skeleton } from '@mantine/core';
+import { Container } from '@mantine/core';
+import { defaultNavBarLinks } from '../data/navbar-links';
+import Footer from './footer';
+import Navbar from './navbar';
 
 export default function AppSkeleton() {
   return (
     <>
-      <Skeleton height={50} circle mb="xl" />
-      <Skeleton height={8} radius="xl" />
-      <Skeleton height={8} mt={6} radius="xl" />
-      <Skeleton height={8} mt={6} width="70%" radius="xl" />
+      <Navbar links={defaultNavBarLinks} />
+        <main>
+          <Container fluid={true}/>
+        </main>
+      <Footer/>
     </>
   );
 }

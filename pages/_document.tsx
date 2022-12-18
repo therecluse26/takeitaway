@@ -1,5 +1,5 @@
 import { createGetInitialProps } from '@mantine/next';
-import Document, { Head, Html, Main, NextScript } from 'next/document';
+import Document, { Html, Head, Main, NextScript } from 'next/document';
 
 const getInitialProps = createGetInitialProps();
 
@@ -8,8 +8,10 @@ export default class _Document extends Document {
 
     render() {
         return (
-            <Html>
-                <Head />
+            <Html lang='en'>
+                <Head>
+                    <title>{process.env.APP_NAME}</title>
+                </Head>
                 <body>
                     <Main />
                     <NextScript />

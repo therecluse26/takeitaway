@@ -22,12 +22,9 @@ export default function App({Component, pageProps: { session, ...pageProps }}: {
         setHasMounted(true)
     }, [])
 
-    if (!hasMounted) {
-        return <AppSkeleton />
-    }
-
     return ( 
-        <div suppressHydrationWarning>
+        <div suppressHydrationWarning>            
+
             <QueryClientProvider client={queryClient}>
 
                 <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
@@ -41,13 +38,13 @@ export default function App({Component, pageProps: { session, ...pageProps }}: {
                     >
                         <SessionProvider session={session}>
                             <Authenticated>
-                                {hasMounted ?
-                                    <Layout>
-                                        <GuardContent authorization={pageProps.authorization}>
-                                            <Component {...pageProps} />
-                                        </GuardContent>
-                                    </Layout> : 
-                                    <AppSkeleton />}
+                                {hasMounted ? 
+                                <Layout>
+                                    <GuardContent authorization={pageProps.authorization}>
+                                        <Component {...pageProps} />
+                                    </GuardContent>
+                                </Layout>
+                                : <AppSkeleton />}
                             </Authenticated>
                         </SessionProvider>
                     

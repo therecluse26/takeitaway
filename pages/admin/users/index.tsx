@@ -6,7 +6,7 @@ import { useMantineTheme, Box, Center } from '@mantine/core';
 import { User } from '@prisma/client';
 import { useViewportSize } from '@mantine/hooks';
 
-const PAGE_SIZE = 100;
+const PAGE_SIZE = 15;
 
 export default function UserTable() {
   const { height, width } = useViewportSize();
