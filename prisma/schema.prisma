@@ -29,33 +29,33 @@ model Account {
 }
 
 model Address {
-  id             String           @id @default(cuid())
-  userId         String
-  street         String
-  city           String
-  state          String
-  zip            String
-  country        String
-  latitude       Float?
-  longitude      Float?
-  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  ServiceRequest ServiceRequest[]
-  ServiceLog     ServiceLog[]
+  id              String           @id @default(cuid())
+  userId          String
+  street          String
+  city            String
+  state           String
+  zip             String
+  country         String
+  latitude        Float?
+  longitude       Float?
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  serviceRequests ServiceRequest[]
+  serviceLogs     ServiceLog[]
 }
 
 model BillingCycle {
-  id             String           @id @default(cuid())
-  userId         String
-  subscriptionId String
-  startDate      DateTime
-  endDate        DateTime
-  amount         Float
-  paid           Boolean          @default(false)
-  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Payment        Payment[]
-  ServiceRequest ServiceRequest[]
-  ServiceLog     ServiceLog[]
-  Subscription   Subscription[]
+  id              String           @id @default(cuid())
+  userId          String
+  subscriptionId  String
+  startDate       DateTime
+  endDate         DateTime
+  amount          Float
+  paid            Boolean          @default(false)
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payments        Payment[]
+  serviceRequests ServiceRequest[]
+  serviceLogs     ServiceLog[]
+  subscriptions   Subscription[]
 }
 
 model Payment {
@@ -72,18 +72,18 @@ model Payment {
 }
 
 model Service {
-  id             String           @id @default(cuid())
-  type           ServiceType      @default(recurring)
-  name           String
-  description    String
-  price          Float
-  perCycle       Int?             @default(1)
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  deleted        Boolean          @default(false)
-  ServiceRequest ServiceRequest[]
-  ServiceLog     ServiceLog[]
-  Subscription   Subscription[]
+  id              String           @id @default(cuid())
+  type            ServiceType      @default(recurring)
+  name            String
+  description     String
+  price           Float
+  perCycle        Int?             @default(1)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  deleted         Boolean          @default(false)
+  serviceRequests ServiceRequest[]
+  serviceLogs     ServiceLog[]
+  subscriptions   Subscription[]
 }
 
 model ServiceRequest {
@@ -138,7 +138,7 @@ model Subscription {
   billingCycleId String?
   user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   service        Service       @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  BillingCycle   BillingCycle? @relation(fields: [billingCycleId], references: [id])
+  billingCycle   BillingCycle? @relation(fields: [billingCycleId], references: [id])
 }
 
 model User {
@@ -151,11 +151,11 @@ model User {
   createdAt     DateTime       @default(now())
   deleted       Boolean        @default(false)
   accounts      Account[]
-  Address       Address[]
-  BillingCycle  BillingCycle[]
-  Payment       Payment[]
+  addresses     Address[]
+  billingCycle  BillingCycle[]
+  payment       Payment[]
   sessions      Session[]
-  Subscription  Subscription[]
+  subscription  Subscription[]
 
   @@index([id, name, email])
 }

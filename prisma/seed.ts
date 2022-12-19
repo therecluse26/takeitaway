@@ -1,26 +1,55 @@
-import { PrismaClient, RoleEnum, ServiceType, User } from '@prisma/client'
+import { Address, PrismaClient, RoleEnum, ServiceType } from '@prisma/client'
 const prisma = new PrismaClient()
 import { faker } from "@faker-js/faker";
+
+function createAddresses(count: number): Array<Address> {
+    return Array.from({length: count }).map(() => {
+        return {
+            street: faker.address.streetAddress(),
+            city: faker.address.city(),
+            state: faker.address.state(),
+            zip: faker.address.zipCode(),
+            country: faker.address.country(),
+        } as Address
+    })
+}
 
 async function main() {
 
     // Run test seeders
     if(!!process.env.SEED_TEST_DATA === true) {
+        // Create superadmin user
+        if(process.env.SUPERADMIN_EMAIL) {
+            await prisma.user.create({
+                data: {
+                    name: process.env.SUPERADMIN_NAME ?? "Super Admin",
+                    email: process.env.SUPERADMIN_EMAIL,
+                    emailVerified: new Date(),
+                    image: faker.image.avatar(),
+                    role: RoleEnum.superadmin,
+                    addresses: {
+                        create: createAddresses(1)
+                    }
+                }
+            })
+        }
+
         const userCount = parseInt(process.env.SEED_TEST_USER_COUNT ?? "") ?? 100;
-        await prisma.user.createMany(
-            {
-                data: Array.from({length: userCount }).map(() => {
-                        return {
-                            email: faker.internet.email(),
-                            emailVerified: faker.helpers.arrayElement([new Date(), null]),
-                            name: faker.name.fullName(),
-                            image: faker.image.avatar(),
-                            role: faker.helpers.arrayElement([RoleEnum.provider, RoleEnum.subscriber]),
-                        } as User
-                    })
-                ,
-                skipDuplicates: true,
-            });
+        for(let i = 0; i < userCount; i++) {
+            await prisma.user.create({
+                data: {
+                    email: faker.internet.email(),
+                    emailVerified: faker.helpers.arrayElement([new Date(), null]),
+                    name: faker.name.fullName(),
+                    image: faker.image.avatar(),
+                    role: faker.helpers.arrayElement([RoleEnum.provider, RoleEnum.subscriber]),
+                    addresses: {
+                        create: createAddresses(faker.datatype.number({min: 0, max: 6}))
+                    }
+                }
+            })
+        }
+
 
         // Create test services
         await prisma.service.createMany(
