@@ -22,7 +22,7 @@ export default function UserTable() {
   const { data, isFetching } = useQuery(
     ["users", sortStatus.columnAccessor, sortStatus.direction, page, debouncedSearch],
     async () => getUsers({ recordsPerPage: PAGE_SIZE, page, sortStatus, searchQuery: JSON.stringify(debouncedSearch) }),
-    { refetchOnWindowFocus: false }
+    { refetchOnWindowFocus: false, cacheTime: 5 * 60 * 1000, staleTime: 5 * 60 * 1000 }
   );
 
   const {
@@ -46,7 +46,10 @@ export default function UserTable() {
             placeholder="Search name..."
             icon={<IconSearch size={16} />}
             value={search.name}
-            onChange={(e) => setSearch({...search, name: e.currentTarget.value})}
+            onChange={(e) => {
+              setSearch({...search, name: e.currentTarget.value});
+              setPage(1);
+            }}
           />
         </Grid.Col>
         <Grid.Col xs={2} >
@@ -55,7 +58,10 @@ export default function UserTable() {
             placeholder="Search email..."
             icon={<IconSearch size={16} />}
             value={search.email}
-            onChange={(e) => setSearch({...search, email: e.currentTarget.value})}
+            onChange={(e) => {
+              setSearch({...search, email: e.currentTarget.value});
+              setPage(1);
+            }}
           />
         </Grid.Col>
       </Grid>

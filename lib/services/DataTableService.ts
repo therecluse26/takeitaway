@@ -40,7 +40,7 @@ export function buildFindManyParams(req: NextApiRequest) {
     return [query, unpaginatedQuery];
 }
 
-export function buildPaginatedData(results: Array<any>, req: NextApiRequest, totalRecords: Number|null|undefined)
+export function buildPaginatedData(req: NextApiRequest, results: Array<any>, totalRecords: Number|null|undefined)
 {
     if(results.length === 0){
         return {
