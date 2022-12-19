@@ -7,14 +7,9 @@ export function buildFindManyParams(req: NextApiRequest) {
     const orderByQuery = sortAccessor && sortDirection ? { [sortAccessor]: sortDirection } : undefined;
     const searchQuery = req.query.searchQuery ? JSON.parse(req.query.searchQuery as string) as object : null;
 
-    let query: any = {
-        skip: parseInt(req.query.skip as string),
-        take: parseInt(req.query.recordsPerPage as string),
-        orderBy: [ 
-            orderByQuery
-        ] as any
-    }
+    let query: any = {}
 
+    // Appends search terms to where clause
     if(searchQuery){
         let whereQuery: any = {};
         for(const [key, value] of Object.entries(searchQuery)){ 
@@ -30,8 +25,19 @@ export function buildFindManyParams(req: NextApiRequest) {
         query.where = whereQuery;
     }
   
-    return query;
+    // Clone query object for use in getting total record count
+    const unpaginatedQuery = {...query};
 
+    // Pagination
+    query.skip = parseInt(req.query.skip as string);
+    query.take = parseInt(req.query.recordsPerPage as string);
+
+    // Ordering
+    query.orderBy = [ 
+        orderByQuery
+    ] as any
+
+    return [query, unpaginatedQuery];
 }
 
 export function buildPaginatedData(results: Array<any>, req: NextApiRequest, totalRecords: Number|null|undefined)

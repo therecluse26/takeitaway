@@ -17,13 +17,19 @@ export default async function getUsers(req: NextApiRequest, res: NextApiResponse
         return
     }
 
+    const [paginatedQuery, unpaginatedQuery] = buildFindManyParams(req)
+
+    const userCount = await prisma.user.count(unpaginatedQuery);
+
+    const userResults = await prisma.user.findMany(
+        paginatedQuery
+    );
+
     res.status(200).json(
         buildPaginatedData(
-            await prisma.user.findMany(
-                buildFindManyParams(req)
-            ),
             req,
-            await prisma.user.count()
+            userResults,
+            userCount
         )
     );
 }
