@@ -2,10 +2,12 @@ import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getUsers } from '../../../lib/services/UserService';
-import { useMantineTheme, Box, Center, Grid, TextInput } from '@mantine/core';
+import { useMantineTheme, Box, Center, Grid, TextInput, Anchor } from '@mantine/core';
 import { User } from '@prisma/client';
 import { useDebouncedValue, useViewportSize } from '@mantine/hooks';
 import { IconSearch } from '@tabler/icons';
+import Link from 'next/link';
+import configuration from '../../../data/configuration';
 
 const PAGE_SIZE = 15;
 
@@ -22,7 +24,7 @@ export default function UserTable() {
   const { data, isFetching } = useQuery(
     ["users", sortStatus.columnAccessor, sortStatus.direction, page, debouncedSearch],
     async () => getUsers({ recordsPerPage: PAGE_SIZE, page, sortStatus, searchQuery: JSON.stringify(debouncedSearch) }),
-    { refetchOnWindowFocus: false, cacheTime: 5 * 60 * 1000, staleTime: 5 * 60 * 1000 }
+    { refetchOnWindowFocus: false, staleTime: configuration.cacheStaleTime}
   );
 
   const {
@@ -78,6 +80,13 @@ export default function UserTable() {
               width: 150,
               ellipsis: true,
               sortable: true,
+              render: (record: User): any => {
+                return (
+                  <Anchor component={Link} href={`/admin/users/${record.id}`}>
+                    {record.name}
+                  </Anchor>
+                );
+              }
             },
             {
               accessor: 'email',
@@ -89,6 +98,20 @@ export default function UserTable() {
               title: 'Role',
               width: 150,
               sortable: true,
+              visibleMediaQuery: aboveXsMediaQuery,
+            },
+            {
+              accessor: '_count.addresses',
+              title: 'Locations',
+              width: 150,
+              sortable: false,
+              visibleMediaQuery: aboveXsMediaQuery,
+            },
+            {
+              accessor: '_count.subscriptions',
+              title: 'Subscriptions',
+              width: 150,
+              sortable: false,
               visibleMediaQuery: aboveXsMediaQuery,
             },
           ]}

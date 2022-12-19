@@ -152,10 +152,10 @@ model User {
   deleted       Boolean        @default(false)
   accounts      Account[]
   addresses     Address[]
-  billingCycle  BillingCycle[]
-  payment       Payment[]
+  billingCycles BillingCycle[]
+  payments      Payment[]
   sessions      Session[]
-  subscription  Subscription[]
+  subscriptions Subscription[]
 
   @@index([id, name, email])
 }
