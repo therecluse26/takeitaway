@@ -1,16 +1,17 @@
 import { PrismaClient } from "@prisma/client";
-import { NextApiRequest, NextApiResponse } from "next";
 import { Session } from 'next-auth/core/types';
+import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import { errorMessages } from "../../../../data/messaging";
 import { userCan } from "../../../../lib/services/PermissionService";
+import { geocodeAddress } from "../../../../lib/services/api/ApiAddressService";
 
 const prisma = new PrismaClient()
 
-export default async function GetUser(req: NextApiRequest, res: NextApiResponse){
-
+export default async function GeocodeAddress(req: NextApiRequest, res: NextApiResponse){
+    
     const session: Session | null = await getSession({ req });
-    if (!userCan(session?.user, ["users:read"])) {
+    if (!userCan(session?.user, ["users:write"])) {
         res.status(403).json({error: errorMessages.api.unauthorized.message});
         return
     }
@@ -21,25 +22,17 @@ export default async function GetUser(req: NextApiRequest, res: NextApiResponse)
         return
     }
 
+    await geocodeAddress(id)
+
     res.status(200).json(
-        await prisma.user.findUnique({
+        await prisma.address.findUnique({
             where: {
                 id: id
             },
             include: {
-                addresses: {
-                    include: {
-                        subscription: true
-                    }
-                },
-                payments: {
-                    where: {
-                        createdAt: {
-                            gte: new Date(new Date().getFullYear(), 0, 1)
-                        }
-                    }
-                }
+                subscription: true
             },
         })
     );
+    
 }

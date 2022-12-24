@@ -119,17 +119,6 @@ function buildProviders(){
 
 export const authOptions: NextAuthOptions = {
     debug: !!process.env.NEXTAUTH_DEBUG === true || process.env.NODE_ENV !== "production",
-    // logger: {
-    //     error: (code, metadata) => {
-    //         if (!(metadata instanceof Error) &&  metadata.provider) {
-    //           // redact the provider secret here
-    //           delete metadata.provider
-    //           log.error(code, metadata)
-    //         } else {
-    //           log.error(code, metadata)
-    //         }
-    //     }
-    // },
     adapter: PrismaAdapter(prisma),
     // Configure one or more authentication providers
     providers: buildProviders(),

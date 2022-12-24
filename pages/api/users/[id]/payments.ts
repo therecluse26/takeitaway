@@ -7,38 +7,27 @@ import { userCan } from "../../../../lib/services/PermissionService";
 
 const prisma = new PrismaClient()
 
-export default async function GetUser(req: NextApiRequest, res: NextApiResponse){
+export default async function GetUserPayments(req: NextApiRequest, res: NextApiResponse){
 
     const session: Session | null = await getSession({ req });
+
     if (!userCan(session?.user, ["users:read"])) {
         res.status(403).json({error: errorMessages.api.unauthorized.message});
         return
     }
 
     const id = req.query.id as string;
+
     if(!id){
-        res.status(404).json({error: errorMessages.api.notFound.message});
+        res.status(403).json({error: errorMessages.api.notFound.message});
         return
     }
 
     res.status(200).json(
-        await prisma.user.findUnique({
+        await prisma.payment.findMany({
             where: {
-                id: id
-            },
-            include: {
-                addresses: {
-                    include: {
-                        subscription: true
-                    }
-                },
-                payments: {
-                    where: {
-                        createdAt: {
-                            gte: new Date(new Date().getFullYear(), 0, 1)
-                        }
-                    }
-                }
+                userId: id,
+                paid: true
             },
         })
     );

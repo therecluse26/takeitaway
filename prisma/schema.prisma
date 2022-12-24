@@ -41,6 +41,7 @@ model Address {
   user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   serviceRequests ServiceRequest[]
   serviceLogs     ServiceLog[]
+  subscription    Subscription?
 }
 
 model BillingCycle {
@@ -131,12 +132,14 @@ model Subscription {
   id             String        @id @default(cuid())
   userId         String
   serviceId      String
+  addressId      String        @unique
   active         Boolean       @default(true)
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   deleted        Boolean       @default(false)
   billingCycleId String?
   user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  address        Address       @relation(fields: [addressId], references: [id], onDelete: Cascade)
   service        Service       @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   billingCycle   BillingCycle? @relation(fields: [billingCycleId], references: [id])
 }

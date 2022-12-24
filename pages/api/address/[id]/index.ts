@@ -1,14 +1,14 @@
 import { PrismaClient } from "@prisma/client";
-import { NextApiRequest, NextApiResponse } from "next";
 import { Session } from 'next-auth/core/types';
+import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import { errorMessages } from "../../../../data/messaging";
 import { userCan } from "../../../../lib/services/PermissionService";
 
 const prisma = new PrismaClient()
 
-export default async function GetUser(req: NextApiRequest, res: NextApiResponse){
-
+export default async function GetAddress(req: NextApiRequest, res: NextApiResponse){
+    
     const session: Session | null = await getSession({ req });
     if (!userCan(session?.user, ["users:read"])) {
         res.status(403).json({error: errorMessages.api.unauthorized.message});
@@ -22,24 +22,14 @@ export default async function GetUser(req: NextApiRequest, res: NextApiResponse)
     }
 
     res.status(200).json(
-        await prisma.user.findUnique({
+        await prisma.address.findUnique({
             where: {
                 id: id
             },
             include: {
-                addresses: {
-                    include: {
-                        subscription: true
-                    }
-                },
-                payments: {
-                    where: {
-                        createdAt: {
-                            gte: new Date(new Date().getFullYear(), 0, 1)
-                        }
-                    }
-                }
+                subscription: true
             },
         })
     );
+    
 }

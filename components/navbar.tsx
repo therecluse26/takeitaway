@@ -6,6 +6,7 @@ import {
     Burger,
     Center,
     Image,
+    Loader,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import {
@@ -136,7 +137,7 @@ export default function HeaderTabs({ links, mounted = true }: HeaderTabsProps) {
 
                     {mounted ? 
                       <UserButton classes={classes} cx={cx} />
-                    : null}
+                    : <Loader size={'sm'} />}
 
                 </Group>
             </Container>

@@ -10,6 +10,8 @@ function createAddresses(count: number): Array<Address> {
             state: faker.address.state(),
             zip: faker.address.zipCode(),
             country: faker.address.country(),
+            latitude: parseFloat(faker.address.latitude()),
+            longitude: parseFloat(faker.address.longitude()),
         } as Address
     })
 }
