@@ -26,8 +26,8 @@ const MapPreview = dynamic(
 
 export default function UserDetail() {
   const router = useRouter();
-  const [loadedMaps, setLoadedMaps] = useState<string[]>([]);
   const { id } = router.query;
+  const [loadedMaps, setLoadedMaps] = useState<string[]>([]);
   const { data: user, error } = useQuery(
     [`/api/users/${id}`],
     () => getUser(id as string),

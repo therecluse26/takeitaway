@@ -27,5 +27,13 @@ async function getUser(id: string|Number): Promise<any>
     return await axios.get(`/api/users/${id}`).then(response => response.data);
 }
 
+async function getUserPaymentMethods(id: string|Number): Promise<any> 
+{
+    return await axios.get(`/api/users/${id}/payment-methods`).then(response => response.data);
+}
 
-export { getUsers, getUser };
+async function savePaymentMethodToUser(user: User, session_id: string){
+    return await axios.post(`/api/users/${user.id}/payment-methods/save`, {session_id: session_id});
+}
+
+export { getUsers, getUser, getUserPaymentMethods, savePaymentMethodToUser };
