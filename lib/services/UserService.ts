@@ -1,6 +1,7 @@
 import { DataTableSortStatus } from 'mantine-datatable/dist/types/DataTableSortStatus';
 import axios from 'axios';
 import { User } from '@prisma/client';
+import { useSession } from 'next-auth/react';
 
 async function getPaymentTotal(user: User){
     return await axios.get(`/api/users/${user.id}/payments`).then(response => response.data.reduce((total: Number, payment: any) => total + payment.amount, 0) );
@@ -25,5 +26,6 @@ async function getUser(id: string|Number): Promise<any>
 {
     return await axios.get(`/api/users/${id}`).then(response => response.data);
 }
+
 
 export { getUsers, getUser };

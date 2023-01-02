@@ -13,7 +13,7 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { GetStaticPaths } from 'next/types';
 import { useState } from 'react';
-import configuration from '../../../../data/configuration';
+import { USEQUERY_STALETIME } from '../../../../data/configuration';
 import { getUser } from '../../../../lib/services/UserService';
 
 const MapPreview = dynamic(
@@ -31,7 +31,7 @@ export default function UserDetail() {
   const { data: user, error } = useQuery(
     [`/api/users/${id}`],
     () => getUser(id as string),
-    { refetchOnWindowFocus: false, staleTime: configuration.cacheStaleTime }
+    { refetchOnWindowFocus: false, staleTime: USEQUERY_STALETIME }
   );
 
   if (error) return <div>failed to load</div>;

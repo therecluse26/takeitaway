@@ -143,9 +143,11 @@ export const authOptions: NextAuthOptions = {
             return user.id ? true : false;
         },
         async session({ session, user }: { session: any, user: any }) {
-            // Add role value to user object so it is passed along with session
+            // Add additional properties to user object so it is passed along with session
             if (session.user && user) {
+                session.user.id = user.id;
                 session.user.role = user.role;
+                session.user.stripeId = user.stripeId;
             }
             return session;
         },

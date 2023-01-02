@@ -64,10 +64,11 @@ model Payment {
   userId         String
   billingCycleId String
   amount         Float
-  paid           Boolean      @default(false)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
   deleted        Boolean      @default(false)
+  paymentIntent  String
+  status         String
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   billingCycle   BillingCycle @relation(fields: [billingCycleId], references: [id], onDelete: Cascade)
 }
@@ -145,22 +146,39 @@ model Subscription {
 }
 
 model User {
-  id            String         @id @default(cuid())
-  name          String?
-  email         String?        @unique
-  emailVerified DateTime?
-  image         String?
-  role          RoleEnum       @default(subscriber)
-  createdAt     DateTime       @default(now())
-  deleted       Boolean        @default(false)
-  accounts      Account[]
-  addresses     Address[]
-  billingCycles BillingCycle[]
-  payments      Payment[]
-  sessions      Session[]
-  subscriptions Subscription[]
+  id             String               @id @default(cuid())
+  name           String?
+  email          String?              @unique
+  emailVerified  DateTime?
+  image          String?
+  role           RoleEnum             @default(subscriber)
+  stripeId       String?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt @default(now())
+  deleted        Boolean              @default(false)
+  accounts       Account[]
+  addresses      Address[]
+  billingCycles  BillingCycle[]
+  payments       Payment[]
+  sessions       Session[]
+  subscriptions  Subscription[]
+  paymentMethods UserPaymentMethod[]
 
   @@index([id, name, email])
+}
+
+model UserPaymentMethod {
+  id            String   @id @default(cuid())
+  userId        String
+  paymentMethodId String @unique
+  last4         String?
+  expMonth      Int?
+  expYear       Int?
+  brand         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deleted       Boolean  @default(false)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model VerificationToken {

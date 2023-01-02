@@ -8,7 +8,7 @@ import { Loader } from "@mantine/core";
 
 const MapPreview = ({ address }: { address: Address }) => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [zoom] = useState(5);
+  const [zoom] = useState(12);
   const [latitude, setLatitude] = useState(address.latitude);
   const [longitude, setLongitude] = useState(address.longitude);
 

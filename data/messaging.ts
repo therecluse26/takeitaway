@@ -27,10 +27,40 @@ const errorMessages = {
             code: 404,
             message: "The requested resource was not found"
         },
+        methodNotAllowed: {
+            code: 405,
+            message: "The given method is not allowed"
+        },
         serverError: {
             code: 500,
             message: "The server encountered an error and could not complete your request."
         },
+        stripe: {
+            noCustomer: {
+                code: 500,
+                message: "No Stripe customer found for this user"
+            },
+            noSessionId: {
+                code: 400,
+                message: "No Stripe session ID found"
+            },
+            noSession: {
+                code: 400,
+                message: "No Stripe session found"
+            },
+            noSetupIntent: {
+                code: 400,
+                message: "No Stripe setup intent found"
+            },
+            paymentMethod: {
+                code: 400,
+                message: "No Stripe payment method found"
+            },
+            paymentMethodAlreadyExists: {
+                code: 400,
+                message: "The specified payment method already exists"
+            },
+        }
     }
 }
 

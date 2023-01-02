@@ -1,13 +1,8 @@
 import { Address, PrismaClient } from "@prisma/client";
-// const NodeGeocoder = require('node-geocoder');
-import NodeGeocoder from 'node-geocoder';
-import configuration from "../../../data/configuration";
+import NodeGeocoder, { Options } from 'node-geocoder';
+import {GEOCODER_CONFIG} from "../../../data/configuration";
 
 const prisma = new PrismaClient()
-
-// const OpenStreetMapProvider: any = dynamic(() => {
-//     return import('leaflet-geosearch').then((mod) => mod.default as any) 
-//   });
 
 async function getAddress(id: string): Promise<Address> {
   const address = await prisma.address.findUnique({
@@ -29,7 +24,7 @@ async function updateAddress(address: Address): Promise<Address> {
 }
 
 async function getAddressLatLong(address: Address): Promise<{latitude: number|null|undefined, longitude: number|null|undefined}> {
-  const geocoder = NodeGeocoder(configuration.nodeGeocoder);
+  const geocoder = NodeGeocoder(GEOCODER_CONFIG as Options);
   const res = await geocoder.geocode(formatAddress(address));
   if(res.length > 0){
     return {latitude: res[0].latitude, longitude: res[0].longitude}
@@ -44,7 +39,7 @@ async function geocodeAddress(address: Address|string): Promise<Address> {
         address = await getAddress(address)
     }
 
-    const geocoder = NodeGeocoder(configuration.nodeGeocoder);
+    const geocoder = NodeGeocoder(GEOCODER_CONFIG as Options);
     const geocodeResult = await geocoder.geocode(formatAddress(address));
 
     if(geocodeResult.length > 0){
