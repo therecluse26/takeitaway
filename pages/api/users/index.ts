@@ -10,6 +10,11 @@ const prisma = new PrismaClient()
 
 export default async function getUsers(req: NextApiRequest, res: NextApiResponse)
 {
+    if(req.method !== 'GET'){
+        res.status(errorMessages.api.methodNotAllowed.code).json({error: errorMessages.api.methodNotAllowed.message});
+        return
+    }
+    
     const session: Session | null = await getSession({ req });
     
     if (!userCan(session?.user, ["users:read"])) {

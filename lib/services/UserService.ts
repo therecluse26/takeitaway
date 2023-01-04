@@ -1,7 +1,6 @@
 import { DataTableSortStatus } from 'mantine-datatable/dist/types/DataTableSortStatus';
 import axios from 'axios';
-import { User } from '@prisma/client';
-import { useSession } from 'next-auth/react';
+import { PaymentMethod, User } from '@prisma/client';
 
 async function getPaymentTotal(user: User){
     return await axios.get(`/api/users/${user.id}/payments`).then(response => response.data.reduce((total: Number, payment: any) => total + payment.amount, 0) );
@@ -36,4 +35,12 @@ async function savePaymentMethodToUser(user: User, session_id: string){
     return await axios.post(`/api/users/${user.id}/payment-methods/save`, {session_id: session_id});
 }
 
-export { getUsers, getUser, getUserPaymentMethods, savePaymentMethodToUser };
+async function setPaymentMethodAsDefault(user: User, paymentMethod: PaymentMethod): Promise<boolean>{
+    return await axios.post(`/api/users/${user.id}/payment-methods/${paymentMethod.id}/set-default`);
+}
+
+async function deleteAccount(user: User): Promise<boolean>{
+    return await axios.delete(`/api/users/${user.id}/delete`);
+}
+
+export { getUsers, getUser, getUserPaymentMethods, savePaymentMethodToUser, setPaymentMethodAsDefault, deleteAccount };

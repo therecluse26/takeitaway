@@ -1,6 +1,6 @@
 import Image from 'next/image';
 
-export function getIconForBrand(brand: string | null) {
+export function getIconForBrand(brand: string | null, height = 32, width = 32) {
   let iconPath = '/payment-icons/generic.svg';
   switch (brand) {
     case 'visa':
@@ -46,5 +46,5 @@ export function getIconForBrand(brand: string | null) {
       iconPath = '/payment-icons/mir.svg';
       break;
   }
-  return <Image src={iconPath} alt="Visa" width={32} height={32} />;
+  return <Image src={iconPath} alt="Visa" width={width} height={height} />;
 }

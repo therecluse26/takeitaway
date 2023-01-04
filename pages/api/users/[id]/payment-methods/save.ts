@@ -9,6 +9,11 @@ export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
+    if(req.method !== 'POST'){
+        res.status(errorMessages.api.methodNotAllowed.code).json({error: errorMessages.api.methodNotAllowed.message});
+        return
+    }
+    
     const session: Session | null = await getSession({ req });
 
     if(!session?.user){

@@ -1,4 +1,6 @@
-import NextAuth, { Account, NextAuthOptions, Profile, User } from "next-auth"
+import NextAuth, { Account, Profile, User } from "next-auth"
+import { AdapterUser } from "next-auth/adapters";
+import { NextApiRequest, NextApiResponse } from "next/types";
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import prisma from "../../../lib/prismadb"
 
@@ -11,8 +13,6 @@ import AzureADProvider from "next-auth/providers/azure-ad";
 import LinkedInProvider from "next-auth/providers/linkedin";
 import Auth0Provider from "next-auth/providers/auth0";
 
-// Custom services
-import { AdapterUser } from "next-auth/adapters";
 
 async function getUserCount(): Promise<number> {
     return await prisma.user.count();
@@ -117,45 +117,51 @@ function buildProviders(){
     return providers
 }
 
-export const authOptions: NextAuthOptions = {
-    debug: !!process.env.NEXTAUTH_DEBUG === true || process.env.NODE_ENV !== "production",
-    adapter: PrismaAdapter(prisma),
-    // Configure one or more authentication providers
-    providers: buildProviders(),
-    theme: {
-        colorScheme: "light", // "auto" | "dark" | "light"
-        brandColor: "", // Hex color code
-        logo: "", // Absolute URL to image
-        buttonText: "" // Hex color code
-    },
-    callbacks: {
-        async signIn({ user, account, profile }: { user: User|AdapterUser, account: Account|null, profile?: Profile }) {
-            // Set first user to superadmin if only one user exists
-            const userCount = await getUserCount();
-            if (userCount === 1) {
-                user = await prisma.user.update({ where: { id: user.id }, data: { role: 'superadmin' } });
-            }
 
-            if (account?.provider === "google") {
-                return !!profile?.email_verified;
-            }
-            
-            return user.id ? true : false;
-        },
-        async session({ session, user }: { session: any, user: any }) {
-            // Add additional properties to user object so it is passed along with session
-            if (session.user && user) {
-                session.user.id = user.id;
-                session.user.role = user.role;
-                session.user.stripeId = user.stripeId;
-            }
-            return session;
-        },
-    },
-    session: {
-       // Seconds - How long until an idle session expires and is no longer valid.
-        maxAge: 30 * 24 * 60 * 60, // 30 days    
-      }
-}
+export default async function auth(req: NextApiRequest, res: NextApiResponse) {
+    // Do whatever you want here, before the request is passed down to `NextAuth`
 
-export default NextAuth(authOptions)
+    // TODO: Add bot detection
+
+    return await NextAuth(req, res, {
+        debug: !!process.env.NEXTAUTH_DEBUG === true || process.env.NODE_ENV !== "production",
+        adapter: PrismaAdapter(prisma),
+        // Configure one or more authentication providers
+        providers: buildProviders(),
+        theme: {
+            colorScheme: "light", // "auto" | "dark" | "light"
+            brandColor: "", // Hex color code
+            logo: "", // Absolute URL to image
+            buttonText: "" // Hex color code
+        },
+        callbacks: {
+            async signIn({ user, account, profile }: { user: User|AdapterUser, account: Account|null, profile?: Profile }) {
+                // Set first user to superadmin if only one user exists
+                const userCount = await getUserCount();
+                if (userCount === 1) {
+                    user = await prisma.user.update({ where: { id: user.id }, data: { role: 'superadmin' } });
+                }
+    
+                if (account?.provider === "google") {
+                    return !!profile?.email_verified;
+                }
+                
+                return user.id ? true : false;
+            },
+            async session({ session, user }: { session: any, user: any }) {
+                // Add additional properties to user object so it is passed along with session
+                if (session.user && user) {
+                    session.user.id = user.id;
+                    session.user.role = user.role;
+                    session.user.stripeId = user.stripeId;
+                }
+           
+                return session;
+            },
+        },
+        session: {
+           // Seconds - How long until an idle session expires and is no longer valid.
+            maxAge: 30 * 24 * 60 * 60, // 30 days
+          }
+    })
+  }

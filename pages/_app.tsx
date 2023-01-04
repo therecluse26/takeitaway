@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { SessionProvider, useSession } from 'next-auth/react';
+import { NotificationsProvider } from '@mantine/notifications';
 import {
   ColorScheme,
   ColorSchemeProvider,
@@ -23,7 +24,7 @@ export default function App({
   pageProps: any;
 }): ReactJSXElement {
   const [hasMounted, setHasMounted] = useState(false);
-  const [colorScheme, setColorScheme] = useState<ColorScheme>('dark');
+  const [colorScheme, setColorScheme] = useState<ColorScheme>('light');
   const toggleColorScheme = (value?: ColorScheme) =>
     setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
 
@@ -46,19 +47,21 @@ export default function App({
               colorScheme: colorScheme,
             }}
           >
-            <SessionProvider session={session}>
-              <Authenticated>
-                {hasMounted ? (
-                  <Layout>
-                    <GuardContent authorization={pageProps.authorization}>
-                      <Component {...pageProps} />
-                    </GuardContent>
-                  </Layout>
-                ) : (
-                  <AppSkeleton />
-                )}
-              </Authenticated>
-            </SessionProvider>
+            <NotificationsProvider>
+              <SessionProvider session={session}>
+                <Authenticated>
+                  {hasMounted ? (
+                    <Layout>
+                      <GuardContent authorization={pageProps.authorization}>
+                        <Component {...pageProps} />
+                      </GuardContent>
+                    </Layout>
+                  ) : (
+                    <AppSkeleton />
+                  )}
+                </Authenticated>
+              </SessionProvider>
+            </NotificationsProvider>
           </MantineProvider>
         </ColorSchemeProvider>
       </QueryClientProvider>

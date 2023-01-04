@@ -11,7 +11,6 @@ export async function getUserStripeId(user: any): Promise<string | null>{
         await prisma.user.update({
             where: {
                 id: user.id,
-                email: user.email
             },
             data: {
                 stripeId: stripeUser.id.toString()
