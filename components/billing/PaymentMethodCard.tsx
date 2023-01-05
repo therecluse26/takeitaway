@@ -85,7 +85,7 @@ const PaymentMethodsList = ({
             <div>
               Exp.{" "}
               <b>
-                {paymentMethod.expMonth}/{paymentMethod.expYear}
+                {paymentMethod.expMonth} / {paymentMethod.expYear}
               </b>
             </div>
           </Stack>
@@ -99,8 +99,7 @@ const PaymentMethodsList = ({
               >
                 <ThemeIcon variant="subtle" size="xs">
                   <IconCheck />
-                </ThemeIcon>
-                {"     "}
+                </ThemeIcon>{" "}
                 <Text size="xs">Default</Text>
               </Group>
             ) : (

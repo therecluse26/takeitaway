@@ -1,18 +1,10 @@
-import {
-  Accordion,
-  Badge,
-  Card,
-  Center,
-  Group,
-  Loader,
-  Space,
-} from '@mantine/core';
+import { Accordion } from '@mantine/core';
 import { Address } from '@prisma/client';
 import { useQuery } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { GetStaticPaths } from 'next/types';
-import { useState } from 'react';
+import { JSXElementConstructor, useState } from 'react';
 import { USEQUERY_STALETIME } from '../../../../data/configuration';
 import { getUser } from '../../../../lib/services/UserService';
 
@@ -22,6 +14,44 @@ const MapPreview = dynamic(
       (mod) => mod.default
     ),
   { ssr: false }
+);
+const Badge = dynamic(() =>
+  import('@mantine/core').then((mod) => mod.Badge as JSXElementConstructor<any>)
+);
+const Card = dynamic(() =>
+  import('@mantine/core').then((mod) => mod.Card as JSXElementConstructor<any>)
+);
+const Center = dynamic(() =>
+  import('@mantine/core').then(
+    (mod) => mod.Center as JSXElementConstructor<any>
+  )
+);
+const Group = dynamic(() =>
+  import('@mantine/core').then((mod) => mod.Group as JSXElementConstructor<any>)
+);
+const Loader = dynamic(() =>
+  import('@mantine/core').then(
+    (mod) => mod.Loader as JSXElementConstructor<any>
+  )
+);
+const Space = dynamic(() =>
+  import('@mantine/core').then((mod) => mod.Space as JSXElementConstructor<any>)
+);
+const Avatar = dynamic(() =>
+  import('@mantine/core').then(
+    (mod) => mod.Avatar as JSXElementConstructor<any>
+  )
+);
+const Container = dynamic(() =>
+  import('@mantine/core').then(
+    (mod) => mod.Container as JSXElementConstructor<any>
+  )
+);
+const Title = dynamic(() =>
+  import('@mantine/core').then((mod) => mod.Title as JSXElementConstructor<any>)
+);
+const Text = dynamic(() =>
+  import('@mantine/core').then((mod) => mod.Text as JSXElementConstructor<any>)
 );
 
 export default function UserDetail() {
@@ -46,61 +76,66 @@ export default function UserDetail() {
     return `${address.street}, ${address.city}, ${address.state} ${address.zip}`;
   };
 
-  const SubscriptionBadge =
-    user.subscriptions?.length > 0
-      ? () => (
-          <Badge color="green">
-            {user.subscriptions.length} Active Subscription
-            {user.subscriptions.length > 1 ? 's' : null}
-          </Badge>
-        )
-      : () => <Badge color="red">No Active Subscription</Badge>;
+  const RoleBadge = () => {
+    const role = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+    return <Badge color="blue">{role}</Badge>;
+  };
+
+  const PickupsBadge = ({ pickups = 0 }) => {
+    const badgeColor = pickups === 0 ? 'gray' : 'green';
+    // Badge that shows the number of pickups the user has at the given location
+    return <Badge color={badgeColor}>{pickups} monthly pickups</Badge>;
+  };
 
   return (
     <div>
-      <Card radius="md">
-        <Group position="apart" mt="md" mb="xs">
+      <Container>
+        <Group position="center" mt="md" mb="xs">
+          <Avatar src={user.image} radius={100} size="xl"></Avatar>
+          <Space></Space>
           <div>
-            <h1>{user.name}</h1>
-            <div>{user.email}</div>
+            <Title>{user.name}</Title>
+            <Text>{user.email}</Text>
           </div>
-
-          <SubscriptionBadge />
+          <RoleBadge />
         </Group>
-      </Card>
-      <Space h="lg" />
 
-      {user.addresses?.length > 0 ? (
-        <Card radius="md">
-          <h2>Locations</h2>
-          <Accordion variant="contained">
-            {user.addresses.map((address: Address) => (
-              <Accordion.Item
-                key={address.id}
-                value={address.id}
-                onClick={() => {
-                  // Load Memoized MapPreview to prevent slow initial load
-                  setLoadedMaps([
-                    ...loadedMaps.filter((v) => v !== address.id),
-                    address.id,
-                  ]);
-                }}
-              >
-                <Accordion.Control>{formatAddress(address)}</Accordion.Control>
-                <Accordion.Panel>
-                  {loadedMaps.includes(address.id) ? (
-                    <MapPreview address={address} />
-                  ) : null}
-                </Accordion.Panel>
-              </Accordion.Item>
-            ))}
-          </Accordion>
-        </Card>
-      ) : (
-        <Card p="lg" radius="md">
-          + Add Location
-        </Card>
-      )}
+        {user.addresses?.length > 0 ? (
+          <Card radius="md">
+            <h2>Locations</h2>
+            <Accordion variant="contained">
+              {user.addresses.map((address: Address) => (
+                <Accordion.Item
+                  key={address.id}
+                  value={address.id}
+                  onClick={() => {
+                    // Load Memoized MapPreview to prevent slow initial load
+                    setLoadedMaps([
+                      ...loadedMaps.filter((v) => v !== address.id),
+                      address.id,
+                    ]);
+                  }}
+                >
+                  <Accordion.Control>
+                    <Group position="apart">
+                      {formatAddress(address)} <PickupsBadge />
+                    </Group>
+                  </Accordion.Control>
+                  <Accordion.Panel>
+                    {loadedMaps.includes(address.id) ? (
+                      <MapPreview address={address} />
+                    ) : null}
+                  </Accordion.Panel>
+                </Accordion.Item>
+              ))}
+            </Accordion>
+          </Card>
+        ) : (
+          <Card p="lg" radius="md">
+            + Add Location
+          </Card>
+        )}
+      </Container>
     </div>
   );
 }
