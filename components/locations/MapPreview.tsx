@@ -61,6 +61,7 @@ const MapPreview = ({ address }: { address: Address }) => {
             center={[latitude, longitude]}
             zoom={zoom}
             style={{ height: "400px", width: "600px" }}
+            whenCreated={(map) => map.invalidateSize()}
           >
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             <Marker position={[latitude, longitude]} />

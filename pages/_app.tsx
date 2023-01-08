@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { SessionProvider, useSession } from 'next-auth/react';
 import { NotificationsProvider } from '@mantine/notifications';
+
 import {
   ColorScheme,
   ColorSchemeProvider,
