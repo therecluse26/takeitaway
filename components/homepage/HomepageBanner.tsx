@@ -1,6 +1,18 @@
-import { BackgroundImage, Container, createStyles, Grid } from "@mantine/core";
-import React, { FC } from "react";
+import { createStyles, Grid } from "@mantine/core";
+import React, { FC, JSXElementConstructor } from "react";
 import { Oswald, Roboto } from "@next/font/google";
+import dynamic from "next/dynamic";
+
+const BackgroundImage = dynamic(() =>
+  import("@mantine/core").then(
+    (mod) => mod.BackgroundImage as JSXElementConstructor<any>
+  )
+);
+const Container = dynamic(() =>
+  import("@mantine/core").then(
+    (mod) => mod.Container as JSXElementConstructor<any>
+  )
+);
 
 const roboto = Roboto({
   weight: "400",
@@ -36,7 +48,9 @@ const useStyles = createStyles((theme) => ({
   },
   dotMatrix: {
     background: "url(/images/dotmatrix.png)",
-    backgroundSize: "4px",
+    backgroundSize: "5px",
+    mixBlendMode: "hard-light",
+    backgroundColor: "rgba(0, 0, 0, 0.2)",
     height: "100%",
     width: "100%",
     position: "relative",
@@ -46,14 +60,13 @@ const useStyles = createStyles((theme) => ({
 }));
 
 const HomepageBanner: FC = () => {
-  const { classes, cx } = useStyles();
+  const { classes } = useStyles();
 
   return (
     <BackgroundImage
       src={"/images/takeitaway.webp"}
       style={{
         marginTop: -40,
-
         backgroundColor: "#000000",
       }}
     >

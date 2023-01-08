@@ -1,19 +1,39 @@
-import {
-  createStyles,
-  Container,
-  Group,
-  Menu,
-  Burger,
-  Center,
-  Image,
-  Loader,
-} from "@mantine/core";
+import { createStyles, Header, Menu } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconChevronDown } from "@tabler/icons";
-
 import UserButton from "./user-button";
-import Link from "next/link";
 import { RouterTransition } from "./RouterTransition";
+
+import dynamic from "next/dynamic";
+import { JSXElementConstructor } from "react";
+
+const Link = dynamic(() => import("next/link"));
+const Container = dynamic(() =>
+  import("@mantine/core").then(
+    (mod) => mod.Container as JSXElementConstructor<any>
+  )
+);
+const Burger = dynamic(() =>
+  import("@mantine/core").then(
+    (mod) => mod.Burger as JSXElementConstructor<any>
+  )
+);
+const Center = dynamic(() =>
+  import("@mantine/core").then(
+    (mod) => mod.Center as JSXElementConstructor<any>
+  )
+);
+const Image = dynamic(() =>
+  import("@mantine/core").then((mod) => mod.Image as JSXElementConstructor<any>)
+);
+const Loader = dynamic(() =>
+  import("@mantine/core").then(
+    (mod) => mod.Loader as JSXElementConstructor<any>
+  )
+);
+const Group = dynamic(() =>
+  import("@mantine/core").then((mod) => mod.Group as JSXElementConstructor<any>)
+);
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -101,8 +121,12 @@ export default function HeaderTabs({ links, mounted = true }: HeaderTabsProps) {
 
   const items = links.map((link) => {
     const menuItems = link.links?.map((item: any) => (
-      <Menu.Item key={item.link}>
-        <Link key={item.label} href={item.link} className={classes.link}>
+      <Menu.Item key={item.link + "_item"}>
+        <Link
+          key={item.label + "_link"}
+          href={item.link}
+          className={classes.link}
+        >
           {item.label}
         </Link>
       </Menu.Item>
@@ -112,9 +136,17 @@ export default function HeaderTabs({ links, mounted = true }: HeaderTabsProps) {
       return (
         <>
           <RouterTransition />
-          <Menu key={link.label} trigger="hover" exitTransitionDuration={0}>
+          <Menu
+            key={link.label + "_menu"}
+            trigger="hover"
+            exitTransitionDuration={0}
+          >
             <Menu.Target>
-              <Link key={link.label} href={link.link} className={classes.link}>
+              <Link
+                key={link.label + "_menu_link"}
+                href={link.link}
+                className={classes.link}
+              >
                 <Center>
                   <span className={classes.linkLabel}>{link.label}</span>
                   <IconChevronDown size={12} stroke={1.5} />
@@ -128,13 +160,17 @@ export default function HeaderTabs({ links, mounted = true }: HeaderTabsProps) {
     }
 
     return (
-      <Link key={link.label} href={link.link} className={classes.link}>
+      <Link
+        key={link.label + "_base_link"}
+        href={link.link}
+        className={classes.link}
+      >
         {link.label}
       </Link>
     );
   });
   return (
-    <div className={classes.header}>
+    <Header height={"80px"} fixed={true} className={classes.header}>
       <Container className={classes.mainSection}>
         <Group position="apart">
           <Link href={"/"}>
@@ -164,6 +200,6 @@ export default function HeaderTabs({ links, mounted = true }: HeaderTabsProps) {
           )}
         </Group>
       </Container>
-    </div>
+    </Header>
   );
 }

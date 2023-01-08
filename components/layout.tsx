@@ -1,9 +1,13 @@
 import Navbar from "./navbar";
-import Footer from "./footer";
 import { useSession } from "next-auth/react";
 import { defaultNavBarLinks, buildNavbarLinks } from "../data/navbar-links";
 import { ReactElement, useEffect, useState } from "react";
 import React from "react";
+import dynamic from "next/dynamic";
+
+const AppShell = dynamic(() =>
+  import("@mantine/core").then((mod) => mod.AppShell)
+);
 
 const Layout = ({ children }: { children: ReactElement<any> }) => {
   const { data: session, status } = useSession();
@@ -18,11 +22,9 @@ const Layout = ({ children }: { children: ReactElement<any> }) => {
   }, [status, session, linksHaveBeenBuilt]);
 
   return (
-    <>
-      <Navbar links={links} />
-      <main>{children}</main>
-      <Footer />
-    </>
+    <AppShell padding={0} navbar={<Navbar links={links} />}>
+      <div style={{ marginTop: "120px" }}>{children}</div>
+    </AppShell>
   );
 };
 

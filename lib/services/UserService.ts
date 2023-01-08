@@ -2,10 +2,6 @@ import { DataTableSortStatus } from 'mantine-datatable/dist/types/DataTableSortS
 import axios from 'axios';
 import { PaymentMethod, User } from '@prisma/client';
 
-async function getPaymentTotal(user: User){
-    return await axios.get(`/api/users/${user.id}/payments`).then(response => response.data.reduce((total: Number, payment: any) => total + payment.amount, 0) );
-}
-
 async function getUsers({page, recordsPerPage, sortStatus: { columnAccessor: sortAccessor, direction: sortDirection }, searchQuery}
 : { searchQuery: string|null, page: number|null|undefined; recordsPerPage: number; sortStatus: DataTableSortStatus; }): Promise<any> 
 {

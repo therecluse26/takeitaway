@@ -1,16 +1,11 @@
-import { Container } from '@mantine/core';
-import { defaultNavBarLinks } from '../data/navbar-links';
-import Footer from './footer';
-import Navbar from './navbar';
+import { AppShell, Container } from "@mantine/core";
+import { defaultNavBarLinks } from "../data/navbar-links";
+import Navbar from "./navbar";
 
 export default function AppSkeleton() {
   return (
-    <>
-      <Navbar links={defaultNavBarLinks} mounted={false} />
-        <main>
-          <Container fluid={true}/>
-        </main>
-      <Footer/>
-    </>
+    <AppShell navbar={<Navbar links={defaultNavBarLinks} mounted={false} />}>
+      <Container fluid={true} />
+    </AppShell>
   );
 }

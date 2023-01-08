@@ -23,15 +23,7 @@ async function updateAddress(address: Address): Promise<Address> {
   });
 }
 
-async function getAddressLatLong(address: Address): Promise<{latitude: number|null|undefined, longitude: number|null|undefined}> {
-  const geocoder = NodeGeocoder(GEOCODER_CONFIG as Options);
-  const res = await geocoder.geocode(formatAddress(address));
-  if(res.length > 0){
-    return {latitude: res[0].latitude, longitude: res[0].longitude}
-  }
 
-  return {latitude: null, longitude: null}
-}
 
 async function geocodeAddress(address: Address|string): Promise<Address> {
 
