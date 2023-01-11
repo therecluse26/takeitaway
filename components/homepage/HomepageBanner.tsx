@@ -2,12 +2,8 @@ import { createStyles, Grid } from "@mantine/core";
 import React, { FC, JSXElementConstructor } from "react";
 import { Oswald, Roboto } from "@next/font/google";
 import dynamic from "next/dynamic";
+import BackgroundVideo from "../BackgroundVideo";
 
-const BackgroundImage = dynamic(() =>
-  import("@mantine/core").then(
-    (mod) => mod.BackgroundImage as JSXElementConstructor<any>
-  )
-);
 const Container = dynamic(() =>
   import("@mantine/core").then(
     (mod) => mod.Container as JSXElementConstructor<any>
@@ -63,18 +59,22 @@ const useStyles = createStyles((theme) => ({
     paddingTop: "20px",
     paddingBottom: "20px",
   },
+  bgMedia: {
+    marginTop: -40,
+    backgroundColor: "#000000",
+  },
 }));
 
 const HomepageBanner: FC = () => {
   const { classes } = useStyles();
 
   return (
-    <BackgroundImage
-      src={"/images/takeitaway.webp"}
-      style={{
-        marginTop: -40,
-        backgroundColor: "#000000",
-      }}
+    <BackgroundVideo
+      sources={[
+        { url: "/images/takeitaway_hero.webm", mime: "video/webm" },
+        { url: "/images/takeitaway_hero.mp4", mime: "video/mp4" },
+      ]}
+      posterUrl={"/images/takeitaway_hero_firstframe.jpg"}
     >
       <div className={classes.dotMatrix}>
         <Container className={classes.headerContainer}>
@@ -93,7 +93,7 @@ const HomepageBanner: FC = () => {
           </Grid>
         </Container>
       </div>
-    </BackgroundImage>
+    </BackgroundVideo>
   );
 };
 

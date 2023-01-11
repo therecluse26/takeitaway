@@ -153,6 +153,7 @@ export default function HomePage() {
                 <Image
                   src={'/images/Phoenix-Map.jpg'}
                   width="560px"
+                  height="auto"
                   alt={'Phoenix Map'}
                 />
               </Grid.Col>
