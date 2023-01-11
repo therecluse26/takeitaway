@@ -81,12 +81,12 @@ export default function HomePage() {
                 Short-Term Rental and Residential On Demand Trash Services
               </Title>
             </Center>
-            <Container size="md" mt="1" mb="lg">
+            <Container size="md" mb="lg">
               <Divider color={'gray'} mt="0" mb="0" />
             </Container>
 
-            <Grid>
-              <Grid.Col span={6}>
+            <Grid style={{ marginTop: 40 }}>
+              <Grid.Col span={12} md={6}>
                 <p className={classes.lightText}>
                   We are a residential and short-term rental on demand trash
                   services-based business. We have subscription services
@@ -99,8 +99,8 @@ export default function HomePage() {
                   “Take It Away”, then we are the company for you!
                 </p>
               </Grid.Col>
-              <Grid.Col span={6}>
-                <Center style={{ minHeight: 400 }}>
+              <Grid.Col span={12} md={6}>
+                <Center style={{ minHeight: 200 }}>
                   <Group>
                     <Image
                       src={'/images/trash-1-410x410.jpg'}
@@ -131,7 +131,7 @@ export default function HomePage() {
         <Container size="xl">
           <Box>
             <Grid>
-              <Grid.Col span={6}>
+              <Grid.Col span={12} sm={6}>
                 <Title>Service Area - Phoenix Metro, Arizona</Title>
                 <div className={classes.lightText}>
                   <p>
@@ -149,11 +149,11 @@ export default function HomePage() {
                   </ul>
                 </div>
               </Grid.Col>
-              <Grid.Col span={6}>
+              <Grid.Col span={12} sm={6}>
                 <Image
                   src={'/images/Phoenix-Map.jpg'}
-                  width="560px"
-                  height="auto"
+                  // width="560px"
+                  // height="auto"
                   alt={'Phoenix Map'}
                 />
               </Grid.Col>
