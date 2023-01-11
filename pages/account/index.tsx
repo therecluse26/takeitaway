@@ -13,6 +13,7 @@ const Loader = dynamic(() =>
     (mod) => mod.Loader as JSXElementConstructor<any>
   )
 );
+const Title = dynamic(() => import('@mantine/core').then((mod) => mod.Title));
 
 export default function Account() {
   const { status, data: session }: { status: String; data: any } = useSession({
@@ -31,7 +32,7 @@ export default function Account() {
   return (
     <>
       <Center>
-        <h1>Account</h1>
+        <Title>Account</Title>
       </Center>
       <Center>
         <div>

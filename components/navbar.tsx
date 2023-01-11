@@ -119,11 +119,11 @@ export default function HeaderTabs({ links, mounted = true }: HeaderTabsProps) {
   const { classes, cx } = useStyles();
   const [opened, { toggle }] = useDisclosure(false);
 
-  const items = links.map((link) => {
+  const items = links.map((link, index) => {
     const menuItems = link.links?.map((item: any) => (
-      <Menu.Item key={item.link + "_item"}>
+      <Menu.Item key={(item.key ?? item.link) + "_top_" + index}>
         <Link
-          key={item.label + "_link"}
+          key={(item.key ?? item.label) + "_link_" + index}
           href={item.link}
           className={classes.link}
         >
@@ -135,25 +135,37 @@ export default function HeaderTabs({ links, mounted = true }: HeaderTabsProps) {
     if (menuItems) {
       return (
         <>
-          <RouterTransition />
+          <RouterTransition
+            key={(link.key ?? link.label) + "_transition_" + index}
+          />
           <Menu
-            key={link.label + "_menu"}
+            key={(link.key ?? link.label) + "_menu_" + index}
             trigger="hover"
             exitTransitionDuration={0}
           >
-            <Menu.Target>
+            <Menu.Target key={(link.key ?? link.label) + "_target_" + index}>
               <Link
-                key={link.label + "_menu_link"}
+                key={(link.key ?? link.label) + "_menu_link_" + index}
                 href={link.link}
                 className={classes.link}
               >
-                <Center>
-                  <span className={classes.linkLabel}>{link.label}</span>
-                  <IconChevronDown size={12} stroke={1.5} />
+                <Center key={(link.key ?? link.label) + "_center_" + index}>
+                  <span className={classes.linkLabel} key={"span_" + index}>
+                    {link.label}
+                  </span>
+                  <IconChevronDown
+                    size={12}
+                    stroke={1.5}
+                    key={"chevron" + index}
+                  />
                 </Center>
               </Link>
             </Menu.Target>
-            <Menu.Dropdown>{menuItems}</Menu.Dropdown>
+            <Menu.Dropdown
+              key={(link.key ?? link.label) + "_dropdown_" + index}
+            >
+              {menuItems}
+            </Menu.Dropdown>
           </Menu>
         </>
       );
@@ -161,7 +173,7 @@ export default function HeaderTabs({ links, mounted = true }: HeaderTabsProps) {
 
     return (
       <Link
-        key={link.label + "_base_link"}
+        key={link.label + "_base_link_" + index}
         href={link.link}
         className={classes.link}
       >
@@ -169,6 +181,7 @@ export default function HeaderTabs({ links, mounted = true }: HeaderTabsProps) {
       </Link>
     );
   });
+
   return (
     <Header height={"80px"} fixed={true} className={classes.header}>
       <Container className={classes.mainSection}>

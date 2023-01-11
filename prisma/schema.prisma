@@ -26,22 +26,25 @@ model Account {
   user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index(userId)
 }
 
 model Address {
   id              String           @id @default(cuid())
   userId          String
-  street          String
-  city            String
-  state           String
-  zip             String
-  country         String
+  street          String           @db.VarChar(100)
+  city            String           @db.VarChar(100)
+  state           String           @db.VarChar(100)
+  zip             String           @db.VarChar(10)
+  country         String           @db.VarChar(100)
   latitude        Float?
   longitude       Float?
   user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   serviceRequests ServiceRequest[]
   serviceLogs     ServiceLog[]
   subscription    Subscription?
+
+  @@index(userId)
 }
 
 model BillingCycle {
@@ -57,29 +60,54 @@ model BillingCycle {
   serviceRequests ServiceRequest[]
   serviceLogs     ServiceLog[]
   subscriptions   Subscription[]
+
+  @@index(userId)
+  @@index(subscriptionId)
+}
+
+model Message {
+  id        String    @id @default(cuid())
+  name      String    @db.VarChar(100)
+  email     String    @db.VarChar(100)
+  phone     String?   @db.VarChar(20)
+  city      String?   @db.VarChar(100)
+  message   String    @db.VarChar(2000)
+  read      Boolean   @default(false)
+  sent      Boolean   @default(false)
+  parentId  String?
+  parent    Message?  @relation("MessageParent", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children  Message[] @relation("MessageParent")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index(parentId)
 }
 
 model Payment {
-  id             String       @id @default(cuid())
-  userId         String
-  paymentMethodId         String
-  billingCycleId String
-  amount         Float
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  deleted        Boolean      @default(false)
-  paymentIntent  String
-  status         String
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  billingCycle   BillingCycle @relation(fields: [billingCycleId], references: [id], onDelete: Cascade)
-  paymentMethod  PaymentMethod @relation(fields: [paymentMethodId], references: [id], onDelete: Cascade)
+  id              String        @id @default(cuid())
+  userId          String
+  paymentMethodId String
+  billingCycleId  String
+  amount          Float
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  deleted         Boolean       @default(false)
+  paymentIntent   String
+  status          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  billingCycle    BillingCycle  @relation(fields: [billingCycleId], references: [id], onDelete: Cascade)
+  paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id], onDelete: Cascade)
+
+  @@index(userId)
+  @@index(paymentMethodId)
+  @@index(billingCycleId)
 }
 
 model Service {
   id              String           @id @default(cuid())
   type            ServiceType      @default(recurring)
   name            String
-  description     String
+  description     String           @db.VarChar(2000)
   price           Float
   perCycle        Int?             @default(1)
   createdAt       DateTime         @default(now())
@@ -96,7 +124,7 @@ model ServiceRequest {
   billingCycleId String
   addressId      String
   requestDate    DateTime
-  instructions   String?
+  instructions   String?      @db.VarChar(2000)
   completed      Boolean      @default(false)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
@@ -104,6 +132,10 @@ model ServiceRequest {
   service        Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   billingCycle   BillingCycle @relation(fields: [billingCycleId], references: [id], onDelete: Cascade)
   address        Address      @relation(fields: [addressId], references: [id], onDelete: Cascade)
+
+  @@index(serviceId)
+  @@index(billingCycleId)
+  @@index(addressId)
 }
 
 model ServiceLog {
@@ -111,7 +143,7 @@ model ServiceLog {
   serviceId      String
   billingCycleId String
   addressId      String
-  notes          String?
+  notes          String?      @db.VarChar(2000)
   photo          String?
   completed      Boolean      @default(false)
   notified       Boolean      @default(false)
@@ -121,6 +153,10 @@ model ServiceLog {
   service        Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   billingCycle   BillingCycle @relation(fields: [billingCycleId], references: [id], onDelete: Cascade)
   address        Address      @relation(fields: [addressId], references: [id], onDelete: Cascade)
+
+  @@index(serviceId)
+  @@index(billingCycleId)
+  @@index(addressId)
 }
 
 model Session {
@@ -129,6 +165,8 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index(userId)
 }
 
 model Subscription {
@@ -145,19 +183,24 @@ model Subscription {
   address        Address       @relation(fields: [addressId], references: [id], onDelete: Cascade)
   service        Service       @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   billingCycle   BillingCycle? @relation(fields: [billingCycleId], references: [id])
+
+  @@index(userId)
+  @@index(serviceId)
+  @@index(addressId)
+  @@index(billingCycleId)
 }
 
 model User {
-  id             String               @id @default(cuid())
+  id             String          @id @default(cuid())
   name           String?
-  email          String?              @unique
+  email          String?         @unique
   emailVerified  DateTime?
   image          String?
-  role           RoleEnum             @default(subscriber)
+  role           RoleEnum        @default(subscriber)
   stripeId       String?
-  deleted        Boolean              @default(false)
-  createdAt      DateTime             @default(now())
-  updatedAt      DateTime             @updatedAt @default(now())
+  deleted        Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @default(now()) @updatedAt
   accounts       Account[]
   addresses      Address[]
   billingCycles  BillingCycle[]
@@ -165,23 +208,26 @@ model User {
   sessions       Session[]
   subscriptions  Subscription[]
   paymentMethods PaymentMethod[]
+
   @@index([id, name, email])
 }
 
 model PaymentMethod {
-  id            String   @id @default(cuid())
-  userId        String 
-  stripeId String @unique
-  last4         String?
-  expMonth      Int?
-  expYear       Int?
-  brand         String?
-  default      Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  deleted       Boolean  @default(false)
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  payments      Payment[]
+  id        String    @id @default(cuid())
+  userId    String
+  stripeId  String    @unique
+  last4     String?
+  expMonth  Int?
+  expYear   Int?
+  brand     String?
+  default   Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deleted   Boolean   @default(false)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payments  Payment[]
+
+  @@index(userId)
 }
 
 model VerificationToken {

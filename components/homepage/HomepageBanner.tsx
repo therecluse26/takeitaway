@@ -13,6 +13,7 @@ const Container = dynamic(() =>
     (mod) => mod.Container as JSXElementConstructor<any>
   )
 );
+const Title = dynamic(() => import("@mantine/core").then((mod) => mod.Title));
 
 const roboto = Roboto({
   weight: "400",
@@ -25,6 +26,11 @@ const oswald = Oswald({
 });
 
 const useStyles = createStyles((theme) => ({
+  headerContainer: {
+    paddingTop: "40px",
+    paddingBottom: "40px",
+  },
+
   headerText1: {
     color: "rgb(0, 122, 255)",
     fontSize: "154px",
@@ -48,7 +54,7 @@ const useStyles = createStyles((theme) => ({
   },
   dotMatrix: {
     background: "url(/images/dotmatrix.png)",
-    backgroundSize: "5px",
+    backgroundSize: "4px",
     mixBlendMode: "hard-light",
     backgroundColor: "rgba(0, 0, 0, 0.2)",
     height: "100%",
@@ -71,17 +77,17 @@ const HomepageBanner: FC = () => {
       }}
     >
       <div className={classes.dotMatrix}>
-        <Container>
+        <Container className={classes.headerContainer}>
           <Grid>
             <Grid.Col span={6}>
-              <h1>
+              <Title>
                 <span className={classes.headerText1}>TAKE IT</span>
                 <br />
                 <span className={classes.headerText2}>AWAY</span>
-              </h1>
-              <h2 className={classes.headerSubText}>
+              </Title>
+              <Title order={2} className={classes.headerSubText}>
                 Short-term rental and residential on demand trash services
-              </h2>
+              </Title>
             </Grid.Col>
             <Grid.Col span={6}></Grid.Col>
           </Grid>

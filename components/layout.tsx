@@ -1,17 +1,30 @@
 import Navbar from "./navbar";
 import { useSession } from "next-auth/react";
 import { defaultNavBarLinks, buildNavbarLinks } from "../data/navbar-links";
-import { ReactElement, useEffect, useState } from "react";
+import {
+  JSXElementConstructor,
+  ReactElement,
+  useEffect,
+  useState,
+} from "react";
 import React from "react";
 import dynamic from "next/dynamic";
-import { Affix, Transition, Button } from "@mantine/core";
 import { IconArrowUp } from "@tabler/icons";
 import { useWindowScroll } from "@mantine/hooks";
+import FooterBar from "./footer";
 
 const AppShell = dynamic(() =>
   import("@mantine/core").then((mod) => mod.AppShell)
 );
-
+const Affix = dynamic(() => import("@mantine/core").then((mod) => mod.Affix));
+const Transition = dynamic(() =>
+  import("@mantine/core").then((mod) => mod.Transition)
+);
+const Button = dynamic(() =>
+  import("@mantine/core").then(
+    (mod) => mod.Button as JSXElementConstructor<any>
+  )
+);
 const Layout = ({ children }: { children: ReactElement<any> }) => {
   const { data: session, status } = useSession();
   const [links, setLinks] = useState(defaultNavBarLinks);
@@ -26,7 +39,11 @@ const Layout = ({ children }: { children: ReactElement<any> }) => {
   }, [status, session, linksHaveBeenBuilt]);
 
   return (
-    <AppShell padding={0} navbar={<Navbar links={links} />}>
+    <AppShell
+      padding={0}
+      navbar={<Navbar links={links} />}
+      footer={<FooterBar />}
+    >
       <div style={{ marginTop: "120px" }}>
         <>
           {children}
@@ -34,7 +51,7 @@ const Layout = ({ children }: { children: ReactElement<any> }) => {
             <Transition transition="slide-up" mounted={scroll.y > 0}>
               {(transitionStyles) => (
                 <Button
-                  variant="light"
+                  variant="default"
                   style={transitionStyles}
                   onClick={() => scrollTo({ y: 0 })}
                 >

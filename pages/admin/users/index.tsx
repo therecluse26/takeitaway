@@ -17,6 +17,9 @@ import { IconSearch } from '@tabler/icons';
 import Link from 'next/link';
 import { USEQUERY_STALETIME } from '../../../data/configuration';
 import { Roles } from '../../../data/permissions';
+import dynamic from 'next/dynamic';
+
+const Title = dynamic(() => import('@mantine/core').then((mod) => mod.Title));
 
 const RoleFilter: any = () => {
   let roles = Roles.map((r) => {
@@ -71,7 +74,7 @@ export default function UserTable() {
     <Center>
       <Box sx={{ height: height - 300, width: width - 100 }}>
         <Center>
-          <h1>Manage Users</h1>
+          <Title>Manage Users</Title>
         </Center>
 
         <Grid align="center" mb="md">
