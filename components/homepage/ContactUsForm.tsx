@@ -32,7 +32,7 @@ const Center = dynamic(() =>
   )
 );
 
-const ContactUsForm = () => {
+const ContactUsForm: JSXElementConstructor<any> = () => {
   const { data: session, status } = useSession();
   const [nameDisabled, setNameDisabled] = useState(false);
   const [emailDisabled, setEmailDisabled] = useState(false);

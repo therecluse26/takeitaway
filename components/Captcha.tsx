@@ -1,4 +1,3 @@
-import HCaptcha from "@hcaptcha/react-hcaptcha";
 import React from "react";
 import { showNotification } from "@mantine/notifications";
 import dynamic from "next/dynamic";
@@ -6,6 +5,8 @@ import dynamic from "next/dynamic";
 const Divider = dynamic(() =>
   import("@mantine/core").then((mod) => mod.Divider)
 );
+
+const HCaptcha = dynamic(() => import("@hcaptcha/react-hcaptcha"));
 
 export interface CaptchaProps {
   show: boolean;

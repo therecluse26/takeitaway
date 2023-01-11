@@ -47,6 +47,8 @@ const Layout = ({ children }: { children: ReactElement<any> }) => {
       <div style={{ marginTop: "120px" }}>
         <>
           {children}
+
+          {/* Scroll to top button */}
           <Affix position={{ bottom: 20, right: 20 }}>
             <Transition transition="slide-up" mounted={scroll.y > 0}>
               {(transitionStyles) => (

@@ -100,9 +100,9 @@ export default function UserDetail() {
           <RoleBadge />
         </Group>
 
-        {user.addresses?.length > 0 ? (
-          <Card radius="md">
-            <h2>Locations</h2>
+        <Card radius="md">
+          <h2>Locations</h2>
+          {user.addresses.length && (
             <Accordion variant="contained">
               {user.addresses.map((address: Address) => (
                 <Accordion.Item
@@ -129,12 +129,11 @@ export default function UserDetail() {
                 </Accordion.Item>
               ))}
             </Accordion>
-          </Card>
-        ) : (
-          <Card p="lg" radius="md">
-            + Add Location
-          </Card>
-        )}
+          )}
+        </Card>
+        <Card p="lg" radius="md">
+          + Add Location
+        </Card>
       </Container>
     </div>
   );

@@ -23,9 +23,8 @@ const Center = dynamic(() =>
     (mod) => mod.Center as JSXElementConstructor<any>
   )
 );
-const Image = dynamic(() =>
-  import("@mantine/core").then((mod) => mod.Image as JSXElementConstructor<any>)
-);
+const Image = dynamic(() => import("next/image"));
+
 const Loader = dynamic(() =>
   import("@mantine/core").then(
     (mod) => mod.Loader as JSXElementConstructor<any>
@@ -132,54 +131,52 @@ export default function HeaderTabs({ links, mounted = true }: HeaderTabsProps) {
       </Menu.Item>
     ));
 
-    if (menuItems) {
-      return (
-        <>
-          <RouterTransition
-            key={(link.key ?? link.label) + "_transition_" + index}
-          />
-          <Menu
-            key={(link.key ?? link.label) + "_menu_" + index}
-            trigger="hover"
-            exitTransitionDuration={0}
-          >
-            <Menu.Target key={(link.key ?? link.label) + "_target_" + index}>
-              <Link
-                key={(link.key ?? link.label) + "_menu_link_" + index}
-                href={link.link}
-                className={classes.link}
-              >
-                <Center key={(link.key ?? link.label) + "_center_" + index}>
-                  <span className={classes.linkLabel} key={"span_" + index}>
-                    {link.label}
-                  </span>
-                  <IconChevronDown
-                    size={12}
-                    stroke={1.5}
-                    key={"chevron" + index}
-                  />
-                </Center>
-              </Link>
-            </Menu.Target>
-            <Menu.Dropdown
-              key={(link.key ?? link.label) + "_dropdown_" + index}
-            >
-              {menuItems}
-            </Menu.Dropdown>
-          </Menu>
-        </>
-      );
-    }
-
+    // if (menuItems) {
     return (
-      <Link
-        key={link.label + "_base_link_" + index}
-        href={link.link}
-        className={classes.link}
-      >
-        {link.label}
-      </Link>
+      <>
+        <RouterTransition
+          key={(link.key ?? link.label) + "_transition_" + index}
+        />
+        <Menu
+          key={(link.key ?? link.label) + "_menu_" + index}
+          trigger="hover"
+          exitTransitionDuration={0}
+        >
+          <Menu.Target key={(link.key ?? link.label) + "_target_" + index}>
+            <Link
+              key={(link.key ?? link.label) + "_menu_link_" + index}
+              href={link.link}
+              className={classes.link}
+            >
+              <Center key={(link.key ?? link.label) + "_center_" + index}>
+                <span className={classes.linkLabel} key={"span_" + index}>
+                  {link.label}
+                </span>
+                <IconChevronDown
+                  size={12}
+                  stroke={1.5}
+                  key={"chevron" + index}
+                />
+              </Center>
+            </Link>
+          </Menu.Target>
+          <Menu.Dropdown key={(link.key ?? link.label) + "_dropdown_" + index}>
+            {menuItems}
+          </Menu.Dropdown>
+        </Menu>
+      </>
     );
+    // }
+
+    // return (
+    //   <Link
+    //     key={link.label + "_base_link_" + index}
+    //     href={link.link}
+    //     className={classes.link}
+    //   >
+    //     {link.label}
+    //   </Link>
+    // );
   });
 
   return (

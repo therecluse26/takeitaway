@@ -1,9 +1,13 @@
-import { createStyles, Grid } from '@mantine/core';
-import ContactUsForm from '../components/homepage/ContactUsForm';
+import { createStyles, Grid, Loader } from '@mantine/core';
 import HomepageBanner from '../components/homepage/HomepageBanner';
-
 import dynamic from 'next/dynamic';
-import { JSXElementConstructor } from 'react';
+import { JSXElementConstructor, useRef } from 'react';
+import { useIntersection } from '@mantine/hooks';
+
+import phoenixMap from '../public/images/Phoenix-Map.jpg';
+import trashImage1 from '../public/images/trash-1-410x410.jpg';
+import trashImage2 from '../public/images/trash-2-410x410.jpg';
+import trashImage3 from '../public/images/trash-3-410x410.jpg';
 
 const Title = dynamic(() => import('@mantine/core').then((mod) => mod.Title));
 
@@ -19,7 +23,7 @@ const Group = dynamic(() =>
   import('@mantine/core').then((mod) => mod.Group as JSXElementConstructor<any>)
 );
 
-const Image = dynamic(() => import('@mantine/core').then((mod) => mod.Image));
+const Image = dynamic(() => import('next/image'));
 
 const Container = dynamic(() =>
   import('@mantine/core').then((mod) => mod.Container)
@@ -29,6 +33,10 @@ const Center = dynamic(() =>
   import('@mantine/core').then(
     (mod) => mod.Center as JSXElementConstructor<any>
   )
+);
+
+const ContactUsForm = dynamic(
+  () => import('../components/homepage/ContactUsForm')
 );
 
 const minRowHeight = '400px';
@@ -61,9 +69,19 @@ const useStyles = createStyles((theme) => ({
   lightText: {
     color: theme.colors.gray[7],
   },
+  serviceAreaImage: {
+    width: '100%',
+    height: 'auto',
+    borderRadius: '10px',
+  },
 }));
 
 export default function HomePage() {
+  const contactContainerRef = useRef<HTMLDivElement>(null);
+  const { ref: contactRef, entry } = useIntersection({
+    root: contactContainerRef.current,
+    threshold: 0.0001,
+  });
   const { classes } = useStyles();
 
   if (typeof window === 'undefined') {
@@ -85,7 +103,7 @@ export default function HomePage() {
               <Divider color={'gray'} mt="0" mb="0" />
             </Container>
 
-            <Grid style={{ marginTop: 40 }}>
+            <Grid gutter={40} style={{ marginTop: 40 }}>
               <Grid.Col span={12} md={6}>
                 <p className={classes.lightText}>
                   We are a residential and short-term rental on demand trash
@@ -103,22 +121,22 @@ export default function HomePage() {
                 <Center style={{ minHeight: 200 }}>
                   <Group>
                     <Image
-                      src={'/images/trash-1-410x410.jpg'}
-                      height="180px"
-                      width="180px"
+                      src={trashImage1}
                       alt="Trash pickup"
+                      height={180}
+                      width={180}
                     />
                     <Image
-                      src={'/images/trash-2-410x410.jpg'}
-                      height="180px"
-                      width="180px"
+                      src={trashImage2}
                       alt="Dumpsters"
+                      height={180}
+                      width={180}
                     />
                     <Image
-                      src={'/images/trash-3-410x410.jpg'}
-                      height="180px"
-                      width="180px"
+                      src={trashImage3}
                       alt="Trash cans"
+                      height={180}
+                      width={180}
                     />
                   </Group>
                 </Center>
@@ -130,7 +148,7 @@ export default function HomePage() {
       <Container fluid className={classes.grayBackground}>
         <Container size="xl">
           <Box>
-            <Grid>
+            <Grid gutter={40}>
               <Grid.Col span={12} sm={6}>
                 <Title>Service Area - Phoenix Metro, Arizona</Title>
                 <div className={classes.lightText}>
@@ -151,10 +169,9 @@ export default function HomePage() {
               </Grid.Col>
               <Grid.Col span={12} sm={6}>
                 <Image
-                  src={'/images/Phoenix-Map.jpg'}
-                  // width="560px"
-                  // height="auto"
+                  src={phoenixMap}
                   alt={'Phoenix Map'}
+                  className={classes.serviceAreaImage}
                 />
               </Grid.Col>
             </Grid>
@@ -168,8 +185,22 @@ export default function HomePage() {
           <p>Select 3 services from the backend and display them here</p>
         </Container>
       </Container>
-      <Container fluid className={classes.grayBackground}>
-        <ContactUsForm />
+
+      {/* Lazily loads contact us form on partial container intersection */}
+      <Container
+        fluid
+        className={classes.grayBackground}
+        ref={contactContainerRef}
+      >
+        <div ref={contactRef}>
+          {entry?.isIntersecting ? (
+            <ContactUsForm />
+          ) : (
+            <Center>
+              <Loader></Loader>
+            </Center>
+          )}
+        </div>
       </Container>
     </>
   );

@@ -6,7 +6,7 @@ import Navbar from "./navbar";
 export default function AppSkeleton() {
   return (
     <AppShell
-      navbar={<Navbar links={defaultNavBarLinks} mounted={false} />}
+      navbar={<Navbar links={defaultNavBarLinks} mounted={true} />}
       footer={<FooterBar />}
     >
       <Container fluid={true} />

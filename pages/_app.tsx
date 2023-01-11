@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { SessionProvider, useSession } from 'next-auth/react';
 import { NotificationsProvider } from '@mantine/notifications';
 
@@ -32,14 +32,14 @@ export default function App({
   Component: any;
   pageProps: any;
 }): ReactJSXElement {
-  const [hasMounted, setHasMounted] = useState(false);
+  // const [hasMounted, setHasMounted] = useState(false);
   const [colorScheme, setColorScheme] = useState<ColorScheme>('light');
   const toggleColorScheme = (value?: ColorScheme) =>
     setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
 
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
+  // useEffect(() => {
+  //   setHasMounted(true);
+  // }, []);
 
   return (
     <div suppressHydrationWarning>
@@ -70,17 +70,13 @@ export default function App({
           >
             <NotificationsProvider>
               <SessionProvider session={session}>
-                <Authenticated>
-                  {hasMounted ? (
-                    <Layout>
-                      <GuardContent authorization={pageProps.authorization}>
-                        <Component {...pageProps} />
-                      </GuardContent>
-                    </Layout>
-                  ) : (
-                    <AppSkeleton />
-                  )}
-                </Authenticated>
+                <SessionLoading>
+                  <Layout>
+                    <GuardContent authorization={pageProps.authorization}>
+                      <Component {...pageProps} />
+                    </GuardContent>
+                  </Layout>
+                </SessionLoading>
               </SessionProvider>
             </NotificationsProvider>
           </MantineProvider>
@@ -90,7 +86,7 @@ export default function App({
   );
 }
 
-const Authenticated = ({ children }: { children: any }): ReactJSXElement => {
+const SessionLoading = ({ children }: { children: any }): ReactJSXElement => {
   const { status } = useSession({ required: false });
 
   if (status === 'loading') {

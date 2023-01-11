@@ -25,5 +25,11 @@ export function RouterTransition() {
     };
   }, [router.asPath, router.events]);
 
-  return <NavigationProgress size={5} autoReset={true} />;
+  return (
+    <NavigationProgress
+      progressLabel="navigation_progress"
+      size={5}
+      autoReset={true}
+    />
+  );
 }

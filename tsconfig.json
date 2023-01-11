@@ -24,7 +24,7 @@
     "**/*.ts",
     "**/*.tsx",
     "prisma/seed.js"
-  ],
+, "next.config.js"  ],
   "exclude": [
     "node_modules"
   ]
