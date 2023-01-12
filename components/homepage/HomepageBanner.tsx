@@ -1,15 +1,7 @@
-import { createStyles, Grid } from "@mantine/core";
-import React, { FC, JSXElementConstructor } from "react";
+import { Container, createStyles, Grid, Title } from "@mantine/core";
+import React, { FC } from "react";
 import { Oswald, Roboto } from "@next/font/google";
-import dynamic from "next/dynamic";
 import BackgroundVideo from "../BackgroundVideo";
-
-const Container = dynamic(() =>
-  import("@mantine/core").then(
-    (mod) => mod.Container as JSXElementConstructor<any>
-  )
-);
-const Title = dynamic(() => import("@mantine/core").then((mod) => mod.Title));
 
 const roboto = Roboto({
   weight: "400",

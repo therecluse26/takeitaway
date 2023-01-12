@@ -1,38 +1,20 @@
-import { createStyles, Header, Menu } from "@mantine/core";
+import {
+  Burger,
+  Center,
+  Container,
+  createStyles,
+  Group,
+  Header,
+  Loader,
+  Menu,
+} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconChevronDown } from "@tabler/icons";
 import UserButton from "./user-button";
 import { RouterTransition } from "./RouterTransition";
 
-import dynamic from "next/dynamic";
-import { JSXElementConstructor } from "react";
-
-const Link = dynamic(() => import("next/link"));
-const Container = dynamic(() =>
-  import("@mantine/core").then(
-    (mod) => mod.Container as JSXElementConstructor<any>
-  )
-);
-const Burger = dynamic(() =>
-  import("@mantine/core").then(
-    (mod) => mod.Burger as JSXElementConstructor<any>
-  )
-);
-const Center = dynamic(() =>
-  import("@mantine/core").then(
-    (mod) => mod.Center as JSXElementConstructor<any>
-  )
-);
-const Image = dynamic(() => import("next/image"));
-
-const Loader = dynamic(() =>
-  import("@mantine/core").then(
-    (mod) => mod.Loader as JSXElementConstructor<any>
-  )
-);
-const Group = dynamic(() =>
-  import("@mantine/core").then((mod) => mod.Group as JSXElementConstructor<any>)
-);
+import Link from "next/link";
+import {Image} from "@mantine/core";
 
 const useStyles = createStyles((theme) => ({
   header: {

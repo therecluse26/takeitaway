@@ -1,5 +1,4 @@
 import { createStyles } from "@mantine/core";
-import { useEffect, useRef } from "react";
 
 const useStyles = createStyles((theme) => ({
   outer: {
@@ -33,21 +32,14 @@ export default function BackgroundVideo({
   posterUrl: string;
 }) {
   const { classes } = useStyles();
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-
-  useEffect(() => {
-    setTimeout(() => {
-      videoRef?.current?.play();
-    }, 500);
-  }, []);
 
   return (
     <div className={classes.outer}>
       <video
-        ref={videoRef}
         className={classes.video}
         poster={posterUrl}
         preload="none"
+        autoPlay
         disableRemotePlayback
         disablePictureInPicture
         playsInline
