@@ -7,7 +7,6 @@ import {
   Header,
   Loader,
   Menu,
-  Skeleton,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconChevronDown } from "@tabler/icons";
