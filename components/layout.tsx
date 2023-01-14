@@ -21,7 +21,7 @@ const Layout = ({ children }: { children: ReactElement<any> }) => {
   const [scroll, scrollTo] = useWindowScroll();
 
   useEffect(() => {
-    if (!linksHaveBeenBuilt) {
+    if (!linksHaveBeenBuilt && status !== "loading") {
       setLinks(buildNavbarLinks(session?.user));
       setLinksHaveBeenBuilt(true);
     }
@@ -33,7 +33,9 @@ const Layout = ({ children }: { children: ReactElement<any> }) => {
     <>
       <AppShell
         padding={0}
-        navbar={<Navbar links={links} />}
+        navbar={
+          <Navbar links={links} linksHaveBeenBuilt={linksHaveBeenBuilt} />
+        }
         footer={<FooterBar />}
       >
         <div style={{ marginTop: "120px" }}>
@@ -62,4 +64,4 @@ const Layout = ({ children }: { children: ReactElement<any> }) => {
   );
 };
 
-export default Layout;
+export default React.memo(Layout);

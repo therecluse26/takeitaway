@@ -1,12 +1,7 @@
 import { Container, createStyles, Grid, Title } from "@mantine/core";
 import React, { FC } from "react";
-import { Oswald, Roboto } from "@next/font/google";
+import { Oswald } from "@next/font/google";
 import BackgroundVideo from "../BackgroundVideo";
-
-const roboto = Roboto({
-  weight: "400",
-  subsets: ["latin"],
-});
 
 const oswald = Oswald({
   weight: "400",
@@ -38,7 +33,7 @@ const useStyles = createStyles((theme) => ({
     color: theme.colors.gray[0],
     fontWeight: 400,
     fontSize: "28px",
-    fontFamily: roboto.style.fontFamily,
+    fontFamily: theme.fontFamily,
   },
   dotMatrix: {
     background: "url(/images/dotmatrix.png)",
@@ -89,4 +84,4 @@ const HomepageBanner: FC = () => {
   );
 };
 
-export default HomepageBanner;
+export default React.memo(HomepageBanner);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { hasLength, useForm } from "@mantine/form";
+import { hasLength, isEmail, isNotEmpty, useForm } from "@mantine/form";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import { JSXElementConstructor } from "react";
@@ -52,10 +52,11 @@ const ContactUsForm: JSXElementConstructor<any> = () => {
     },
 
     validate: {
-      name: (value) => (value.length > 0 ? null : "Name is required"),
-      email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
+      name: isNotEmpty("Name is required"),
+      email: isEmail("Invalid email"),
       phone: (value) =>
-        /^\d{10}$/.test(value) || value.length === 0
+        /^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/.test(value) ||
+        value.length === 0
           ? null
           : "Invalid phone number",
       message: hasLength(

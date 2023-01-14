@@ -1,4 +1,5 @@
-import { createStyles } from "@mantine/core";
+import { createStyles, Skeleton } from "@mantine/core";
+import React from "react";
 
 const useStyles = createStyles((theme) => ({
   outer: {
@@ -22,7 +23,7 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export default function BackgroundVideo({
+const BackgroundVideo = function ({
   children,
   sources,
   posterUrl,
@@ -32,25 +33,31 @@ export default function BackgroundVideo({
   posterUrl: string;
 }) {
   const { classes } = useStyles();
+  const [loaded, setLoaded] = React.useState(false);
 
   return (
-    <div className={classes.outer}>
-      <video
-        className={classes.video}
-        poster={posterUrl}
-        preload="none"
-        autoPlay
-        disableRemotePlayback
-        disablePictureInPicture
-        playsInline
-        muted
-        loop
-      >
-        {sources.map((s) => {
-          return <source key={s.url} src={s.url} type={s.mime} />;
-        })}
-      </video>
-      <div>{children}</div>
-    </div>
+    <Skeleton className={classes.outer} visible={!loaded}>
+      <div>
+        <video
+          className={classes.video}
+          poster={posterUrl}
+          onLoadedData={() => setLoaded(true)}
+          preload="none"
+          autoPlay
+          disableRemotePlayback
+          disablePictureInPicture
+          playsInline
+          muted
+          loop
+        >
+          {sources.map((s) => {
+            return <source key={s.url} src={s.url} type={s.mime} />;
+          })}
+        </video>
+        <div>{children}</div>
+      </div>
+    </Skeleton>
   );
-}
+};
+
+export default React.memo(BackgroundVideo);

@@ -1,4 +1,4 @@
-import {  useState } from "react";
+import { useState } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import {
   IconChevronDown,
@@ -7,7 +7,14 @@ import {
   IconUser,
 } from "@tabler/icons";
 import { userCan } from "../lib/services/PermissionService";
-import { Menu, UnstyledButton, Group, Avatar, Text, Loader } from "@mantine/core";
+import {
+  Menu,
+  UnstyledButton,
+  Group,
+  Avatar,
+  Text,
+  Loader,
+} from "@mantine/core";
 import Link from "next/link";
 
 export default function UserButton({
@@ -49,6 +56,7 @@ export default function UserButton({
               alt={user.name ?? "User Avatar"}
               radius="xl"
               size={20}
+              imageProps={{ referrerPolicy: "no-referrer" }}
             />
 
             <Text weight={500} size="sm" sx={{ lineHeight: 1 }} mr={3}>

@@ -7,6 +7,7 @@ import {
   Header,
   Loader,
   Menu,
+  Skeleton,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconChevronDown } from "@tabler/icons";
@@ -14,7 +15,8 @@ import UserButton from "./user-button";
 import { RouterTransition } from "./RouterTransition";
 
 import Link from "next/link";
-import {Image} from "@mantine/core";
+import Image from "next/image";
+import React from "react";
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -27,6 +29,7 @@ const useStyles = createStyles((theme) => ({
       theme.colorScheme === "dark" ? "transparent" : theme.colors.gray[2]
     }`,
     marginBottom: 40,
+    zIndex: 1000,
   },
 
   mainSection: {
@@ -94,9 +97,14 @@ const useStyles = createStyles((theme) => ({
 interface HeaderTabsProps {
   links: any[];
   mounted?: boolean;
+  linksHaveBeenBuilt?: boolean;
 }
 
-export default function HeaderTabs({ links, mounted = true }: HeaderTabsProps) {
+const HeaderTabs = function ({
+  links,
+  mounted = true,
+  linksHaveBeenBuilt = false,
+}: HeaderTabsProps) {
   const { classes, cx } = useStyles();
   const [opened, { toggle }] = useDisclosure(false);
 
@@ -113,85 +121,92 @@ export default function HeaderTabs({ links, mounted = true }: HeaderTabsProps) {
       </Menu.Item>
     ));
 
-    // if (menuItems) {
     return (
       <>
         <RouterTransition
           key={(link.key ?? link.label) + "_transition_" + index}
         />
-        <Menu
-          key={(link.key ?? link.label) + "_menu_" + index}
-          trigger="hover"
-          exitTransitionDuration={0}
-        >
-          <Menu.Target key={(link.key ?? link.label) + "_target_" + index}>
-            <Link
-              key={(link.key ?? link.label) + "_menu_link_" + index}
-              href={link.link}
-              className={classes.link}
+        {link?.links?.length > 0 ? (
+          <Menu
+            key={(link.key ?? link.label) + "_menu_" + index}
+            trigger="hover"
+            exitTransitionDuration={0}
+          >
+            <Menu.Target key={(link.key ?? link.label) + "_target_" + index}>
+              <Link
+                key={(link.key ?? link.label) + "_menu_link_" + index}
+                href={link.link}
+                className={classes.link}
+              >
+                <Center key={(link.key ?? link.label) + "_center_" + index}>
+                  <span className={classes.linkLabel} key={"span_" + index}>
+                    {link.label}
+                  </span>
+                  <IconChevronDown
+                    size={12}
+                    stroke={1.5}
+                    key={"chevron" + index}
+                  />
+                </Center>
+              </Link>
+            </Menu.Target>
+
+            <Menu.Dropdown
+              key={(link.key ?? link.label) + "_dropdown_" + index}
             >
-              <Center key={(link.key ?? link.label) + "_center_" + index}>
-                <span className={classes.linkLabel} key={"span_" + index}>
-                  {link.label}
-                </span>
-                <IconChevronDown
-                  size={12}
-                  stroke={1.5}
-                  key={"chevron" + index}
-                />
-              </Center>
-            </Link>
-          </Menu.Target>
-          <Menu.Dropdown key={(link.key ?? link.label) + "_dropdown_" + index}>
-            {menuItems}
-          </Menu.Dropdown>
-        </Menu>
+              {menuItems}
+            </Menu.Dropdown>
+          </Menu>
+        ) : (
+          <Link
+            key={(link.key ?? link.label) + "_link_" + index}
+            href={link.link}
+            className={classes.link}
+          >
+            {link.label}
+          </Link>
+        )}
       </>
     );
-    // }
-
-    // return (
-    //   <Link
-    //     key={link.label + "_base_link_" + index}
-    //     href={link.link}
-    //     className={classes.link}
-    //   >
-    //     {link.label}
-    //   </Link>
-    // );
   });
 
   return (
-    <Header height={"80px"} fixed={true} className={classes.header}>
-      <Container className={classes.mainSection}>
-        <Group position="apart">
-          <Link href={"/"}>
-            <Image
-              src={"/logo-small.png"}
-              alt={"logo"}
-              height={52}
-              width={120}
-            />
-          </Link>
+    <>
+      {linksHaveBeenBuilt && (
+        <Header height={"80px"} fixed={true} className={classes.header}>
+          <Container className={classes.mainSection}>
+            <Group position="apart">
+              <Link href={"/"}>
+                <Image
+                  src={"/logo-small.png"}
+                  alt={"logo"}
+                  height={52}
+                  width={120}
+                />
+              </Link>
 
-          <Burger
-            opened={opened}
-            onClick={toggle}
-            className={classes.burger}
-            size="sm"
-          />
+              <Burger
+                opened={opened}
+                onClick={toggle}
+                className={classes.burger}
+                size="sm"
+              />
 
-          <Group spacing={5} className={classes.links}>
-            {items}
-          </Group>
+              <Group spacing={5} className={classes.links}>
+                {items}
+              </Group>
 
-          {mounted ? (
-            <UserButton classes={classes} cx={cx} />
-          ) : (
-            <Loader size={"sm"} />
-          )}
-        </Group>
-      </Container>
-    </Header>
+              {mounted ? (
+                <UserButton classes={classes} cx={cx} />
+              ) : (
+                <Loader size={"sm"} />
+              )}
+            </Group>
+          </Container>
+        </Header>
+      )}
+    </>
   );
-}
+};
+
+export default React.memo(HeaderTabs);
