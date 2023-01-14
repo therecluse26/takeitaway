@@ -9,6 +9,11 @@ export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
+    if(req.method !== 'POST'){
+        res.status(errorMessages.api.methodNotAllowed.code).json({error: errorMessages.api.methodNotAllowed.message});
+        return
+    }
+    
     const session: Session | null = await getSession({ req });
 
     if(!session?.user){
@@ -16,14 +21,16 @@ export default async function handler(
         return
     }
 
-    if(!req.query.session_id){
+    const session_id = req.body?.session_id;
+
+    if(!session_id){
         res.status(errorMessages.api.stripe.noSessionId.code).json({error: errorMessages.api.stripe.noSessionId.message});
         return
     }
 
     let paymentMethod = null;
     try {
-        paymentMethod = await getPaymentMethodFromSession(req.query.session_id.toString());
+        paymentMethod = await getPaymentMethodFromSession(session_id.toString());
     } catch (error) {
         res.status(400).json({error: error});
         return

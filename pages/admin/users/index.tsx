@@ -9,12 +9,25 @@ import {
   Grid,
   TextInput,
   Anchor,
+  NativeSelect,
 } from '@mantine/core';
 import { User } from '@prisma/client';
 import { useDebouncedValue, useViewportSize } from '@mantine/hooks';
 import { IconSearch } from '@tabler/icons';
 import Link from 'next/link';
 import { USEQUERY_STALETIME } from '../../../data/configuration';
+import { Roles } from '../../../data/permissions';
+import dynamic from 'next/dynamic';
+
+const Title = dynamic(() => import('@mantine/core').then((mod) => mod.Title));
+
+const RoleFilter: any = () => {
+  let roles = Roles.map((r) => {
+    return { value: r.name, label: r.name };
+  });
+  roles.unshift({ value: '', label: 'Select Role...' });
+  return roles;
+};
 
 const PAGE_SIZE = 15;
 
@@ -30,7 +43,7 @@ export default function UserTable() {
     setSortStatus(status);
   };
   const [selectedRecords, setSelectedRecords] = useState<User[]>([]);
-  const [search, setSearch] = useState({ name: '', email: '' });
+  const [search, setSearch] = useState({ name: '', email: '', role: '' });
   const [debouncedSearch] = useDebouncedValue(search, 500);
 
   // Users query
@@ -61,7 +74,7 @@ export default function UserTable() {
     <Center>
       <Box sx={{ height: height - 300, width: width - 100 }}>
         <Center>
-          <h1>Manage Users</h1>
+          <Title>Manage Users</Title>
         </Center>
 
         <Grid align="center" mb="md">
@@ -88,6 +101,17 @@ export default function UserTable() {
                 setPage(1);
               }}
             />
+          </Grid.Col>
+          <Grid.Col xs={3}></Grid.Col>
+
+          <Grid.Col xs={2}>
+            <NativeSelect
+              data={RoleFilter()}
+              onChange={(e) => {
+                setSearch({ ...search, role: e.currentTarget.value });
+                setPage(1);
+              }}
+            ></NativeSelect>
           </Grid.Col>
         </Grid>
         <DataTable

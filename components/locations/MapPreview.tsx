@@ -1,10 +1,30 @@
 import { Address } from "@prisma/client";
-import React, { useEffect } from "react";
+import React, { JSXElementConstructor, useEffect } from "react";
 import { useState } from "react";
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import { geocodeAddress } from "../../lib/services/AddressService";
-import { Loader } from "@mantine/core";
+import dynamic from "next/dynamic";
+
+const Center = dynamic(() =>
+  import("@mantine/core").then(
+    (mod) => mod.Center as JSXElementConstructor<any>
+  )
+);
+const Text = dynamic(() =>
+  import("@mantine/core").then((mod) => mod.Text as JSXElementConstructor<any>)
+);
+const Loader = dynamic(() =>
+  import("@mantine/core").then(
+    (mod) => mod.Loader as JSXElementConstructor<any>
+  )
+);
+const Stack = dynamic(() =>
+  import("@mantine/core").then((mod) => mod.Stack as JSXElementConstructor<any>)
+);
+const Space = dynamic(() =>
+  import("@mantine/core").then((mod) => mod.Space as JSXElementConstructor<any>)
+);
 
 const MapPreview = ({ address }: { address: Address }) => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -34,31 +54,32 @@ const MapPreview = ({ address }: { address: Address }) => {
   }, [latitude, longitude, address]);
 
   return (
-    <div>
-      {latitude && longitude ? (
-        <MapContainer
-          center={[latitude, longitude]}
-          zoom={zoom}
-          style={{ height: "400px", width: "600px" }}
-        >
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          <Marker position={[latitude, longitude]} />
-        </MapContainer>
-      ) : loading === true ? (
-        <Loader />
-      ) : (
-        <h3>Unable to load map</h3>
-      )}
-
-      <div>
-        <div>{address.street}</div>
-        <div>{address.city}</div>
-        <div>{address.state}</div>
-        <div>{address.zip}</div>
-      </div>
-      <div>Latitude: {latitude ?? "?"}</div>
-      <div>Longitude: {longitude ?? "?"}</div>
-    </div>
+    <>
+      <Center>
+        {latitude && longitude ? (
+          <MapContainer
+            center={[latitude, longitude]}
+            zoom={zoom}
+            style={{ height: "400px", width: "600px" }}
+          >
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            <Marker position={[latitude, longitude]} />
+          </MapContainer>
+        ) : loading === true ? (
+          <Loader />
+        ) : (
+          <h3>Unable to load map</h3>
+        )}
+      </Center>
+      <Center>
+        <Stack>
+          <Space />
+          <Text>
+            {latitude ?? "?"}, {longitude ?? "?"}
+          </Text>
+        </Stack>
+      </Center>
+    </>
   );
 };
 

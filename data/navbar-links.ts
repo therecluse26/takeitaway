@@ -4,40 +4,49 @@ import { userCan } from "../lib/services/PermissionService";
 
 const defaultNavBarLinks: Array<any> = [
     {
+        "key": "test",
         "link": "/test",
         "label": "Test"
     },
     {
+        "key": "learn",
         "link": "#",
         "label": "Learn",
         "links": [
             {
+                "key": "test1",
                 "link": "/test",
                 "label": "Test"
             },
         ]
     },
     {
+        "key": "about",
         "link": "/about",
         "label": "About"
     },
     {
+        "key": "pricing",
         "link": "/pricing",
         "label": "Pricing"
     },
     {
+        "key": "support",
         "link": "#",
         "label": "Support",
         "links": [
             {
+                "key": "faq",
                 "link": "/faq",
                 "label": "FAQ"
             },
             {
+                "key": "demo",
                 "link": "/demo",
                 "label": "Book a demo"
             },
             {
+                "key": "forums",
                 "link": "/forums",
                 "label": "Forums"
             }
@@ -47,6 +56,7 @@ const defaultNavBarLinks: Array<any> = [
 
 const restrictedLinks = [
     {
+        "key": "admin_users",
         "permissions": ["users:read"],
         "link": "/admin/users",
         "label": "Users"

@@ -1,16 +1,5 @@
-import { Container } from '@mantine/core';
-import { defaultNavBarLinks } from '../data/navbar-links';
-import Footer from './footer';
-import Navbar from './navbar';
+import { LoadingOverlay } from "@mantine/core";
 
 export default function AppSkeleton() {
-  return (
-    <>
-      <Navbar links={defaultNavBarLinks} mounted={false} />
-        <main>
-          <Container fluid={true}/>
-        </main>
-      <Footer/>
-    </>
-  );
+  return <LoadingOverlay visible />;
 }

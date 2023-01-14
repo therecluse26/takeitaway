@@ -13,14 +13,23 @@ export function buildFindManyParams(req: NextApiRequest) {
     if(searchQuery){
         let whereQuery: any = {};
         for(const [key, value] of Object.entries(searchQuery)){ 
-            if(value !== "" && value !== null){
+            if (key === "role" && value !== null && value !== ""){
                 whereQuery = {
                     ...whereQuery,
-                    [key]: {
-                        contains: value
+                    [key]: value
+                }
+            }
+            else {
+                if(value !== "" && value !== null){
+                    whereQuery = {
+                        ...whereQuery,
+                        [key]: {
+                            contains: value
+                        }
                     }
                 }
             }
+            
         }
         query.where = whereQuery;
     }

@@ -9,6 +9,11 @@ const prisma = new PrismaClient()
 
 export default async function GetUser(req: NextApiRequest, res: NextApiResponse){
 
+    if(req.method !== 'GET'){
+        res.status(errorMessages.api.methodNotAllowed.code).json({error: errorMessages.api.methodNotAllowed.message});
+        return
+    }
+    
     const session: Session | null = await getSession({ req });
     if (!userCan(session?.user, ["users:read"])) {
         res.status(403).json({error: errorMessages.api.unauthorized.message});
