@@ -32,7 +32,7 @@ export const Captcha: React.FunctionComponent<CaptchaProps> = ({
         sitekey={hcaptchaSiteKey}
         onVerify={onToken}
         onExpire={() => onToken("")}
-        onError={(err) => {
+        onError={() => {
           onToken("");
           showNotification({
             title: "Error",
