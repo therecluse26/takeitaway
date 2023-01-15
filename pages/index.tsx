@@ -1,7 +1,7 @@
 import { createStyles, Grid, Loader } from '@mantine/core';
 import HomepageBanner from '../components/homepage/HomepageBanner';
 import dynamic from 'next/dynamic';
-import { JSXElementConstructor, useRef } from 'react';
+import { JSXElementConstructor, useEffect, useRef, useState } from 'react';
 import { useIntersection } from '@mantine/hooks';
 
 import phoenixMap from '../public/images/Phoenix-Map.jpg';
@@ -82,7 +82,14 @@ export default function HomePage() {
     root: contactContainerRef.current,
     threshold: 0.0001,
   });
+  const [contactFormHasLoaded, setContactFormHasLoaded] = useState(false);
   const { classes } = useStyles();
+
+  useEffect(() => {
+    if (entry?.isIntersecting) {
+      setContactFormHasLoaded(true);
+    }
+  }, [entry]);
 
   if (typeof window === 'undefined') {
     return <>Loading...</>;
@@ -193,7 +200,7 @@ export default function HomePage() {
         ref={contactContainerRef}
       >
         <div ref={contactRef}>
-          {entry?.isIntersecting ? (
+          {contactFormHasLoaded ? (
             <ContactUsForm />
           ) : (
             <Center>

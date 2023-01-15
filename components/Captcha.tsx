@@ -1,6 +1,6 @@
 import React from "react";
-import { showNotification } from "@mantine/notifications";
 import dynamic from "next/dynamic";
+import { showNotification } from "@mantine/notifications";
 
 const Divider = dynamic(() =>
   import("@mantine/core").then((mod) => mod.Divider)
@@ -15,7 +15,6 @@ export interface CaptchaProps {
 }
 
 const hcaptchaSiteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY ?? "";
-const env = process.env.NODE_ENV;
 
 export const Captcha: React.FunctionComponent<CaptchaProps> = ({
   show,
@@ -28,12 +27,9 @@ export const Captcha: React.FunctionComponent<CaptchaProps> = ({
   return (
     <>
       <Divider size={0} style={{ marginBottom: "1rem" }} />
+
       <HCaptcha
-        sitekey={
-          env === "development"
-            ? "10000000-ffff-ffff-ffff-000000000001"
-            : hcaptchaSiteKey
-        }
+        sitekey={hcaptchaSiteKey}
         onVerify={onToken}
         onExpire={() => onToken("")}
         onError={(err) => {
@@ -42,7 +38,6 @@ export const Captcha: React.FunctionComponent<CaptchaProps> = ({
             title: "Error",
             message: "Cannot verify captcha",
           });
-          console.error(err);
         }}
       />
     </>
