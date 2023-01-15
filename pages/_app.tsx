@@ -12,8 +12,8 @@ import GuardContent from '../components/auth-guard';
 
 // Dynamic imports
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Passion_One } from '@next/font/google';
 import Layout from '../components/layout';
+import { Oswald, Passion_One } from '@next/font/google';
 
 const queryClient = new QueryClient();
 
@@ -22,6 +22,11 @@ const passionOne = Passion_One({
   subsets: ['latin'],
   style: 'normal',
   fallback: ['Helvetica', 'Arial', 'Verdana', 'sans-serif'],
+});
+
+const oswald = Oswald({
+  weight: '400',
+  subsets: ['latin'],
 });
 
 export default function App({
@@ -49,7 +54,6 @@ export default function App({
               theme={{
                 /** Put your mantine theme override here */
                 colorScheme: colorScheme,
-
                 headings: {
                   fontFamily: passionOne.style.fontFamily,
                   sizes: {
@@ -61,6 +65,24 @@ export default function App({
                     h6: { fontWeight: 900 },
                   },
                 },
+
+                globalStyles: (theme) => ({
+                  '.specialHeader': {
+                    fontFamily: oswald.style.fontFamily,
+                    color: 'rgb(0, 122, 255)',
+                    fontSize: '154px',
+                    lineHeight: '160px',
+                    fontWeight: 700,
+                  },
+                  '.specialHeaderAlt': {
+                    fontFamily: oswald.style.fontFamily,
+                    color: theme.colors.green[5],
+                    fontSize: '154px',
+                    fontWeight: 300,
+                    fontStyle: 'extra-light',
+                    lineHeight: '160px',
+                  },
+                }),
               }}
             >
               <NotificationsProvider>
