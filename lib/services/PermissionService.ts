@@ -1,24 +1,27 @@
 
 import { User } from "next-auth/core/types";
-import { Roles, RolePermissions, TRole } from "../../data/permissions";
+import { Roles, RolePermissions } from "../../data/permissions";
 
 // Get all permissions for a given role
-function getRolePermissions(role: TRole): string[] {
-    return RolePermissions.filter((rp) => rp.role.name === role.name).map((rp) => rp.permission.name);
+function getRolePermissions(role: string): string[] {
+    return RolePermissions.get(role) ?? [];
 }
 
 // Gets role type by name
-function getRoleByName(name: string): TRole {
-    return Roles.find((r) => r.name === name) ?? {name: "Unknown", description: "Unknown"};
+function getRoleByName(name: string): string | undefined {
+    return Roles.get(name)?.key;
 }
 
 // Get a user's role
-function getUserRole(user: User): TRole {
+function getUserRole(user: User): string | undefined {
     return getRoleByName(user.role);
 }
 
 // Checks if a given role can perform a given action by permission
-function can(role: TRole, permissions: string|string[]): boolean {
+function can(role: string | undefined, permissions: string|string[]): boolean {
+    if(!role){
+        return false;
+    }
     if(typeof permissions === "string"){
         permissions = [permissions];
     }
