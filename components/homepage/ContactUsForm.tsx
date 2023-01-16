@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { JSXElementConstructor } from "react";
 import Captcha from "../Captcha";
 import { submitMessage } from "../../lib/services/ContactService";
+import { companyInfo, errorMessages, pageMessages } from "../../data/messaging";
 
 const TextInput = dynamic(() =>
   import("@mantine/core").then((mod) => mod.TextInput)
@@ -38,7 +39,17 @@ const ContactUsForm: JSXElementConstructor<any> = () => {
   const [emailDisabled, setEmailDisabled] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [initializedError, setInitializedError] = useState(false);
   const [errored, setErrored] = useState(false);
+  const handleCaptchaToken = (token: string | undefined | null) => {
+    try {
+      if (token) {
+        setCaptchaToken(token);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const form = useForm({
     initialValues: {
@@ -102,10 +113,15 @@ const ContactUsForm: JSXElementConstructor<any> = () => {
   if (errored) {
     return (
       <Center>
-        <Title order={3}>
-          There was an error submitting your message. Please contact us at (602)
-          524-6545.
-        </Title>
+        <Title order={3}>{errorMessages.form.failedToSubmit.message}</Title>
+      </Center>
+    );
+  }
+
+  if (initializedError) {
+    return (
+      <Center>
+        <Title order={3}>{errorMessages.form.failedToInitialize.message}</Title>
       </Center>
     );
   }
@@ -114,15 +130,12 @@ const ContactUsForm: JSXElementConstructor<any> = () => {
     <>
       {submitted ? (
         <Center>
-          <Title order={3}>
-            Thank you for your message! We will reply to you as soon as
-            possible.
-          </Title>
+          <Title order={3}>{pageMessages.contactUs.messages.submitted}</Title>
         </Center>
       ) : (
         <Box sx={{ maxWidth: 600 }} mx="auto">
-          <Title>Contact Us</Title>
-          <p>Phone: (602) 524-6545</p>
+          <Title>{pageMessages.contactUs.title}</Title>
+          <p>Phone: {companyInfo.phoneNumber}</p>
 
           <form onSubmit={form.onSubmit((values) => submitForm(values))}>
             <TextInput
@@ -163,7 +176,10 @@ const ContactUsForm: JSXElementConstructor<any> = () => {
 
             <Captcha
               show={true}
-              onToken={setCaptchaToken}
+              onInitializationError={() => {
+                setInitializedError(true);
+              }}
+              onToken={handleCaptchaToken}
               {...form.getInputProps("captchaToken")}
             ></Captcha>
 

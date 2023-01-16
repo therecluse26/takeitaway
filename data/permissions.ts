@@ -2,11 +2,16 @@
  * Types and enums for permissions
  */
 
-type TPermission = Map<string, {key: string, label: string}>;
+type KeyLabelShape = {
+    key: string,
+    label: string
+}
+
+type TPermission = Map<string, KeyLabelShape>;
 
 type TRolePermission =  Map<string, string>;
 
-type TRole = Map<string, {key: string, label: string}>
+type TRole = Map<string, KeyLabelShape>
 
 const Roles: TRole = new Map([
     ['subscriber', {key: 'subscriber', label: "Subscriber"}],
@@ -83,4 +88,4 @@ const RolePermissions: Map<string, string[]> = new Map([
 ]);
 
 export { Permissions, RolePermissions, Roles };
-export type { TPermission, TRole, TRolePermission };
+export type { TPermission, TRole, TRolePermission, KeyLabelShape };

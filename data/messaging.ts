@@ -1,4 +1,16 @@
-const pageMessages = {}
+const companyInfo = {
+    phoneNumber: "(602) 524-6545"
+}
+
+const pageMessages = {
+    contactUs: {
+        title: "Contact Us",
+        messages: {
+            submitted: "Thank you for your message! We will reply to you as soon as possible."
+        }
+    },
+    
+}
 
 const errorMessages = {
     pages: {
@@ -61,6 +73,17 @@ const errorMessages = {
                 message: "The specified payment method already exists"
             },
         }
+    },
+    form: {
+        failedToSubmit: {
+            code: 400,
+            message: "There was an error submitting your message. Please contact us at " + companyInfo.phoneNumber + "."
+        },
+        failedToInitialize: {
+            code: 400,
+            message: "There was an error with the contact form. Please contact us at " + companyInfo.phoneNumber + "."
+        }
+
     }
 }
 
@@ -68,4 +91,4 @@ const uiMessages = {
     homeBtnVerbose: "Go to home page"
 }
 
-export {errorMessages, pageMessages, uiMessages }
+export {errorMessages, pageMessages, uiMessages, companyInfo }

@@ -17,14 +17,14 @@ import { useDebouncedValue, useViewportSize } from '@mantine/hooks';
 import { IconSearch } from '@tabler/icons';
 import Link from 'next/link';
 import { USEQUERY_STALETIME } from '../../../data/configuration';
-import { Roles } from '../../../data/permissions';
+import { KeyLabelShape, Roles } from '../../../data/permissions';
 import dynamic from 'next/dynamic';
 
 const Title = dynamic(() => import('@mantine/core').then((mod) => mod.Title));
 
 const RoleFilter: any = () => {
-  let roles = Roles.map((r) => {
-    return { value: r.name, label: r.name };
+  let roles = Array.from(Roles.values()).map((role: KeyLabelShape) => {
+    return { value: role.key, label: role.label };
   });
   roles.unshift({ value: '', label: 'Select Role...' });
   return roles;
