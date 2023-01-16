@@ -1,10 +1,9 @@
-import Navbar from "./navbar";
 import { useSession } from "next-auth/react";
 import { defaultNavBarLinks, buildNavbarLinks } from "../data/navbar-links";
 import { ReactElement, useEffect, useState } from "react";
 import React from "react";
 import { IconArrowUp } from "@tabler/icons";
-import { useWindowScroll } from "@mantine/hooks";
+import { useDisclosure, useWindowScroll } from "@mantine/hooks";
 import FooterBar from "./footer";
 import {
   Affix,
@@ -13,12 +12,16 @@ import {
   LoadingOverlay,
   Transition,
 } from "@mantine/core";
+import Header from "./header";
+import Mobilenavbar from "./mobilenavbar";
 
 const Layout = ({ children }: { children: ReactElement<any> }) => {
   const { data: session, status } = useSession();
   const [links, setLinks] = useState(defaultNavBarLinks);
   const [linksHaveBeenBuilt, setLinksHaveBeenBuilt] = useState(false);
   const [scroll, scrollTo] = useWindowScroll();
+  const [burgerOpened, { toggle: toggleBurgerOpened, close: closeBurger }] =
+    useDisclosure(false);
 
   useEffect(() => {
     if (!linksHaveBeenBuilt && status !== "loading") {
@@ -33,8 +36,20 @@ const Layout = ({ children }: { children: ReactElement<any> }) => {
     <>
       <AppShell
         padding={0}
+        header={
+          <Header
+            links={links}
+            closeNavbarCallback={closeBurger}
+            burgerOpened={burgerOpened}
+            toggleBurgerOpened={toggleBurgerOpened}
+          />
+        }
         navbar={
-          <Navbar links={links} linksHaveBeenBuilt={linksHaveBeenBuilt} />
+          <Mobilenavbar
+            opened={burgerOpened}
+            links={links}
+            closeNavbarCallback={closeBurger}
+          />
         }
         footer={<FooterBar />}
       >

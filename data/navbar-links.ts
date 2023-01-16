@@ -4,54 +4,31 @@ import { userCan } from "../lib/services/PermissionService";
 
 const defaultNavBarLinks: Array<any> = [
     {
-        "key": "test",
-        "link": "/test",
-        "label": "Test"
+        "key": "home",
+        "link": "/",
+        "label": "Home"
     },
-    {
-        "key": "learn",
-        "link": "#",
-        "label": "Learn",
-        "links": [
-            {
-                "key": "test1",
-                "link": "/test",
-                "label": "Test"
-            },
-        ]
-    },
+    
     {
         "key": "about",
-        "link": "/about",
+        "link": "/#about",
         "label": "About"
     },
     {
-        "key": "pricing",
-        "link": "/pricing",
-        "label": "Pricing"
+        "key": "service_area",
+        "link": "/#service_area",
+        "label": "Service Area"
     },
     {
-        "key": "support",
-        "link": "#",
-        "label": "Support",
-        "links": [
-            {
-                "key": "faq",
-                "link": "/faq",
-                "label": "FAQ"
-            },
-            {
-                "key": "demo",
-                "link": "/demo",
-                "label": "Book a demo"
-            },
-            {
-                "key": "forums",
-                "link": "/forums",
-                "label": "Forums"
-            }
-        ]
-    }
+        "key": "process",
+        "link": "/process",
+        "label": "Our Process"
+    },
+    {
+        "key": "contact",
+        "link": "/#contact",
+        "label": "Contact Us"
+    },
 ];
 
 const restrictedLinks = [
@@ -59,7 +36,7 @@ const restrictedLinks = [
         "key": "admin_users",
         "permissions": ["users:read"],
         "link": "/admin/users",
-        "label": "Users"
+        "label": "Manage Users"
     }
 ];
 
@@ -84,7 +61,7 @@ function buildNavbarLinks(user?: User) {
     if(permissionLinks.length > 0){
         links.push({
             "permissions": ["admin:dashboard"],
-            "link": "/admin",
+            "link": "#",
             "label": "Admin",
             "links": permissionLinks
         })

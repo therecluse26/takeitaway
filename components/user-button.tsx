@@ -20,9 +20,11 @@ import Link from "next/link";
 export default function UserButton({
   classes,
   cx,
+  onClick,
 }: {
   classes: any;
   cx: CallableFunction;
+  onClick: () => void;
 }) {
   const { data: session, status } = useSession();
   const user = session?.user;
@@ -41,7 +43,7 @@ export default function UserButton({
   return user ? (
     <Menu
       width={260}
-      position="bottom-end"
+      trigger="hover"
       transition="pop-top-right"
       onClose={() => setUserMenuOpened(false)}
       onOpen={() => setUserMenuOpened(true)}
@@ -75,6 +77,7 @@ export default function UserButton({
               component={Link}
               href={"/admin/users"}
               icon={<IconUser size={14} stroke={1.5} />}
+              onClick={onClick}
             >
               Manage Users
             </Menu.Item>
@@ -87,12 +90,14 @@ export default function UserButton({
           component={Link}
           href={"/account"}
           icon={<IconSettings size={14} stroke={1.5} />}
+          onClick={onClick}
         >
           Account settings
         </Menu.Item>
 
         <Menu.Item
           onClick={() => {
+            onClick();
             signOut();
           }}
           icon={<IconLogout size={14} stroke={1.5} />}
@@ -104,6 +109,7 @@ export default function UserButton({
   ) : (
     <UnstyledButton
       onClick={() => {
+        onClick();
         signIn();
       }}
       sx={{ height: 30 }}

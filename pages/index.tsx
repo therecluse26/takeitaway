@@ -98,7 +98,7 @@ export default function HomePage() {
   return (
     <>
       <HomepageBanner />
-      <Container fluid className={classes.transparentBackground}>
+      <Container id="about" fluid className={classes.transparentBackground}>
         <Container size="xl">
           <Box style={{ minHeight: minRowHeight }}>
             <Center style={{ marginTop: '2rem' }}>
@@ -152,7 +152,7 @@ export default function HomePage() {
           </Box>
         </Container>
       </Container>
-      <Container fluid className={classes.grayBackground}>
+      <Container id="service_area" fluid className={classes.grayBackground}>
         <Container size="xl">
           <Box>
             <Grid gutter={40}>
@@ -195,6 +195,7 @@ export default function HomePage() {
 
       {/* Lazily loads contact us form on partial container intersection */}
       <Container
+        id="contact"
         fluid
         className={classes.grayBackground}
         ref={contactContainerRef}
