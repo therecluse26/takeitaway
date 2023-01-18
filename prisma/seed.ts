@@ -1,7 +1,7 @@
 import { Address, PrismaClient, RoleEnum, ServiceType } from '@prisma/client'
 const prisma = new PrismaClient()
 import { faker } from "@faker-js/faker";
-import { createOrUpdateServiceProducts } from '../lib/services/api/ApiStripeService';
+import { createOrUpdateStripeProducts } from '../lib/services/api/ApiStripeService';
 
 function createAddresses(count: number): Array<Address> {
     return Array.from({length: count }).map(() => {
@@ -68,6 +68,7 @@ async function main() {
                         perCycle: 1,
                         featured: false,
                         displayed: true,
+                        productPhoto: "/images/products/1pickups.jpg",
                         createdAt: new Date(),
                         updatedAt: new Date()
                     }, 
@@ -81,6 +82,7 @@ async function main() {
                         perCycle: 2,
                         featured: true,
                         displayed: true,
+                        productPhoto: "/images/products/2pickups.jpg",
                         createdAt: new Date(),
                         updatedAt: new Date()
                     }, 
@@ -94,6 +96,7 @@ async function main() {
                         perCycle: 4,
                         featured: true,
                         displayed: true,
+                        productPhoto: "/images/products/4pickups.jpg",
                         createdAt: new Date(),
                         updatedAt: new Date()
                     }, 
@@ -107,6 +110,7 @@ async function main() {
                         perCycle: 8,
                         featured: true,
                         displayed: true,
+                        productPhoto: "/images/products/6pickups.jpg",
                         createdAt: new Date(),
                         updatedAt: new Date()
                     },
@@ -124,6 +128,7 @@ async function main() {
                         perCycle: 10,
                         featured: false,
                         displayed: true,
+                        productPhoto: "/images/products/10pickups.jpg",
                         createdAt: new Date(),
                         updatedAt: new Date()
                     },
@@ -141,6 +146,7 @@ async function main() {
                         perCycle: 15,
                         featured: false,
                         displayed: true,
+                        productPhoto: "/images/products/15pickups.jpg",
                         createdAt: new Date(),
                         updatedAt: new Date()
                     },
@@ -158,6 +164,7 @@ async function main() {
                         perCycle: 20,
                         featured: false,
                         displayed: true,
+                        productPhoto: "/images/products/20pickups.jpg",
                         createdAt: new Date(),
                         updatedAt: new Date()
                     },
@@ -198,8 +205,8 @@ async function main() {
 
         const services = await prisma.service.findMany();
 
-        await createOrUpdateServiceProducts(services)
-        
+        await createOrUpdateStripeProducts(services)
+
     } 
 }
 main()

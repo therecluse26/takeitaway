@@ -46,7 +46,7 @@ function buildProductData(service: Service): Stripe.ProductCreateParams {
     }
 }
 
-export async function createServiceProduct(service: Service): Promise<Stripe.Product> {
+export async function createStripeProduct(service: Service): Promise<Stripe.Product> {
 
     const product = await stripe.products.create(
         buildProductData(service)
@@ -61,12 +61,12 @@ export async function createServiceProduct(service: Service): Promise<Stripe.Pro
         }
     })
 
-    await createServicePrice(product.id, service);
+    await createStripePrice(product.id, service);
 
     return product;
 }
 
-export async function updateServiceProduct(service: Service): Promise<Stripe.Product> {
+export async function updateStripeProduct(service: Service): Promise<Stripe.Product> {
 
     if (!service.stripeId) {
         throw new Error("Service does not have a Stripe ID, cannot update");
@@ -81,7 +81,7 @@ export async function updateServiceProduct(service: Service): Promise<Stripe.Pro
 }
 
 
-export async function createServicePrice(productId: string, service: Service) {
+export async function createStripePrice(productId: string, service: Service) {
 
     
     const price: Stripe.PriceCreateParams = {
@@ -107,7 +107,7 @@ export async function createServicePrice(productId: string, service: Service) {
 }
 
 
-export async function createOrUpdateServiceProducts(services: Service[]): Promise<void> {
+export async function createOrUpdateStripeProducts(services: Service[]): Promise<void> {
 
     let failures = [];
 
@@ -116,11 +116,11 @@ export async function createOrUpdateServiceProducts(services: Service[]): Promis
 
             if (service.stripeId) {
 
-                await updateServiceProduct(service);
+                await updateStripeProduct(service);
 
             } else {
 
-                await createServiceProduct(service);
+                await createStripeProduct(service);
             }
 
         }
