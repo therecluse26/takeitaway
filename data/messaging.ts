@@ -9,6 +9,11 @@ const pageMessages = {
             submitted: "Thank you for your message! We will reply to you as soon as possible."
         }
     },
+    featuredServices: {
+        title: "Subscriptions",
+        message: "If you are a short-term rental owner that runs one or multiple rental properties and needs rental trash removed after the rental is complete or even during the rental process, we offer a subscription services-based program where you decide the subscription that best fits your needs based on how many rentals you average per month.",
+        subText: "No commitment! Cancel anytime!"
+    }
     
 }
 

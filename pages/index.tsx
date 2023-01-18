@@ -1,13 +1,14 @@
-import { createStyles, Grid, Loader } from '@mantine/core';
+import { Button, createStyles, Grid, Loader } from '@mantine/core';
 import HomepageBanner from '../components/homepage/HomepageBanner';
 import dynamic from 'next/dynamic';
 import { JSXElementConstructor, useEffect, useRef, useState } from 'react';
 import { useIntersection } from '@mantine/hooks';
-
+import Link from 'next/link';
 import phoenixMap from '../public/images/Phoenix-Map.jpg';
 import trashImage1 from '../public/images/trash-1-410x410.jpg';
 import trashImage2 from '../public/images/trash-2-410x410.jpg';
 import trashImage3 from '../public/images/trash-3-410x410.jpg';
+import ServicesFeatured from '../components/services/ServicesFeatured';
 
 const Title = dynamic(() => import('@mantine/core').then((mod) => mod.Title));
 
@@ -99,7 +100,7 @@ export default function HomePage() {
     <>
       <HomepageBanner />
       <Container id="about" fluid className={classes.transparentBackground}>
-        <Container size="xl">
+        <Container size="lg">
           <Box style={{ minHeight: minRowHeight }}>
             <Center style={{ marginTop: '2rem' }}>
               <Title order={2} className={classes.headerAbout}>
@@ -123,6 +124,9 @@ export default function HomePage() {
                   trash out on your scheduled city day and need someone to just
                   “Take It Away”, then we are the company for you!
                 </p>
+                <Button component={Link} href="/process" variant="light">
+                  Learn More
+                </Button>
               </Grid.Col>
               <Grid.Col span={12} md={6}>
                 <Center style={{ minHeight: 200 }}>
@@ -130,20 +134,20 @@ export default function HomePage() {
                     <Image
                       src={trashImage1}
                       alt="Trash pickup"
-                      height={180}
-                      width={180}
+                      height={160}
+                      width={160}
                     />
                     <Image
                       src={trashImage2}
                       alt="Dumpsters"
-                      height={180}
-                      width={180}
+                      height={160}
+                      width={160}
                     />
                     <Image
                       src={trashImage3}
                       alt="Trash cans"
-                      height={180}
-                      width={180}
+                      height={160}
+                      width={160}
                     />
                   </Group>
                 </Center>
@@ -153,7 +157,7 @@ export default function HomePage() {
         </Container>
       </Container>
       <Container id="service_area" fluid className={classes.grayBackground}>
-        <Container size="xl">
+        <Container size="lg">
           <Box>
             <Grid gutter={40}>
               <Grid.Col span={12} sm={6}>
@@ -187,10 +191,7 @@ export default function HomePage() {
       </Container>
 
       <Container fluid className={classes.transparentBackground}>
-        <Container size={'xl'}>
-          <Title>Subscriptions</Title>
-          <p>Select 3 services from the backend and display them here</p>
-        </Container>
+        <ServicesFeatured />
       </Container>
 
       {/* Lazily loads contact us form on partial container intersection */}

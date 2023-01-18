@@ -5,6 +5,7 @@ import { PaymentMethod, User } from '@prisma/client';
 async function getUsers({page, recordsPerPage, sortStatus: { columnAccessor: sortAccessor, direction: sortDirection }, searchQuery}
 : { searchQuery: string|null, page: number|null|undefined; recordsPerPage: number; sortStatus: DataTableSortStatus; }): Promise<any> 
 {
+    
     return await axios.get("/api/users", {
         params: {
             page: page, 
