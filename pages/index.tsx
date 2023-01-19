@@ -1,12 +1,14 @@
-import { createStyles, Grid, Loader } from '@mantine/core';
+import { createStyles, Loader } from '@mantine/core';
 import HomepageBanner from '../components/homepage/HomepageBanner';
 import dynamic from 'next/dynamic';
 import { JSXElementConstructor, useEffect, useRef, useState } from 'react';
 import { useIntersection } from '@mantine/hooks';
 
-import ServicesFeatured from '../components/services/ServicesFeatured';
+import ServicesFeatured from '../components/homepage/ServicesFeatured';
 import About from '../components/homepage/About';
 import ServiceArea from '../components/homepage/ServiceArea';
+import { Service } from '@prisma/client';
+import { getFeaturedServices } from '../lib/services/api/ApiServiceService';
 
 const Container = dynamic(() =>
   import('@mantine/core').then((mod) => mod.Container)
@@ -59,7 +61,7 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export default function HomePage() {
+export default function HomePage(props: { services: Service[] }) {
   const contactContainerRef = useRef<HTMLDivElement>(null);
   const { ref: contactRef, entry } = useIntersection({
     root: contactContainerRef.current,
@@ -91,7 +93,7 @@ export default function HomePage() {
       </Container>
 
       <Container fluid className={classes.transparentBackground}>
-        <ServicesFeatured />
+        <ServicesFeatured services={props.services} />
       </Container>
 
       {/* Lazily loads contact us form on partial container intersection */}
@@ -113,4 +115,14 @@ export default function HomePage() {
       </Container>
     </>
   );
+}
+
+export async function getStaticProps() {
+  const services: Service[] = await getFeaturedServices().then((res) =>
+    JSON.parse(JSON.stringify(res))
+  );
+
+  return {
+    props: { services: services },
+  };
 }

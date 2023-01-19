@@ -10,9 +10,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { Service } from "@prisma/client";
-import { useEffect, useState } from "react";
 import { pageMessages } from "../../data/messaging";
-import { getFeaturedServices } from "../../lib/services/ServiceService";
 import { formatAmountForDisplay } from "../../lib/utils/stripe-helpers";
 import { IconHome, IconTrash } from "@tabler/icons";
 
@@ -39,36 +37,32 @@ const ServiceCard = ({ service }: { service: Service }) => {
       </Center>
       <Button variant="filled" color="blue" fullWidth mt="md" radius="md">
         <IconTrash />
-        Subscribe Now
+        {pageMessages.featuredServices.subscribeButton}
       </Button>
     </Card>
   );
 };
 
-export default function ServicesFeatured() {
-  const [services, setServices] = useState<Service[]>([]);
-
-  useEffect(() => {
-    getFeaturedServices().then((services) => {
-      setServices(services);
-    });
-  }, []);
-
+export default function ServicesFeatured({
+  services,
+}: {
+  services: Service[];
+}) {
   return (
     <Container size={"lg"}>
       <Group position="center">
         <Title>{pageMessages.featuredServices.title}</Title>
-        <Text color="dimmed">{pageMessages.featuredServices.message}</Text>
+        <Text color="dimmed">{pageMessages.featuredServices.text}</Text>
       </Group>
 
       {services?.length > 0 ? (
         <Group position="center" mt="lg">
-          {services?.map((service) => {
+          {services?.map((service: Service) => {
             return <ServiceCard service={service} key={service.id} />;
           })}
         </Group>
       ) : (
-        <div>No featured services</div>
+        <div>{pageMessages.featuredServices.notFound}</div>
       )}
 
       <Center m="lg">

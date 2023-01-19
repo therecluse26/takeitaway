@@ -11,8 +11,26 @@ const pageMessages = {
     },
     featuredServices: {
         title: "Subscriptions",
-        message: "If you are a short-term rental owner that runs one or multiple rental properties and needs rental trash removed after the rental is complete or even during the rental process, we offer a subscription services-based program where you decide the subscription that best fits your needs based on how many rentals you average per month.",
-        subText: "No commitment! Cancel anytime!"
+        text: "If you are a short-term rental owner that runs one or multiple rental properties and needs rental trash removed after the rental is complete or even during the rental process, we offer a subscription services-based program where you decide the subscription that best fits your needs based on how many rentals you average per month.",
+        subText: "No commitment! Cancel anytime!",
+        notFound: "No featured services",
+        subscribeButton: "Subscribe Now",
+    },
+    serviceArea: {
+        title: "Service Area - Phoenix Metro, Arizona",
+        text: `<p>
+                    We service the Phoenix/Maricopa County areas but are hoping to
+                    have the opportunity to expand to other communities soon!
+                </p>
+                <p>
+                    <b>SUMMER HOURS:</b>
+                </p>
+                <ul>
+                    <li>Mon: 8AM - 5PM</li>
+                    <li>Wed: 8AM - 5PM</li>
+                    <li>Fri: 8AM - 5PM</li>
+                    <li>Sat: 8AM - 5PM</li>
+                </ul>`,
     }
     
 }
