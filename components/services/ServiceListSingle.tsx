@@ -1,4 +1,4 @@
-import { Button, Grid, Title, Text } from "@mantine/core";
+import { Button, Grid, Title, Text, Divider } from "@mantine/core";
 import { Service } from "@prisma/client";
 import Image from "next/image";
 import { saveServiceToCart } from "../../lib/services/CheckoutService";
@@ -6,38 +6,41 @@ import { formatAmountForDisplay } from "../../lib/utils/stripe-helpers";
 
 export default function ServiceListSingle({ service }: { service: Service }) {
   return (
-    <Grid gutter={"xs"} mb={40}>
-      <Grid.Col span={4} sm={4}>
-        <Image
-          src={service.productPhoto}
-          alt={service.name}
-          width={340}
-          height={340}
-        />
-      </Grid.Col>
-      <Grid.Col span={8} sm={8}>
-        <Title order={4} mb="xs">
-          {service.name}
-        </Title>
-        <Text size="lg" mb={"1rem"}>
-          {formatAmountForDisplay(service.price)} / month
-        </Text>
-        <Text
-          color="dimmed"
-          dangerouslySetInnerHTML={{ __html: service.description }}
-        />
-        <Button
-          onClick={() => {
-            saveServiceToCart(service);
-          }}
-          variant="filled"
-          color="blue"
-          mt="md"
-          radius="md"
-        >
-          Sign up now
-        </Button>
-      </Grid.Col>
-    </Grid>
+    <>
+      <Grid gutter={"xs"}>
+        <Grid.Col md={4} sm={4}>
+          <Image
+            src={service.productPhoto}
+            alt={service.name}
+            width={340}
+            height={340}
+          />
+        </Grid.Col>
+        <Grid.Col md={8} sm={8}>
+          <Title order={4} mb="xs">
+            {service.name}
+          </Title>
+          <Text size="lg" mb={"1rem"}>
+            {formatAmountForDisplay(service.price)} / month
+          </Text>
+          <Text
+            color="dimmed"
+            dangerouslySetInnerHTML={{ __html: service.description }}
+          />
+          <Button
+            onClick={() => {
+              saveServiceToCart(service);
+            }}
+            variant="filled"
+            color="blue"
+            mt="md"
+            radius="md"
+          >
+            Sign up now
+          </Button>
+        </Grid.Col>
+      </Grid>
+      <Divider m={30} />
+    </>
   );
 }

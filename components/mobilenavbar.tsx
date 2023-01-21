@@ -11,6 +11,7 @@ import UserButton from "./user-button";
 import React from "react";
 import { navigationLinks } from "../helpers/navigationLinks";
 import { Session } from "next-auth";
+import Link from "next/link";
 
 const useStyles = createStyles((theme) => ({
   navbar: {

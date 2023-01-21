@@ -47,11 +47,16 @@ const useStyles = createStyles((theme) => ({
         ? theme.colors.blue[5]
         : theme.colors.blue[7],
     height: "48px",
+    // [theme.fn.smallerThan("sm")]: {
+    //   height: "30px",
+    // },
   },
   mainSection: {
     paddingTop: 16,
-
     height: "90px",
+    [theme.fn.smallerThan("sm")]: {
+      height: "70px",
+    },
     paddingBottom: theme.spacing.sm,
   },
 
@@ -130,7 +135,7 @@ const HeaderTabs = function ({
     <>
       <Header height={"126px"} fixed={true} className={classes.header}>
         <Container fluid className={classes.topSection}>
-          <Grid style={{ height: "40px" }}>
+          <Grid style={{ height: "40px" }} justify="center">
             <Grid.Col
               sm={"auto"}
               offsetSm={2}
@@ -171,32 +176,39 @@ const HeaderTabs = function ({
             </MediaQuery>
           </Grid>
         </Container>
-        <Container className={classes.mainSection} size="lg">
-          <Group position="apart">
-            <Link href={"/"}>
-              <Image
-                src={"/logo-small.png"}
-                alt={"logo"}
-                height={52}
-                width={120}
-              />
-            </Link>
-            <MediaQuery largerThan="md" styles={{ display: "none" }}>
-              <Burger
-                opened={burgerOpened}
-                onClick={toggleBurgerOpened}
-                className={classes.burger}
-                size="md"
-              />
-            </MediaQuery>
-            <Group spacing={5} className={classes.links}>
-              {navigationLinks(links, classes, closeNavbarCallback)}
+        <Container className={classes.mainSection} size="xl">
+          <MediaQuery smallerThan="sm" styles={{ paddingTop: "8px" }}>
+            <Group position="apart">
+              <Link href={"/"}>
+                <MediaQuery
+                  smallerThan="sm"
+                  styles={{ width: "80px", height: "auto" }}
+                >
+                  <Image
+                    src={"/logo-small.png"}
+                    alt={"logo"}
+                    height={52}
+                    width={120}
+                  />
+                </MediaQuery>
+              </Link>
+              <MediaQuery largerThan="md" styles={{ display: "none" }}>
+                <Burger
+                  opened={burgerOpened}
+                  onClick={toggleBurgerOpened}
+                  className={classes.burger}
+                  size="md"
+                />
+              </MediaQuery>
+              <Group spacing={5} className={classes.links}>
+                {navigationLinks(links, classes, closeNavbarCallback)}
+              </Group>
+              <Group>
+                <SubscribeButton />
+                <ShoppingCartButton session={session} />
+              </Group>
             </Group>
-            <Group>
-              <SubscribeButton />
-              <ShoppingCartButton session={session} />
-            </Group>
-          </Group>
+          </MediaQuery>
         </Container>
       </Header>
     </>

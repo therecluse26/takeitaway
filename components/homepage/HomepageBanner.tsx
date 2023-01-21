@@ -1,4 +1,11 @@
-import { Container, createStyles, Grid, Title } from "@mantine/core";
+import {
+  Container,
+  createStyles,
+  Grid,
+  MediaQuery,
+  Title,
+} from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import React, { FC, useEffect, useState } from "react";
 import BackgroundVideo from "../BackgroundVideo";
 
@@ -12,6 +19,9 @@ const useStyles = createStyles((theme) => ({
     fontWeight: 400,
     fontSize: "28px",
     fontFamily: theme.fontFamily,
+    [theme.fn.smallerThan("md")]: {
+      fontSize: "22px",
+    },
   },
   dotMatrix: {
     background: "url(/images/dotmatrix.png)",
@@ -32,7 +42,14 @@ const useStyles = createStyles((theme) => ({
 
 const HomepageBanner: FC = () => {
   const [loaded, setLoaded] = useState(false);
-  const { classes } = useStyles();
+  const { classes, theme } = useStyles();
+
+  const largerThanMediumScreen = useMediaQuery(
+    "(min-width: " + theme.breakpoints.md.toString() + "px)"
+  );
+  const largerThanSmallScreen = useMediaQuery(
+    "(min-width: " + theme.breakpoints.sm.toString() + "px)"
+  );
 
   useEffect(() => {
     setLoaded(true);
@@ -49,19 +66,32 @@ const HomepageBanner: FC = () => {
           posterUrl={"/images/takeitaway_hero_firstframe.jpg"}
         >
           <div className={classes.dotMatrix}>
-            <Container className={classes.headerContainer}>
+            <Container
+              size={
+                largerThanMediumScreen
+                  ? "lg"
+                  : largerThanSmallScreen
+                  ? "lg"
+                  : "sm"
+              }
+              className={classes.headerContainer}
+            >
               <Grid>
-                <Grid.Col span={6}>
+                <Grid.Col
+                  span={
+                    largerThanMediumScreen ? 6 : largerThanSmallScreen ? 8 : 10
+                  }
+                >
                   <Title>
                     <span className={"specialHeader"}>TAKE IT</span>
                     <br />
                     <span className={"specialHeaderAlt"}>AWAY</span>
                   </Title>
-                  <Title order={2} className={classes.headerSubText}>
+                  <Title className={classes.headerSubText}>
                     Short-term rental and residential on demand trash services
                   </Title>
                 </Grid.Col>
-                <Grid.Col span={6}></Grid.Col>
+                {largerThanMediumScreen && <Grid.Col span={6}></Grid.Col>}
               </Grid>
             </Container>
           </div>
