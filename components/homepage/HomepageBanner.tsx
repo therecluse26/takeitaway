@@ -1,10 +1,4 @@
-import {
-  Container,
-  createStyles,
-  Grid,
-  MediaQuery,
-  Title,
-} from "@mantine/core";
+import { Container, createStyles, Grid, Title } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import React, { FC, useEffect, useState } from "react";
 import BackgroundVideo from "../BackgroundVideo";
