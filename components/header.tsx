@@ -1,6 +1,5 @@
 import {
   Burger,
-  Button,
   Container,
   createStyles,
   Grid,
@@ -20,7 +19,7 @@ import ShoppingCartButton from "./checkout/ShoppingCartButton";
 import { Session } from "next-auth";
 import SubscribeButton from "./header/SubscribeButton";
 import { companyInfo } from "../data/messaging";
-import { IconPhone, IconPhoneCall } from "@tabler/icons";
+import { IconPhoneCall } from "@tabler/icons";
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -66,7 +65,7 @@ const useStyles = createStyles((theme) => ({
       backgroundColor: theme.colors.blue[7],
     },
 
-    [theme.fn.smallerThan("md")]: {
+    [theme.fn.smallerThan("sm")]: {
       display: "none",
     },
   },
@@ -132,8 +131,13 @@ const HeaderTabs = function ({
       <Header height={"126px"} fixed={true} className={classes.header}>
         <Container fluid className={classes.topSection}>
           <Grid style={{ height: "40px" }}>
-            <Grid.Col span="auto" sx={{ height: "100%" }}></Grid.Col>
-            <Grid.Col span={4} sx={{ height: "100%", marginTop: "6px" }}>
+            <Grid.Col
+              sm={"auto"}
+              offsetSm={2}
+              xs={12}
+              offsetXs={0}
+              sx={{ height: "100%", marginTop: "6px" }}
+            >
               <UnstyledButton
                 component={"a"}
                 href={"tel:" + companyInfo.phoneNumberRaw}
@@ -148,19 +152,23 @@ const HeaderTabs = function ({
                 </Group>
               </UnstyledButton>
             </Grid.Col>
-            <Grid.Col span="auto"></Grid.Col>
-            <Grid.Col span={4}>
-              {mounted ? (
-                <UserButton
-                  session={session}
-                  classes={classes}
-                  cx={cx}
-                  onClick={closeNavbarCallback}
-                />
-              ) : (
-                <Loader size={"sm"} />
-              )}
-            </Grid.Col>
+            <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
+              <Grid.Col span={6}></Grid.Col>
+            </MediaQuery>
+            <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
+              <Grid.Col span="auto" offset={-2}>
+                {mounted ? (
+                  <UserButton
+                    session={session}
+                    classes={classes}
+                    cx={cx}
+                    onClick={closeNavbarCallback}
+                  />
+                ) : (
+                  <Loader size={"sm"} />
+                )}
+              </Grid.Col>
+            </MediaQuery>
           </Grid>
         </Container>
         <Container className={classes.mainSection} size="lg">

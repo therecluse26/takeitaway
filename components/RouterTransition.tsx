@@ -5,9 +5,13 @@ import {
   completeNavigationProgress,
   NavigationProgress,
 } from "@mantine/nprogress";
+import { createStyles } from "@mantine/core";
+
+const useStyles = createStyles(() => ({}));
 
 export function RouterTransition() {
   const router = useRouter();
+  const { theme } = useStyles();
 
   useEffect(() => {
     const handleStart = (url: string) =>
@@ -25,10 +29,11 @@ export function RouterTransition() {
     };
   }, [router.asPath, router.events]);
 
-return (
+  return (
     <NavigationProgress
+      color={theme.colors.blue[4]}
       progressLabel="navigation_progress"
-      size={5}
+      size={4}
       autoReset={true}
     />
   );
