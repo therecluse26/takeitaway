@@ -175,7 +175,6 @@ const ContactUsForm: JSXElementConstructor<any> = () => {
             />
 
             <Captcha
-              show={true}
               onInitializationError={() => {
                 setInitializedError(true);
               }}

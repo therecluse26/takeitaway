@@ -39,6 +39,7 @@
     "@tiptap/extension-link": "^2.0.0-beta.207",
     "@tiptap/react": "^2.0.0-beta.207",
     "@tiptap/starter-kit": "^2.0.0-beta.207",
+    "@types/stripe-v3": "^3.1.27",
     "@typescript-eslint/parser": "^5.46.1",
     "axios": "^1.2.1",
     "cuid": "^2.1.8",
@@ -83,5 +84,8 @@
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
-  }
+  },
+  "browser":{
+    "child_process": false
+  }  
 }

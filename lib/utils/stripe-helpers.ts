@@ -11,7 +11,7 @@ export { getStripe };
 
 export function formatAmountForDisplay(
     amount: number,
-    currency: string
+    currency: string = 'USD'
   ): string {
     let numberFormat = new Intl.NumberFormat(['en-US'], {
       style: 'currency',

@@ -105,11 +105,16 @@ model Payment {
 
 model Service {
   id              String           @id @default(cuid())
+  stripeId        String?          @db.VarChar(30)
   type            ServiceType      @default(recurring)
   name            String
   description     String           @db.VarChar(2000)
   price           Float
-  perCycle        Int?             @default(1)
+  priceId         String?          @db.VarChar(50)
+  perCycle        Int?
+  featured        Boolean          @default(false)
+  displayed       Boolean          @default(true)
+  productPhoto    String           @default("/images/products/generic-pickup.jpg") @db.VarChar(1000)
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   deleted         Boolean          @default(false)
@@ -191,23 +196,23 @@ model Subscription {
 }
 
 model User {
-  id             String          @id @default(cuid())
-  name           String?
-  email          String?         @unique
-  emailVerified  DateTime?
-  image          String?
-  role           RoleEnum        @default(subscriber)
-  stripeId       String?
-  deleted        Boolean         @default(false)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @default(now()) @updatedAt
-  accounts       Account[]
-  addresses      Address[]
-  billingCycles  BillingCycle[]
-  payments       Payment[]
-  sessions       Session[]
-  subscriptions  Subscription[]
-  paymentMethods PaymentMethod[]
+  id                String          @id @default(cuid())
+  name              String?
+  email             String?         @unique
+  emailVerified     DateTime?
+  image             String?
+  role              RoleEnum        @default(subscriber)
+  stripeId          String?         @db.VarChar(30)
+  deleted           Boolean         @default(false)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @default(now()) @updatedAt
+  accounts          Account[]
+  addresses         Address[]
+  billingCycles     BillingCycle[]
+  payments          Payment[]
+  sessions          Session[]
+  subscriptions     Subscription[]
+  paymentMethods    PaymentMethod[]
 
   @@index([id, name, email])
 }

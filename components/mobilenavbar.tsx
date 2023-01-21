@@ -10,10 +10,11 @@ import UserButton from "./user-button";
 
 import React from "react";
 import { navigationLinks } from "../helpers/navigationLinks";
+import { Session } from "next-auth";
 
 const useStyles = createStyles((theme) => ({
   navbar: {
-    top: "80px",
+    top: "126px",
     fontSize: theme.fontSizes.lg,
     width: "100%",
     paddingTop: 20,
@@ -65,8 +66,8 @@ const useStyles = createStyles((theme) => ({
       theme.colorScheme === "dark"
         ? theme.colors.dark[0]
         : theme.colors.gray[7],
-    fontSize: theme.fontSizes.sm,
-    fontWeight: 500,
+    fontSize: theme.fontSizes.md,
+    fontWeight: 700,
 
     "&:hover": {
       backgroundColor:
@@ -85,6 +86,7 @@ interface MobileNavbarProps {
   opened: boolean;
   mounted?: boolean;
   closeNavbarCallback: () => void;
+  session: Session | null;
 }
 
 const MobileNavbar = function ({
@@ -92,6 +94,7 @@ const MobileNavbar = function ({
   opened,
   closeNavbarCallback,
   mounted = true,
+  session = null,
 }: MobileNavbarProps) {
   const { classes, cx } = useStyles();
 
@@ -106,6 +109,7 @@ const MobileNavbar = function ({
           <Center>
             {mounted ? (
               <UserButton
+                session={session}
                 classes={classes}
                 cx={cx}
                 onClick={closeNavbarCallback}

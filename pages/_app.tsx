@@ -73,6 +73,10 @@ export default function App({
                     fontSize: '154px',
                     lineHeight: '160px',
                     fontWeight: 700,
+                    [theme.fn.smallerThan('md')]: {
+                      fontSize: '94px',
+                      lineHeight: '100px',
+                    },
                   },
                   '.specialHeaderAlt': {
                     fontFamily: oswald.style.fontFamily,
@@ -81,6 +85,10 @@ export default function App({
                     fontWeight: 300,
                     fontStyle: 'extra-light',
                     lineHeight: '160px',
+                    [theme.fn.smallerThan('md')]: {
+                      fontSize: '94px',
+                      lineHeight: '100px',
+                    },
                   },
                 }),
               }}

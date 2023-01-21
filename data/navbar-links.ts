@@ -4,18 +4,17 @@ import { userCan } from "../lib/services/PermissionService";
 
 const defaultNavBarLinks: Array<any> = [
     {
-        "key": "home",
-        "link": "/",
-        "label": "Home"
+        "key": "services",
+        "link": "/products",
+        "label": "Services"
     },
-    
     {
         "key": "about",
         "link": "/#about",
         "label": "About"
     },
     {
-        "key": "service_area",
+    "key": "service_area",
         "link": "/#service_area",
         "label": "Service Area"
     },
@@ -29,16 +28,10 @@ const defaultNavBarLinks: Array<any> = [
         "link": "/#contact",
         "label": "Contact Us"
     },
+   
 ];
 
-const restrictedLinks = [
-    {
-        "key": "admin_users",
-        "permissions": ["users:read"],
-        "link": "/admin/users",
-        "label": "Manage Users"
-    }
-];
+const restrictedLinks: [] | {key: string, permissions: string[], link: string, label: string}[] = [];
 
 function buildNavbarLinks(user?: User) {
 

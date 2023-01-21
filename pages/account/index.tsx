@@ -2,6 +2,7 @@ import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
 import { JSXElementConstructor } from 'react';
 import PaymentMethodsList from '../../components/billing/PaymentMethodsList';
+import PageContainer from '../../components/PageContainer';
 
 const Center = dynamic(() =>
   import('@mantine/core').then(
@@ -13,7 +14,10 @@ const Loader = dynamic(() =>
     (mod) => mod.Loader as JSXElementConstructor<any>
   )
 );
-const Title = dynamic(() => import('@mantine/core').then((mod) => mod.Title));
+
+const Text = dynamic(() =>
+  import('@mantine/core').then((mod) => mod.Text as JSXElementConstructor<any>)
+);
 
 export default function Account() {
   const { status, data: session }: { status: String; data: any } = useSession({
@@ -30,18 +34,15 @@ export default function Account() {
   }
 
   return (
-    <>
+    <PageContainer title="Account">
       <Center>
-        <Title>Account</Title>
-      </Center>
-      <Center>
-        <div>
+        <Text>
           {user.name} - {user.email}
-        </div>
+        </Text>
       </Center>
 
       <PaymentMethodsList user={user} />
-    </>
+    </PageContainer>
   );
 }
 

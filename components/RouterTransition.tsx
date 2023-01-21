@@ -25,10 +25,11 @@ export function RouterTransition() {
     };
   }, [router.asPath, router.events]);
 
-return (
+  return (
     <NavigationProgress
+      color={"green"}
       progressLabel="navigation_progress"
-      size={5}
+      size={4}
       autoReset={true}
     />
   );
