@@ -1,10 +1,45 @@
 import { Button, Grid, Title, Text, Divider } from "@mantine/core";
 import { Service } from "@prisma/client";
 import Image from "next/image";
-import { saveServiceToCart } from "../../lib/services/CheckoutService";
+import { useEffect, useState } from "react";
+import {
+  CartItem,
+  removeServiceFromCart,
+  saveServiceToCart,
+} from "../../lib/services/CheckoutService";
 import { formatAmountForDisplay } from "../../lib/utils/stripe-helpers";
 
+function getCartItems() {
+  const cart = localStorage.getItem("cart");
+  if (cart) {
+    return JSON.parse(cart);
+  }
+  return [];
+}
+
+function getItem(service: Service) {
+  const cartItems = getCartItems();
+  return cartItems.find((item: CartItem) => item.service.id === service.id);
+}
+
 export default function ServiceListSingle({ service }: { service: Service }) {
+  const [refresh, setRefresh] = useState(false);
+
+  const refreshButtons = () => {
+    setRefresh(!refresh);
+  };
+
+  function itemIsInCart(service: Service) {
+    return getItem(service) !== undefined;
+  }
+
+  useEffect(() => {
+    window.addEventListener("cartUpdated", refreshButtons);
+    return () => {
+      window.removeEventListener("cartUpdated", refreshButtons);
+    };
+  }, [refresh]);
+
   return (
     <>
       <Grid gutter={"xs"}>
@@ -27,17 +62,34 @@ export default function ServiceListSingle({ service }: { service: Service }) {
             color="dimmed"
             dangerouslySetInnerHTML={{ __html: service.description }}
           />
-          <Button
-            onClick={() => {
-              saveServiceToCart(service);
-            }}
-            variant="filled"
-            color="blue"
-            mt="md"
-            radius="md"
-          >
-            Sign up now
-          </Button>
+
+          {itemIsInCart(service) ? (
+            <Button
+              onClick={() => {
+                removeServiceFromCart(service);
+                refreshButtons();
+              }}
+              variant="filled"
+              color="red"
+              mt="md"
+              radius="md"
+            >
+              Remove from Cart
+            </Button>
+          ) : (
+            <Button
+              onClick={() => {
+                saveServiceToCart(service);
+                refreshButtons();
+              }}
+              variant="filled"
+              color="blue"
+              mt="md"
+              radius="md"
+            >
+              Sign up now
+            </Button>
+          )}
         </Grid.Col>
       </Grid>
       <Divider m={30} />

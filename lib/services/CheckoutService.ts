@@ -40,3 +40,21 @@ export function saveServiceToCart(service: Service, quantity: number = 1): Promi
 
     return Promise.resolve();
 }
+
+export function removeServiceFromCart(service: Service): Promise<any> {
+    try {
+        const cart = getCart();
+        const cartItem = cart.find(item => item.service.id === service.id);
+        if (cartItem) {
+            cart.splice(cart.indexOf(cartItem), 1);
+            saveCart(cart);
+        }
+
+        window.dispatchEvent(new Event("cartUpdated"));
+    } catch(err) {
+        console.error(err);
+        return Promise.reject(err);
+    }
+
+    return Promise.resolve();
+}
