@@ -37,6 +37,8 @@ export default function ShoppingCartButton({
 }: {
   session: Session | null;
 }) {
+  const [cartOpened, { close: closeCartSetter, open: openCartSetter }] =
+    useDisclosure(false);
   const [cartTotal, setCartTotal] = useState(0);
   const [dialogOpened, { close: closeDialog, open: openDialog }] =
     useDisclosure(false);
@@ -62,23 +64,37 @@ export default function ShoppingCartButton({
       cartItems.forEach((item: CartItem) => {
         total += item.service.price;
       });
-      return setCartTotal(total);
+      setCartTotal(total);
+      return total;
     }
 
-    return setCartTotal(0);
+    setCartTotal(0);
+    return 0;
+  }
+
+  function cartUpdatedCallback() {
+    const tot = getShoppingCartTotal();
+    if (tot > 0) {
+      openCartSetter();
+    }
   }
 
   useEffect(() => {
-    window.addEventListener("cartUpdated", getShoppingCartTotal);
+    window.addEventListener("cartUpdated", cartUpdatedCallback);
     getShoppingCartTotal();
     return () => {
-      window.removeEventListener("cartUpdated", getShoppingCartTotal);
+      window.removeEventListener("cartUpdated", cartUpdatedCallback);
     };
   }, []);
 
   return (
     <>
-      <Menu trigger="hover">
+      <Menu
+        trigger="hover"
+        opened={cartOpened}
+        onOpen={openCartSetter}
+        onClose={closeCartSetter}
+      >
         <Menu.Target>
           <Button variant="subtle">
             <IconShoppingCart /> <Space mr="sm" />{" "}

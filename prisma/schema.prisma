@@ -111,7 +111,7 @@ model Service {
   description     String           @db.VarChar(2000)
   price           Float
   priceId         String?          @db.VarChar(50)
-  perCycle        Int?             
+  perCycle        Int?
   featured        Boolean          @default(false)
   displayed       Boolean          @default(true)
   productPhoto    String           @default("/images/products/generic-pickup.jpg") @db.VarChar(1000)
@@ -196,23 +196,23 @@ model Subscription {
 }
 
 model User {
-  id             String          @id @default(cuid())
-  name           String?
-  email          String?         @unique
-  emailVerified  DateTime?
-  image          String?
-  role           RoleEnum        @default(subscriber)
-  stripeId       String?         @db.VarChar(30)
-  deleted        Boolean         @default(false)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @default(now()) @updatedAt
-  accounts       Account[]
-  addresses      Address[]
-  billingCycles  BillingCycle[]
-  payments       Payment[]
-  sessions       Session[]
-  subscriptions  Subscription[]
-  paymentMethods PaymentMethod[]
+  id                String          @id @default(cuid())
+  name              String?
+  email             String?         @unique
+  emailVerified     DateTime?
+  image             String?
+  role              RoleEnum        @default(subscriber)
+  stripeId          String?         @db.VarChar(30)
+  deleted           Boolean         @default(false)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @default(now()) @updatedAt
+  accounts          Account[]
+  addresses         Address[]
+  billingCycles     BillingCycle[]
+  payments          Payment[]
+  sessions          Session[]
+  subscriptions     Subscription[]
+  paymentMethods    PaymentMethod[]
 
   @@index([id, name, email])
 }

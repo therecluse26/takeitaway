@@ -3,24 +3,11 @@ import { Service } from "@prisma/client";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import {
-  CartItem,
+  itemIsInCart,
   removeServiceFromCart,
   saveServiceToCart,
 } from "../../lib/services/CheckoutService";
 import { formatAmountForDisplay } from "../../lib/utils/stripe-helpers";
-
-function getCartItems() {
-  const cart = localStorage.getItem("cart");
-  if (cart) {
-    return JSON.parse(cart);
-  }
-  return [];
-}
-
-function getItem(service: Service) {
-  const cartItems = getCartItems();
-  return cartItems.find((item: CartItem) => item.service.id === service.id);
-}
 
 export default function ServiceListSingle({ service }: { service: Service }) {
   const [refresh, setRefresh] = useState(false);
@@ -28,10 +15,6 @@ export default function ServiceListSingle({ service }: { service: Service }) {
   const refreshButtons = () => {
     setRefresh(!refresh);
   };
-
-  function itemIsInCart(service: Service) {
-    return getItem(service) !== undefined;
-  }
 
   useEffect(() => {
     window.addEventListener("cartUpdated", refreshButtons);

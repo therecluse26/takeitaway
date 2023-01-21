@@ -47,9 +47,6 @@ const useStyles = createStyles((theme) => ({
         ? theme.colors.blue[5]
         : theme.colors.blue[7],
     height: "48px",
-    // [theme.fn.smallerThan("sm")]: {
-    //   height: "30px",
-    // },
   },
   mainSection: {
     paddingTop: 16,
@@ -62,7 +59,6 @@ const useStyles = createStyles((theme) => ({
 
   user: {
     color: theme.colorScheme === "dark" ? theme.colors.white[0] : theme.white,
-    // padding: `${theme.spacing.xs}px ${theme.spacing.sm}px`,
     paddingTop: 10,
     transition: "background-color 100ms ease",
 

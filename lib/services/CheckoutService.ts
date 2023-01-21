@@ -13,6 +13,24 @@ export function getCart(): CartItem[] {
     return [];
 }
 
+export function getCartItems() {
+    const cart = localStorage.getItem("cart");
+    if (cart) {
+      return JSON.parse(cart);
+    }
+    return [];
+  }
+  
+export function getItem(service: Service) {
+    const cartItems = getCartItems();
+    return cartItems.find((item: CartItem) => item.service.id === service.id);
+  }
+  
+export function itemIsInCart(service: Service) {
+    return getItem(service) !== undefined;
+  }
+
+
 export function saveCart(cart: CartItem[]): void {
     localStorage.setItem("cart", JSON.stringify(cart));
 }
@@ -28,10 +46,7 @@ export function saveServiceToCart(service: Service, quantity: number = 1): Promi
         }
         saveCart(cart);
 
-        window.dispatchEvent(new Event("cartUpdated"));
-
-        // Redirect to login if no useSession session exists
-        
+        window.dispatchEvent(new Event("cartUpdated"));        
 
     } catch(err) {
         console.error(err);

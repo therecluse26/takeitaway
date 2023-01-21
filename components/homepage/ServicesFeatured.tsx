@@ -12,9 +12,28 @@ import Link from "next/link";
 import { Service } from "@prisma/client";
 import { pageMessages } from "../../data/messaging";
 import { formatAmountForDisplay } from "../../lib/utils/stripe-helpers";
-import { IconHome, IconTrash } from "@tabler/icons";
+import { IconHome, IconTrash, IconTrashOff, IconTrashX } from "@tabler/icons";
+import { useEffect, useState } from "react";
+import {
+  itemIsInCart,
+  removeServiceFromCart,
+  saveServiceToCart,
+} from "../../lib/services/CheckoutService";
 
 const ServiceCard = ({ service }: { service: Service }) => {
+  const [refresh, setRefresh] = useState(false);
+
+  const refreshButtons = () => {
+    setRefresh(!refresh);
+  };
+
+  useEffect(() => {
+    window.addEventListener("cartUpdated", refreshButtons);
+    return () => {
+      window.removeEventListener("cartUpdated", refreshButtons);
+    };
+  }, [refresh]);
+
   return (
     <Card radius={0} style={{ width: 350 }}>
       <Card.Section>
@@ -35,10 +54,37 @@ const ServiceCard = ({ service }: { service: Service }) => {
 
         <br />
       </Center>
-      <Button variant="filled" color="blue" fullWidth mt="md" radius="md">
-        <IconTrash />
-        {pageMessages.featuredServices.subscribeButton}
-      </Button>
+      {itemIsInCart(service) ? (
+        <Button
+          onClick={() => {
+            removeServiceFromCart(service);
+            refreshButtons();
+          }}
+          variant="filled"
+          color="red"
+          mt="md"
+          radius="md"
+          leftIcon={<IconTrashX />}
+          fullWidth
+        >
+          Remove from Cart
+        </Button>
+      ) : (
+        <Button
+          onClick={() => {
+            saveServiceToCart(service);
+            refreshButtons();
+          }}
+          variant="filled"
+          color="blue"
+          fullWidth
+          mt="md"
+          radius="md"
+        >
+          <IconTrash />
+          {pageMessages.featuredServices.subscribeButton}
+        </Button>
+      )}
     </Card>
   );
 };

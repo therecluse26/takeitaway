@@ -18,10 +18,7 @@ import { IconSearch } from '@tabler/icons';
 import Link from 'next/link';
 import { USEQUERY_STALETIME } from '../../../data/configuration';
 import { KeyLabelShape, Roles } from '../../../data/permissions';
-import dynamic from 'next/dynamic';
 import PageContainer from '../../../components/PageContainer';
-
-const Title = dynamic(() => import('@mantine/core').then((mod) => mod.Title));
 
 const RoleFilter: any = () => {
   let roles = Array.from(Roles.values()).map((role: KeyLabelShape) => {
