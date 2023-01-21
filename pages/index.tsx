@@ -91,23 +91,23 @@ export default function HomePage(props: { services: Service[] }) {
     <>
       <HomepageBanner />
 
-      <a id="about" className={classes.anchorOffset}></a>
+      <span id="about" className={classes.anchorOffset}></span>
       <Container fluid className={classes.transparentBackground}>
         <About classes={classes} height={minRowHeight} />
       </Container>
 
-      <a id="service_area" className={classes.anchorOffset}></a>
+      <span id="service_area" className={classes.anchorOffset}></span>
       <Container fluid className={classes.grayBackground}>
         <ServiceArea classes={classes} />
       </Container>
 
-      <a id="services" className={classes.anchorOffset}></a>
+      <span id="services" className={classes.anchorOffset}></span>
       <Container fluid className={classes.transparentBackground}>
         <ServicesFeatured services={props.services} />
       </Container>
 
       {/* Lazily loads contact us form on partial container intersection */}
-      <a id="contact" className={classes.anchorOffset}></a>
+      <span id="contact" className={classes.anchorOffset}></span>
       <Container
         fluid
         className={classes.grayBackground}
