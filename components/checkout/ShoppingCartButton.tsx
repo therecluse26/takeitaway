@@ -12,7 +12,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { IconLogin, IconShoppingCart, IconTrashOff } from "@tabler/icons";
 import { Session } from "next-auth";
 import { signIn } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CartItem } from "../../lib/services/CheckoutService";
 import { formatAmountForDisplay } from "../../lib/utils/stripe-helpers";
 
@@ -55,7 +55,7 @@ export default function ShoppingCartButton({
       closeDialog();
       setClearCartConfirmed(false);
     }
-  }, [clearCartConfirmed]);
+  }, [clearCartConfirmed, closeDialog]);
 
   function getShoppingCartTotal() {
     const cartItems = getCartItems();
@@ -72,12 +72,12 @@ export default function ShoppingCartButton({
     return 0;
   }
 
-  function cartUpdatedCallback() {
+  const cartUpdatedCallback = useCallback(() => {
     const tot = getShoppingCartTotal();
     if (tot > 0) {
       openCartSetter();
     }
-  }
+  }, [openCartSetter]);
 
   useEffect(() => {
     window.addEventListener("cartUpdated", cartUpdatedCallback);
@@ -85,7 +85,7 @@ export default function ShoppingCartButton({
     return () => {
       window.removeEventListener("cartUpdated", cartUpdatedCallback);
     };
-  }, []);
+  }, [cartUpdatedCallback]);
 
   return (
     <>

@@ -1,7 +1,7 @@
 import { Button, Grid, Title, Text, Divider } from "@mantine/core";
 import { Service } from "@prisma/client";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   itemIsInCart,
   removeServiceFromCart,
@@ -12,16 +12,16 @@ import { formatAmountForDisplay } from "../../lib/utils/stripe-helpers";
 export default function ServiceListSingle({ service }: { service: Service }) {
   const [refresh, setRefresh] = useState(false);
 
-  const refreshButtons = () => {
+  const refreshButtons = useCallback(() => {
     setRefresh(!refresh);
-  };
+  }, [refresh]);
 
   useEffect(() => {
     window.addEventListener("cartUpdated", refreshButtons);
     return () => {
       window.removeEventListener("cartUpdated", refreshButtons);
     };
-  }, [refresh]);
+  }, [refresh, refreshButtons]);
 
   return (
     <>

@@ -14,4 +14,14 @@ export const PAYMENT_CURRENCY = 'usd'
 export const PAYMENT_MIN_AMOUNT = 5.0
 export const PAYMENT_MAX_AMOUNT = 10000.0
 export const PAYMENT_AMOUNT_STEP = 1.0
-export const STRIPE_API_VERSION = '2022-11-15';
+
+
+export const STRIPE_CONFIG = {
+    apiVersion: '2022-11-15',
+    stripeAccount: process.env.STRIPE_ACCOUNT_ID ?? "",
+    stripeApiKey: process.env.STRIPE_SECRET_KEY ?? "",
+    stripePublicKey: process.env.STRIPE_PUBLIC_KEY ?? "",
+    stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? "",
+    stripeWebhookUrl: process.env.STRIPE_WEBHOOK_URL ?? "",
+    stripeWebhookSigningSecret: process.env.STRIPE_WEBHOOK_SIGNING_SECRET ?? "",
+}

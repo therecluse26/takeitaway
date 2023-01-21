@@ -1,10 +1,12 @@
 import { PrismaClient, Service } from "@prisma/client";
 import { Stripe } from "stripe";
+import { STRIPE_CONFIG } from "../../../data/configuration";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "", {
-    apiVersion: '2022-11-15',
-    typescript: true,
-})
+const stripe = new Stripe(STRIPE_CONFIG.stripeApiKey, { 
+    apiVersion: "2022-11-15", 
+    typescript: true
+});
+
 
 const prisma = new PrismaClient();
 

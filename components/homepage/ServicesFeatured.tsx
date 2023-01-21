@@ -12,8 +12,8 @@ import Link from "next/link";
 import { Service } from "@prisma/client";
 import { pageMessages } from "../../data/messaging";
 import { formatAmountForDisplay } from "../../lib/utils/stripe-helpers";
-import { IconHome, IconTrash, IconTrashOff, IconTrashX } from "@tabler/icons";
-import { useEffect, useState } from "react";
+import { IconHome, IconTrash, IconTrashX } from "@tabler/icons";
+import { useCallback, useEffect, useState } from "react";
 import {
   itemIsInCart,
   removeServiceFromCart,
@@ -23,16 +23,16 @@ import {
 const ServiceCard = ({ service }: { service: Service }) => {
   const [refresh, setRefresh] = useState(false);
 
-  const refreshButtons = () => {
+  const refreshButtons = useCallback(() => {
     setRefresh(!refresh);
-  };
+  }, [refresh]);
 
   useEffect(() => {
     window.addEventListener("cartUpdated", refreshButtons);
     return () => {
       window.removeEventListener("cartUpdated", refreshButtons);
     };
-  }, [refresh]);
+  }, [refresh, refreshButtons]);
 
   return (
     <Card radius={0} style={{ width: 350 }}>
