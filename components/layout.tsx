@@ -42,10 +42,12 @@ const Layout = ({ children }: { children: ReactElement<any> }) => {
             closeNavbarCallback={closeBurger}
             burgerOpened={burgerOpened}
             toggleBurgerOpened={toggleBurgerOpened}
+            session={session}
           />
         }
         navbar={
           <Mobilenavbar
+            session={session}
             opened={burgerOpened}
             links={links}
             closeNavbarCallback={closeBurger}
@@ -53,10 +55,9 @@ const Layout = ({ children }: { children: ReactElement<any> }) => {
         }
         footer={<FooterBar />}
       >
-        <div style={{ marginTop: "120px" }}>
+        <div style={{ marginTop: "126px" }}>
           <>
             {children}
-
             {/* Scroll to top button */}
             <Affix position={{ bottom: 20, right: 20 }}>
               <Transition transition="slide-up" mounted={scroll.y > 0}>

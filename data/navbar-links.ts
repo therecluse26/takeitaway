@@ -31,14 +31,7 @@ const defaultNavBarLinks: Array<any> = [
     },
 ];
 
-const restrictedLinks = [
-    {
-        "key": "admin_users",
-        "permissions": ["users:read"],
-        "link": "/admin/users",
-        "label": "Manage Users"
-    }
-];
+const restrictedLinks: [] | {key: string, permissions: string[], link: string, label: string}[] = [];
 
 function buildNavbarLinks(user?: User) {
 

@@ -45,6 +45,13 @@ const useStyles = createStyles((theme) => ({
     backgroundColor: '#ffffff',
     minHeight: minRowHeight,
   },
+  anchorOffset: {
+    marginTop: -120,
+    paddingTop: 120,
+    display: 'block',
+    position: 'relative',
+    visibility: 'hidden',
+  },
   headerAbout: {
     color:
       theme.colorScheme === 'dark'
@@ -65,7 +72,7 @@ export default function HomePage(props: { services: Service[] }) {
   const contactContainerRef = useRef<HTMLDivElement>(null);
   const { ref: contactRef, entry } = useIntersection({
     root: contactContainerRef.current,
-    threshold: 0.0001,
+    threshold: 0.0001, // Tiny threshold so it loads as soon as it's partially visible
   });
   const [contactFormHasLoaded, setContactFormHasLoaded] = useState(false);
   const { classes } = useStyles();
@@ -84,21 +91,24 @@ export default function HomePage(props: { services: Service[] }) {
     <>
       <HomepageBanner />
 
-      <Container id="about" fluid className={classes.transparentBackground}>
+      <a id="about" className={classes.anchorOffset}></a>
+      <Container fluid className={classes.transparentBackground}>
         <About classes={classes} height={minRowHeight} />
       </Container>
 
-      <Container id="service_area" fluid className={classes.grayBackground}>
+      <a id="service_area" className={classes.anchorOffset}></a>
+      <Container fluid className={classes.grayBackground}>
         <ServiceArea classes={classes} />
       </Container>
 
+      <a id="services" className={classes.anchorOffset}></a>
       <Container fluid className={classes.transparentBackground}>
         <ServicesFeatured services={props.services} />
       </Container>
 
       {/* Lazily loads contact us form on partial container intersection */}
+      <a id="contact" className={classes.anchorOffset}></a>
       <Container
-        id="contact"
         fluid
         className={classes.grayBackground}
         ref={contactContainerRef}

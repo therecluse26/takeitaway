@@ -28,7 +28,7 @@ export async function getExtraServices(): Promise<Service[]> {
     })
 }
 
-export async function getService(id: string): Promise<Service> {
+export async function getServiceById(id: string): Promise<Service> {
     const service = await prisma.service.findUnique({
         where: {
             id: id

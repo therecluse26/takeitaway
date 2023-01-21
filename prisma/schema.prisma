@@ -110,6 +110,7 @@ model Service {
   name            String
   description     String           @db.VarChar(2000)
   price           Float
+  priceId         String?          @db.VarChar(50)
   perCycle        Int?             
   featured        Boolean          @default(false)
   displayed       Boolean          @default(true)

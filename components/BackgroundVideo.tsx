@@ -9,7 +9,7 @@ const useStyles = createStyles((theme) => ({
     display: "block",
     width: "100%",
     border: 0,
-    marginTop: -40,
+    marginTop: 0,
     textDecoration: "none",
     color: theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.black,
   },

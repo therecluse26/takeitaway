@@ -3,6 +3,7 @@ import { getSession } from "next-auth/react";
 import { NextApiRequest, NextApiResponse } from "next/types";
 import { errorMessages } from "../../../data/messaging";
 import { getCheckoutSession, getUserStripeId } from "../../../lib/services/api/ApiStripeService";
+import {Stripe} from "stripe";
 
 export default async function handler(
     req: NextApiRequest,
@@ -22,7 +23,7 @@ export default async function handler(
         return
     }
 
-    const stripeSession = getCheckoutSession(stripeUser, req.body.sessionMode, req.body.successUrl, req.body.cancelUrl)
+    const stripeSession = await getCheckoutSession(stripeUser, req.body as Stripe.Checkout.SessionCreateParams)
 
     res.status(200).json(stripeSession);
 }

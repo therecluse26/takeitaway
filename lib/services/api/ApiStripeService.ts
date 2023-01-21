@@ -28,13 +28,12 @@ export async function getUserStripeId(user: any): Promise<string | null> {
     return user.stripeId;
 }
 
-export async function getCheckoutSession(stripeUser: string, sessionMode: string, successUrl: string, cancelUrl: string) {
+export async function getCheckoutSession(stripeUser: string, checkoutData: Stripe.Checkout.SessionCreateParams) {
+    
     return await stripe.checkout.sessions.create({
+        ...checkoutData,
         payment_method_types: ['card'],
-        mode: sessionMode as Stripe.Checkout.SessionCreateParams.Mode,
         customer: stripeUser,
-        success_url: successUrl,
-        cancel_url: cancelUrl,
     })
 }
 
@@ -103,7 +102,18 @@ export async function createStripePrice(productId: string, service: Service) {
         };
     }
 
-    return await stripe.prices.create(price);
+    const stripePrice = await stripe.prices.create(price);
+
+    await prisma.service.update({
+        where: {
+            id: service.id,
+        },
+        data: {
+            priceId: stripePrice.id,
+        }
+    })
+
+    return stripePrice;
 }
 
 

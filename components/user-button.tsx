@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { signIn, signOut } from "next-auth/react";
 import {
   IconChevronDown,
   IconSettings,
   IconLogout,
   IconUser,
+  IconLogin,
 } from "@tabler/icons";
 import { userCan } from "../lib/services/PermissionService";
 import {
@@ -13,45 +13,28 @@ import {
   Group,
   Avatar,
   Text,
-  Loader,
+  Button,
 } from "@mantine/core";
 import Link from "next/link";
+import { Session } from "next-auth";
 
 export default function UserButton({
   classes,
   cx,
   onClick,
+  session = null,
 }: {
   classes: any;
   cx: CallableFunction;
   onClick: () => void;
+  session: Session | null;
 }) {
-  const { data: session, status } = useSession();
   const user = session?.user;
 
-  const [userMenuOpened, setUserMenuOpened] = useState(false);
-
-  if (status === "loading") {
-    // Add loading spinner here
-    return (
-      <>
-        <Loader size={"xs"} variant={"dots"} />
-      </>
-    );
-  }
-
   return user ? (
-    <Menu
-      width={260}
-      trigger="hover"
-      transition="pop-top-right"
-      onClose={() => setUserMenuOpened(false)}
-      onOpen={() => setUserMenuOpened(true)}
-    >
+    <Menu width={260} trigger="hover" transition="pop-top-right">
       <Menu.Target>
-        <UnstyledButton
-          className={cx(classes.user, { [classes.userActive]: userMenuOpened })}
-        >
+        <UnstyledButton className={cx(classes.user)}>
           <Group spacing={7}>
             <Avatar
               src={user.image}
@@ -107,14 +90,17 @@ export default function UserButton({
       </Menu.Dropdown>
     </Menu>
   ) : (
-    <UnstyledButton
+    <Button
+      leftIcon={<IconLogin />}
+      variant="subtle"
+      className={classes.user}
       onClick={() => {
         onClick();
         signIn();
       }}
-      sx={{ height: 30 }}
+      sx={{ height: 30, padding: 0, margin: "4px 0" }}
     >
       Sign In
-    </UnstyledButton>
+    </Button>
   );
 }

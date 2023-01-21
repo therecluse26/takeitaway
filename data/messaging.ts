@@ -1,5 +1,6 @@
 const companyInfo = {
-    phoneNumber: "(602) 524-6545"
+    phoneNumber: "(602) 524-6545",
+    phoneNumberRaw: "6025246545",
 }
 
 const pageMessages = {
@@ -111,7 +112,8 @@ const errorMessages = {
 }
 
 const uiMessages = {
-    homeBtnVerbose: "Go to home page"
+    homeBtnVerbose: "Go to home page",
+    subscribeNowBtn: "Subscribe Now",
 }
 
 export {errorMessages, pageMessages, uiMessages, companyInfo }
