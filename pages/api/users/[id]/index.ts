@@ -32,11 +32,7 @@ export default async function GetUser(req: NextApiRequest, res: NextApiResponse)
                 id: id
             },
             include: {
-                addresses: {
-                    include: {
-                        subscription: true
-                    }
-                },
+                addresses: true,
                 payments: {
                     where: {
                         createdAt: {

@@ -80,7 +80,7 @@ const ContactUsForm: JSXElementConstructor<any> = () => {
     },
   });
 
-  const submitForm = async (values: any) => {
+const submitForm = async (values: any) => {
     submitMessage(values)
       .then(() => {
         setSubmitted(true);

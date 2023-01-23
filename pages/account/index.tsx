@@ -1,7 +1,9 @@
+import { Container } from '@mantine/core';
 import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
 import { JSXElementConstructor } from 'react';
 import PaymentMethodsList from '../../components/billing/PaymentMethodsList';
+import AddressForm from '../../components/locations/AddressForm';
 import PageContainer from '../../components/PageContainer';
 
 const Center = dynamic(() =>
@@ -40,6 +42,14 @@ export default function Account() {
           {user.name} - {user.email}
         </Text>
       </Center>
+
+      <Container>
+        <AddressForm type="billing" />
+      </Container>
+
+      <Container>
+        <AddressForm type="service" />
+      </Container>
 
       <PaymentMethodsList user={user} />
     </PageContainer>

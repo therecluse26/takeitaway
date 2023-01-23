@@ -14,6 +14,7 @@ import { Session } from "next-auth";
 import { signIn } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 import { CartItem } from "../../lib/services/CheckoutService";
+import { redirectToCheckout } from "../../lib/services/StripeService";
 import { formatAmountForDisplay } from "../../lib/utils/stripe-helpers";
 
 function getCartItems() {
@@ -114,7 +115,19 @@ export default function ShoppingCartButton({
           {getCartItems().length > 0 ? (
             <>
               {session ? (
-                <Menu.Item icon={<IconShoppingCart />} color={"blue"}>
+                <Menu.Item
+                  icon={<IconShoppingCart />}
+                  color={"blue"}
+                  onClick={() => {
+                    redirectToCheckout(
+                      session.user,
+                      "subscription",
+                      new URL(window.location.origin + `/subscriptions/save`),
+                      new URL(window.location.href),
+                      getCartItems()
+                    );
+                  }}
+                >
                   Checkout
                 </Menu.Item>
               ) : (

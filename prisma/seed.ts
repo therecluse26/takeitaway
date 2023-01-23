@@ -107,7 +107,7 @@ async function main() {
                         <br/>
                         Any overflow trash (more than the allotted 3 cans per household) will be charged at $10/ 33 gallon trash bag of overflow garbage and will be billed to your credit card on your next billing statement.`,
                         price: 130,
-                        perCycle: 8,
+                        perCycle: 6,
                         featured: true,
                         displayed: true,
                         productPhoto: "/images/products/6pickups.jpg",

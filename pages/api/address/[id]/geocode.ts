@@ -29,9 +29,6 @@ export default async function GeocodeAddress(req: NextApiRequest, res: NextApiRe
             where: {
                 id: id
             },
-            include: {
-                subscription: true
-            },
         })
     );
     

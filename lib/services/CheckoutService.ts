@@ -1,4 +1,6 @@
 import { Service } from "@prisma/client";
+import axios from "axios";
+import { User } from "next-auth";
 
 export type CartItem = {
     service: Service;
@@ -72,4 +74,9 @@ export function removeServiceFromCart(service: Service): Promise<any> {
     }
 
     return Promise.resolve();
+}
+
+
+export async function saveSessionToUser(user: User, session_id: string){
+    return await axios.post(`/api/users/${user.id}/subscriptions/save`, {session_id: session_id});
 }

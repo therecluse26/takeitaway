@@ -89,6 +89,7 @@ const PaymentMethodsList = ({ user }: { user: User }) => {
             <Button
               onClick={() => {
                 redirectToCheckout(
+                  user,
                   "setup",
                   new URL(
                     window.location.origin + `/account/save-payment-method`

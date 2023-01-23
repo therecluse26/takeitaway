@@ -31,6 +31,7 @@ model Account {
 
 model Address {
   id              String           @id @default(cuid())
+  type            AddressType      @default(service)
   userId          String
   street          String           @db.VarChar(100)
   city            String           @db.VarChar(100)
@@ -39,10 +40,12 @@ model Address {
   country         String           @db.VarChar(100)
   latitude        Float?
   longitude       Float?
-  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  user            User             @relation(name: "addressUser", fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  billingUser     User?            @relation(name: "billingAddress")
   serviceRequests ServiceRequest[]
   serviceLogs     ServiceLog[]
-  subscription    Subscription?
 
   @@index(userId)
 }
@@ -59,7 +62,6 @@ model BillingCycle {
   payments        Payment[]
   serviceRequests ServiceRequest[]
   serviceLogs     ServiceLog[]
-  subscriptions   Subscription[]
 
   @@index(userId)
   @@index(subscriptionId)
@@ -104,23 +106,25 @@ model Payment {
 }
 
 model Service {
-  id              String           @id @default(cuid())
-  stripeId        String?          @db.VarChar(30)
-  type            ServiceType      @default(recurring)
-  name            String
-  description     String           @db.VarChar(2000)
-  price           Float
-  priceId         String?          @db.VarChar(50)
-  perCycle        Int?
-  featured        Boolean          @default(false)
-  displayed       Boolean          @default(true)
-  productPhoto    String           @default("/images/products/generic-pickup.jpg") @db.VarChar(1000)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  deleted         Boolean          @default(false)
-  serviceRequests ServiceRequest[]
-  serviceLogs     ServiceLog[]
-  subscriptions   Subscription[]
+  id                   String                 @id @default(cuid())
+  stripeId             String?                @db.VarChar(30)
+  type                 ServiceType            @default(recurring)
+  name                 String
+  description          String                 @db.VarChar(2000)
+  price                Float
+  priceId              String?                @db.VarChar(50)
+  perCycle             Int?
+  featured             Boolean                @default(false)
+  displayed            Boolean                @default(true)
+  productPhoto         String                 @default("/images/products/generic-pickup.jpg") @db.VarChar(1000)
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  deleted              Boolean                @default(false)
+  serviceRequests      ServiceRequest[]
+  serviceLogs          ServiceLog[]
+  SubscriptionServices SubscriptionServices[]
+
+  @@index(stripeId)
 }
 
 model ServiceRequest {
@@ -175,46 +179,62 @@ model Session {
 }
 
 model Subscription {
-  id             String        @id @default(cuid())
-  userId         String
-  serviceId      String
-  addressId      String        @unique
-  active         Boolean       @default(true)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  deleted        Boolean       @default(false)
-  billingCycleId String?
-  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  address        Address       @relation(fields: [addressId], references: [id], onDelete: Cascade)
-  service        Service       @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  billingCycle   BillingCycle? @relation(fields: [billingCycleId], references: [id])
+  id              String                 @id @default(cuid())
+  active          Boolean                @default(true)
+  userId          String
+  stripeId        String                 @unique @db.VarChar(40)
+  pickupsPerCycle Int                    @default(1)
+  cycleRecurrence Recurrence             @default(monthly)
+  grossAmount     Float?
+  netAmount       Float?
+  fees            Float?
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  deleted         Boolean                @default(false)
+  user            User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  services        SubscriptionServices[]
 
   @@index(userId)
+  @@index(stripeId)
+}
+
+model SubscriptionServices {
+  subscriptionId String
+  serviceId      String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deleted        Boolean      @default(false)
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  service        Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@id([subscriptionId, serviceId])
+  @@index(subscriptionId)
   @@index(serviceId)
-  @@index(addressId)
-  @@index(billingCycleId)
 }
 
 model User {
-  id                String          @id @default(cuid())
-  name              String?
-  email             String?         @unique
-  emailVerified     DateTime?
-  image             String?
-  role              RoleEnum        @default(subscriber)
-  stripeId          String?         @db.VarChar(30)
-  deleted           Boolean         @default(false)
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @default(now()) @updatedAt
-  accounts          Account[]
-  addresses         Address[]
-  billingCycles     BillingCycle[]
-  payments          Payment[]
-  sessions          Session[]
-  subscriptions     Subscription[]
-  paymentMethods    PaymentMethod[]
+  id               String          @id @default(cuid())
+  name             String?
+  email            String?         @unique
+  emailVerified    DateTime?
+  image            String?
+  role             RoleEnum        @default(subscriber)
+  billingAddressId String?         @unique @db.VarChar(30)
+  stripeId         String?         @db.VarChar(30)
+  deleted          Boolean         @default(false)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @default(now()) @updatedAt
+  accounts         Account[]
+  addresses        Address[]       @relation(name: "addressUser")
+  billingCycles    BillingCycle[]
+  payments         Payment[]
+  sessions         Session[]
+  subscriptions    Subscription[]
+  paymentMethods   PaymentMethod[]
+  billingAddress   Address?        @relation(name: "billingAddress", fields: [billingAddressId], references: [id])
 
   @@index([id, name, email])
+  @@index(stripeId)
 }
 
 model PaymentMethod {
@@ -233,6 +253,7 @@ model PaymentMethod {
   payments  Payment[]
 
   @@index(userId)
+  @@index(stripeId)
 }
 
 model VerificationToken {
@@ -254,4 +275,16 @@ enum RoleEnum {
   provider
   admin
   superadmin
+}
+
+enum Recurrence {
+  daily
+  weekly
+  monthly
+  annually
+}
+
+enum AddressType {
+  billing
+  service
 }

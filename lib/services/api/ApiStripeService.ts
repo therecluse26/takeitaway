@@ -30,6 +30,7 @@ export async function getUserStripeId(user: any): Promise<string | null> {
     return user.stripeId;
 }
 
+// Creates/retrieves the stripe checkout session for a user, which handles subscriptions as well as paymentMethod addition
 export async function getCheckoutSession(stripeUser: string, checkoutData: Stripe.Checkout.SessionCreateParams) {
     
     return await stripe.checkout.sessions.create({
@@ -40,10 +41,23 @@ export async function getCheckoutSession(stripeUser: string, checkoutData: Strip
 }
 
 function buildProductData(service: Service): Stripe.ProductCreateParams {
+
+    let metadata: { serviceId: string, pickupsPerCycle?: number } = {
+        serviceId: service.id,
+    };
+
+    if(service.perCycle && service.perCycle > 0){
+        metadata = {
+            ...metadata,
+            pickupsPerCycle: service.perCycle,
+        }
+    }
+    
     return {
         name: service.name,
         active: true,
         description: service.description,
+        metadata: metadata,
     }
 }
 

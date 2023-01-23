@@ -4,11 +4,13 @@ import axios from "axios";
 import { errorMessages } from "../../data/messaging";
 import { CartItem } from "./CheckoutService";
 import { STRIPE_CONFIG } from "../../data/configuration";
+import { User } from "next-auth";
 
 const stripe = new Stripe(STRIPE_CONFIG.stripeApiKey, { apiVersion: "2022-11-15"});
 
-export function redirectToCheckout(sessionMode: "setup"|"payment"|"subscription", successUrl: URL, cancelUrl: URL, lineItems: CartItem[]|[] = [])
+export function redirectToCheckout(user: User, sessionMode: "setup"|"payment"|"subscription", successUrl: URL, cancelUrl: URL, lineItems: CartItem[]|[] = [])
 {
+
   let updatedSuccessUrl = new URL(`${successUrl.toString()}?session_id={CHECKOUT_SESSION_ID}`);
 
   let data: Stripe.Checkout.SessionCreateParams = { 
@@ -17,7 +19,12 @@ export function redirectToCheckout(sessionMode: "setup"|"payment"|"subscription"
     cancel_url: cancelUrl.toString(),
   };
   
-  if(lineItems.length > 0){
+  if(sessionMode === 'subscription' && lineItems.length > 0){
+    // Automatic tax calculation for subscriptions
+    data.automatic_tax = {
+      enabled: true,
+    };
+
     data.line_items = lineItems.map((item) => {
       return {
         quantity: item.quantity,
@@ -75,4 +82,32 @@ export async function getPaymentMethodFromSession(sessionId: string): Promise<Pa
   }
 
   return paymentMethod;
+}
+
+
+export async function getSubscriptionsFromSession(sessionId: string): Promise<Stripe.Subscription>
+{
+  // Retrieve Stripe session
+  const stripeSession = await stripe.checkout.sessions.retrieve(sessionId)
+    .catch((err: any) => {
+      throw err.raw.message;
+    });
+  if(!stripeSession){
+      throw errorMessages.api.stripe.noSession.message;
+  }
+
+
+
+  const subscriptionId = stripeSession.subscription?.toString() ?? "";
+
+  // Retrieve Stripe setup intent
+  const subscription = await stripe.subscriptions.retrieve(subscriptionId, { expand: ["items.data.price.product"] })
+    .catch((err: any) => {
+      throw err.raw.message;
+    });
+  if(!subscription){
+      throw errorMessages.api.stripe.noSubscription.message;
+  }
+
+  return subscription;
 }

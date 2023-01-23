@@ -88,6 +88,10 @@ const errorMessages = {
                 code: 400,
                 message: "No Stripe setup intent found"
             },
+            noSubscription: {
+                code: 400,
+                message: "No Stripe subscription found"
+            },
             paymentMethod: {
                 code: 400,
                 message: "No Stripe payment method found"

@@ -1,8 +1,21 @@
 import { DataTableSortStatus } from 'mantine-datatable/dist/types/DataTableSortStatus';
 import axios from 'axios';
-import { PaymentMethod, User } from '@prisma/client';
+import { PaymentMethod } from '@prisma/client';
+import { useSession } from 'next-auth/react';
+import { User } from 'next-auth';
 
-async function getUsers({page, recordsPerPage, sortStatus: { columnAccessor: sortAccessor, direction: sortDirection }, searchQuery}
+export function useSessionUser(): User 
+{
+    const { data, status} =  useSession();
+
+    if(status !== "authenticated" || !data?.user){
+        throw new Error("User not logged in");
+    }
+
+    return data.user;
+}
+
+export async function getUsers({page, recordsPerPage, sortStatus: { columnAccessor: sortAccessor, direction: sortDirection }, searchQuery}
 : { searchQuery: string|null, page: number|null|undefined; recordsPerPage: number; sortStatus: DataTableSortStatus; }): Promise<any> 
 {
     
@@ -18,26 +31,25 @@ async function getUsers({page, recordsPerPage, sortStatus: { columnAccessor: sor
     }).then(response => response.data);
 }
 
-async function getUser(id: string|Number): Promise<any> 
+export async function getUser(id: string|Number): Promise<any> 
 {
     return await axios.get(`/api/users/${id}`).then(response => response.data);
 }
 
-async function getUserPaymentMethods(id: string|Number): Promise<any> 
+export async function getUserPaymentMethods(id: string|Number): Promise<any> 
 {
     return await axios.get(`/api/users/${id}/payment-methods`).then(response => response.data);
 }
 
-async function savePaymentMethodToUser(user: User, session_id: string){
+export async function savePaymentMethodToUser(user: User, session_id: string){
     return await axios.post(`/api/users/${user.id}/payment-methods/save`, {session_id: session_id});
 }
 
-async function setPaymentMethodAsDefault(user: User, paymentMethod: PaymentMethod): Promise<boolean>{
+export async function setPaymentMethodAsDefault(user: User, paymentMethod: PaymentMethod): Promise<boolean>{
     return await axios.post(`/api/users/${user.id}/payment-methods/${paymentMethod.id}/set-default`);
 }
 
-async function deleteAccount(user: User): Promise<boolean>{
+export async function deleteAccount(user: User): Promise<boolean>{
     return await axios.delete(`/api/users/${user.id}/delete`);
 }
 
-export { getUsers, getUser, getUserPaymentMethods, savePaymentMethodToUser, setPaymentMethodAsDefault, deleteAccount };

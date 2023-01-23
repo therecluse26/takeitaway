@@ -39,7 +39,7 @@ const Stack = dynamic(() =>
   import("@mantine/core").then((mod) => mod.Stack as JSXElementConstructor<any>)
 );
 
-const PaymentMethodsList = ({
+const PaymentMethodCard = ({
   paymentMethod,
   user,
   refreshCallback,
@@ -129,4 +129,4 @@ const PaymentMethodsList = ({
   );
 };
 
-export default PaymentMethodsList;
+export default PaymentMethodCard;

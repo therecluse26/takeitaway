@@ -23,7 +23,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   )
     .then((res) => JSON.parse(JSON.stringify(res)))
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       return false;
     });
 

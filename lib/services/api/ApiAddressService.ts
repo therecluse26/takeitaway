@@ -23,8 +23,6 @@ async function updateAddress(address: Address): Promise<Address> {
   });
 }
 
-
-
 async function geocodeAddress(address: Address|string): Promise<Address> {
 
     if(typeof address === "string"){
@@ -62,5 +60,10 @@ async function getUserAddresses(id: string): Promise<Address[]> {
   });
 }
 
+export async function createAddress(address: Address): Promise<Address> {
+  return await prisma.address.create({
+    data: address,
+  });
+}
 
 export {updateAddress, getAddress, getUserAddresses, formatAddress, geocodeAddress}
