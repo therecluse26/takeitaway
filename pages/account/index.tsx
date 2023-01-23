@@ -1,4 +1,5 @@
 import { Container } from '@mantine/core';
+import { Address } from '@prisma/client';
 import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
 import { JSXElementConstructor } from 'react';
@@ -44,11 +45,19 @@ export default function Account() {
       </Center>
 
       <Container>
-        <AddressForm type="billing" />
+        <AddressForm
+          user={user}
+          onSubmitted={(address: Address) => {}}
+          type="billing"
+        />
       </Container>
 
       <Container>
-        <AddressForm type="service" />
+        <AddressForm
+          user={user}
+          onSubmitted={(address: Address) => {}}
+          type="service"
+        />
       </Container>
 
       <PaymentMethodsList user={user} />
