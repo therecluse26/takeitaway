@@ -93,6 +93,7 @@ export default function App({
                 }),
               }}
             >
+              
               <NotificationsProvider>
                 <Layout>
                   <GuardContent authorization={pageProps.authorization}>

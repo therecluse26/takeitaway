@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { showNotification } from "@mantine/notifications";
 import { companyInfo } from "../data/messaging";
+import { notifyError } from "../helpers/notify";
 
 const Divider = dynamic(() =>
   import("@mantine/core").then((mod) => mod.Divider)
@@ -43,10 +43,7 @@ export const Captcha: React.FunctionComponent<CaptchaProps> = ({
               onExpire={() => onToken(null)}
               onError={() => {
                 onToken(null);
-                showNotification({
-                  title: "Error",
-                  message: "Cannot verify captcha",
-                });
+                notifyError(500, "api", "Cannot verify captcha");
               }}
             />
           ) : (

@@ -1,4 +1,12 @@
-import { Accordion, Badge, Button, Card, Group } from "@mantine/core";
+import {
+  Accordion,
+  Badge,
+  Button,
+  Card,
+  Group,
+  Title,
+  Text,
+} from "@mantine/core";
 import { Address, AddressType, User } from "@prisma/client";
 import dynamic from "next/dynamic";
 import { useState } from "react";
@@ -15,10 +23,12 @@ export default function AddressList({
   type,
   addresses,
   user = null,
+  title = null,
 }: {
   type: AddressType;
   addresses: Address[];
   user: User | UserWithRelations | null;
+  title?: string | null;
 }) {
   const [loadedMaps, setLoadedMaps] = useState<string[]>([]);
   const [displayedAddresses, setDisplayedAddresses] =
@@ -33,8 +43,8 @@ export default function AddressList({
   return (
     <>
       <Card radius="md">
-        <h2>Locations</h2>
-        {displayedAddresses.length && (
+        {title && <Title order={2}>{title}</Title>}
+        {displayedAddresses.length > 0 ? (
           <Accordion variant="contained">
             {displayedAddresses.map((address: Address) => (
               <Accordion.Item
@@ -62,6 +72,8 @@ export default function AddressList({
               </Accordion.Item>
             ))}
           </Accordion>
+        ) : (
+          <Text>No addresses found</Text>
         )}
       </Card>
       <Card p="lg" radius="md">
@@ -70,6 +82,9 @@ export default function AddressList({
             <AddressForm
               type="service"
               user={user}
+              onCanceled={() => {
+                setAddingNewAddress(false);
+              }}
               onSubmitted={(address: Address) => {
                 addNewAddress(address);
               }}
@@ -84,7 +99,7 @@ export default function AddressList({
             + Add Location
           </Button>
         )}
-      </Card>{" "}
+      </Card>
     </>
   );
 }

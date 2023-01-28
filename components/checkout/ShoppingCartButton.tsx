@@ -2,6 +2,7 @@ import {
   Button,
   Center,
   Group,
+  Loader,
   Menu,
   Modal,
   Space,
@@ -9,6 +10,7 @@ import {
   Text,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { User } from "@prisma/client";
 import { IconLogin, IconShoppingCart, IconTrashOff } from "@tabler/icons";
 import { Session } from "next-auth";
 import { signIn } from "next-auth/react";
@@ -44,6 +46,7 @@ export default function ShoppingCartButton({
   const [dialogOpened, { close: closeDialog, open: openDialog }] =
     useDisclosure(false);
   const [clearCartConfirmed, setClearCartConfirmed] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   function clearCart() {
     openDialog();
@@ -90,86 +93,95 @@ export default function ShoppingCartButton({
 
   return (
     <>
-      <Menu
-        trigger="hover"
-        opened={cartOpened}
-        onOpen={openCartSetter}
-        onClose={closeCartSetter}
-      >
-        <Menu.Target>
-          <Button variant="subtle">
-            <IconShoppingCart /> <Space mr="sm" />{" "}
-            {formatAmountForDisplay(cartTotal)}
-          </Button>
-        </Menu.Target>
-        <Menu.Dropdown>
-          <Menu.Item>
-            <Stack>
-              {getCartItems().length > 0 ? (
-                <>{buildCartItems()}</>
-              ) : (
-                <Text>Cart is empty</Text>
-              )}
-            </Stack>
-          </Menu.Item>
-          {getCartItems().length > 0 ? (
-            <>
-              {session ? (
-                <Menu.Item
-                  icon={<IconShoppingCart />}
-                  color={"blue"}
-                  onClick={() => {
-                    redirectToCheckout(
-                      session.user,
-                      "subscription",
-                      new URL(window.location.origin + `/subscriptions/save`),
-                      new URL(window.location.href),
-                      getCartItems()
-                    );
-                  }}
-                >
-                  Checkout
-                </Menu.Item>
-              ) : (
-                <Menu.Item
-                  color={"blue"}
-                  icon={<IconLogin />}
-                  onClick={() => {
-                    signIn();
-                  }}
-                >
-                  Sign in to checkout
-                </Menu.Item>
-              )}
-              <Menu.Item
-                icon={<IconTrashOff />}
-                color="red"
-                onClick={clearCart}
-              >
-                Clear Cart
+      {checkoutLoading ? (
+        <Loader size="sm" />
+      ) : (
+        <>
+          <Menu
+            trigger="hover"
+            opened={cartOpened}
+            onOpen={openCartSetter}
+            onClose={closeCartSetter}
+          >
+            <Menu.Target>
+              <Button variant="subtle">
+                <IconShoppingCart /> <Space mr="sm" />{" "}
+                {formatAmountForDisplay(cartTotal)}
+              </Button>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item>
+                <Stack>
+                  {getCartItems().length > 0 ? (
+                    <>{buildCartItems()}</>
+                  ) : (
+                    <Text>Cart is empty</Text>
+                  )}
+                </Stack>
               </Menu.Item>
-            </>
-          ) : null}
-        </Menu.Dropdown>
-      </Menu>
+              {getCartItems().length > 0 ? (
+                <>
+                  {session ? (
+                    <Menu.Item
+                      icon={<IconShoppingCart />}
+                      color={"blue"}
+                      onClick={async () => {
+                        setCheckoutLoading(true);
+                        await redirectToCheckout(
+                          "subscription",
+                          new URL(
+                            window.location.origin + `/subscriptions/save`
+                          ),
+                          new URL(window.location.href),
+                          getCartItems()
+                        );
+                        setCheckoutLoading(false);
+                      }}
+                    >
+                      Checkout
+                    </Menu.Item>
+                  ) : (
+                    <Menu.Item
+                      color={"blue"}
+                      icon={<IconLogin />}
+                      onClick={() => {
+                        signIn();
+                      }}
+                    >
+                      Sign in to checkout
+                    </Menu.Item>
+                  )}
+                  <Menu.Item
+                    icon={<IconTrashOff />}
+                    color="red"
+                    onClick={clearCart}
+                  >
+                    Clear Cart
+                  </Menu.Item>
+                </>
+              ) : null}
+            </Menu.Dropdown>
+          </Menu>
 
-      <Modal
-        onClose={closeDialog}
-        opened={dialogOpened}
-        withCloseButton={false}
-        size="auto"
-        centered
-      >
-        <Text>Are you sure you want to clear your cart?</Text>
-        <Center>
-          <Group mt={"lg"}>
-            <Button onClick={() => setClearCartConfirmed(true)}>Yes</Button>
-            <Button onClick={closeDialog} color="red">
-              No
-            </Button>
-          </Group>
-        </Center>
-      </Modal>
+          <Modal
+            onClose={closeDialog}
+            opened={dialogOpened}
+            withCloseButton={false}
+            size="auto"
+            centered
+          >
+            <Text>Are you sure you want to clear your cart?</Text>
+            <Center>
+              <Group mt={"lg"}>
+                <Button onClick={() => setClearCartConfirmed(true)}>Yes</Button>
+                <Button onClick={closeDialog} color="red">
+                  No
+                </Button>
+              </Group>
+            </Center>
+          </Modal>
+        </>
+      )}
     </>
   );
 }

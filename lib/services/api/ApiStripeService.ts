@@ -1,4 +1,4 @@
-import { PrismaClient, Service } from "@prisma/client";
+import { Address, PrismaClient, Service, User } from "@prisma/client";
 import { Stripe } from "stripe";
 import { STRIPE_CONFIG } from "../../../data/configuration";
 
@@ -31,12 +31,12 @@ export async function getUserStripeId(user: any): Promise<string | null> {
 }
 
 // Creates/retrieves the stripe checkout session for a user, which handles subscriptions as well as paymentMethod addition
-export async function getCheckoutSession(stripeUser: string, checkoutData: Stripe.Checkout.SessionCreateParams) {
+export async function getCheckoutSession(stripeUserId: string, checkoutData: Stripe.Checkout.SessionCreateParams) {
     
     return await stripe.checkout.sessions.create({
         ...checkoutData,
         payment_method_types: ['card'],
-        customer: stripeUser,
+        customer: stripeUserId,
     })
 }
 
@@ -58,7 +58,28 @@ function buildProductData(service: Service): Stripe.ProductCreateParams {
         active: true,
         description: service.description,
         metadata: metadata,
+        tax_code: 'txcd_20030000', // General Services - https://stripe.com/docs/tax/tax-categories        
     }
+}
+
+export async function updateCustomerBillingAddress(user: User, address: Address) {
+    if (!user.stripeId) {
+        throw new Error("User does not have a Stripe ID, cannot update");
+    }
+
+    await stripe.customers.update(
+        user.stripeId,
+        {
+            address: {
+                city: address.city,
+                country: address.country,
+                line1: address.street,
+                line2: address.street2,
+                postal_code: address.zip,
+                state: address.state,                
+            } as Stripe.AddressParam,
+        } 
+    );
 }
 
 export async function createStripeProduct(service: Service): Promise<Stripe.Product> {
@@ -108,6 +129,7 @@ export async function createStripePrice(productId: string, service: Service) {
         unit_amount: parseInt((service.price * 100).toString()),
         nickname: service.name,
         tax_behavior: 'exclusive',
+
     };
 
     if(service.type === 'recurring'){

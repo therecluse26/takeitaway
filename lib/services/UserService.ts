@@ -1,8 +1,9 @@
 import { DataTableSortStatus } from 'mantine-datatable/dist/types/DataTableSortStatus';
 import axios from 'axios';
 import { PaymentMethod } from '@prisma/client';
-import { useSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 import { User } from 'next-auth';
+import { UserWithRelations } from './api/ApiUserService';
 
 export function useSessionUser(): User 
 {
@@ -10,10 +11,16 @@ export function useSessionUser(): User
 
     if(status !== "authenticated" || !data?.user){
         throw new Error("User not logged in");
-    }
+}
 
     return data.user;
 }
+
+export async function getSessionUser(withRelations = false): Promise<User|UserWithRelations> 
+{
+    return await axios.get('/api/auth/user', {params: {withRelations: withRelations}}).then(response => response.data);
+}
+
 
 export async function getUsers({page, recordsPerPage, sortStatus: { columnAccessor: sortAccessor, direction: sortDirection }, searchQuery}
 : { searchQuery: string|null, page: number|null|undefined; recordsPerPage: number; sortStatus: DataTableSortStatus; }): Promise<any> 

@@ -1,20 +1,18 @@
-import { Container } from '@mantine/core';
+import { Button, Container, Stack, Title } from '@mantine/core';
 import { Address } from '@prisma/client';
-import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
-import { JSXElementConstructor } from 'react';
+import { JSXElementConstructor, useState } from 'react';
 import PaymentMethodsList from '../../components/billing/PaymentMethodsList';
-import AddressForm from '../../components/locations/AddressForm';
+import AddressList from '../../components/locations/AddressList';
 import PageContainer from '../../components/PageContainer';
+import { UserWithRelations } from '../../lib/services/api/ApiUserService';
+import { GetServerSidePropsContext } from 'next/types';
+import BillingAddress from '../../components/billing/BillingAddress';
+import getSessionUserProps from '../../lib/props/sessionUser';
 
 const Center = dynamic(() =>
   import('@mantine/core').then(
     (mod) => mod.Center as JSXElementConstructor<any>
-  )
-);
-const Loader = dynamic(() =>
-  import('@mantine/core').then(
-    (mod) => mod.Loader as JSXElementConstructor<any>
   )
 );
 
@@ -22,55 +20,48 @@ const Text = dynamic(() =>
   import('@mantine/core').then((mod) => mod.Text as JSXElementConstructor<any>)
 );
 
-export default function Account() {
-  const { status, data: session }: { status: String; data: any } = useSession({
-    required: false,
-  });
-  const user = session?.user;
-
-  if (status === 'loading') {
-    return (
-      <Center>
-        <Loader />
-      </Center>
-    );
-  }
+export default function Account(props: { user: UserWithRelations }) {
+  const [billingaddress, setBillingAddress] = useState<Address | null>(
+    props.user.billingAddress
+  );
 
   return (
     <PageContainer title="Account">
-      <Center>
-        <Text>
-          {user.name} - {user.email}
-        </Text>
+      <Center mb={'2rem'}>
+        <Stack spacing={0}>
+          <Text>
+            {props.user.name} <Button variant="subtle">Edit</Button>{' '}
+          </Text>
+          <Text>{props.user.email}</Text>
+        </Stack>
       </Center>
 
-      <Container>
-        <AddressForm
-          user={user}
-          onSubmitted={(address: Address) => {}}
-          type="billing"
+      <Container size="xl" mb={'2rem'}>
+        <PaymentMethodsList user={props.user} />
+      </Container>
+
+      <Container mb={'2rem'}>
+        <BillingAddress
+          user={props.user}
+          billingaddress={billingaddress}
+          setBillingAddress={setBillingAddress}
         />
       </Container>
 
       <Container>
-        <AddressForm
-          user={user}
-          onSubmitted={(address: Address) => {}}
-          type="service"
+        <Title order={4}>Service Addresses</Title>
+        <AddressList
+          user={props.user}
+          addresses={props.user.addresses}
+          type={'service'}
         />
       </Container>
-
-      <PaymentMethodsList user={user} />
     </PageContainer>
   );
 }
 
-export async function getStaticProps() {
-  return {
-    props: {
-      authorization: {
-        requiresSession: true,
-      },
-    },
-  };
-}
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  return getSessionUserProps(context);
+};

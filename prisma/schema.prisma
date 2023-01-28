@@ -26,7 +26,7 @@ model Account {
   user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
-  @@index(userId)
+  @@index([userId])
 }
 
 model Address {
@@ -34,6 +34,7 @@ model Address {
   type            AddressType      @default(service)
   userId          String
   street          String           @db.VarChar(100)
+  street2         String?          @db.VarChar(100)
   city            String           @db.VarChar(100)
   state           String           @db.VarChar(100)
   zip             String           @db.VarChar(10)
@@ -42,12 +43,12 @@ model Address {
   longitude       Float?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
-  user            User             @relation(name: "addressUser", fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  billingUser     User?            @relation(name: "billingAddress")
+  user            User             @relation("addressUser", fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  billingUser     User?            @relation("billingAddress")
   serviceRequests ServiceRequest[]
   serviceLogs     ServiceLog[]
 
-  @@index(userId)
+  @@index([userId])
 }
 
 model BillingCycle {
@@ -63,8 +64,8 @@ model BillingCycle {
   serviceRequests ServiceRequest[]
   serviceLogs     ServiceLog[]
 
-  @@index(userId)
-  @@index(subscriptionId)
+  @@index([userId])
+  @@index([subscriptionId])
 }
 
 model Message {
@@ -77,12 +78,12 @@ model Message {
   read      Boolean   @default(false)
   sent      Boolean   @default(false)
   parentId  String?
-  parent    Message?  @relation("MessageParent", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  children  Message[] @relation("MessageParent")
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  parent    Message?  @relation("MessageParent", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children  Message[] @relation("MessageParent")
 
-  @@index(parentId)
+  @@index([parentId])
 }
 
 model Payment {
@@ -100,9 +101,9 @@ model Payment {
   billingCycle    BillingCycle  @relation(fields: [billingCycleId], references: [id], onDelete: Cascade)
   paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id], onDelete: Cascade)
 
-  @@index(userId)
-  @@index(paymentMethodId)
-  @@index(billingCycleId)
+  @@index([userId])
+  @@index([paymentMethodId])
+  @@index([billingCycleId])
 }
 
 model Service {
@@ -124,7 +125,7 @@ model Service {
   serviceLogs          ServiceLog[]
   SubscriptionServices SubscriptionServices[]
 
-  @@index(stripeId)
+  @@index([stripeId])
 }
 
 model ServiceRequest {
@@ -142,9 +143,9 @@ model ServiceRequest {
   billingCycle   BillingCycle @relation(fields: [billingCycleId], references: [id], onDelete: Cascade)
   address        Address      @relation(fields: [addressId], references: [id], onDelete: Cascade)
 
-  @@index(serviceId)
-  @@index(billingCycleId)
-  @@index(addressId)
+  @@index([serviceId])
+  @@index([billingCycleId])
+  @@index([addressId])
 }
 
 model ServiceLog {
@@ -163,9 +164,9 @@ model ServiceLog {
   billingCycle   BillingCycle @relation(fields: [billingCycleId], references: [id], onDelete: Cascade)
   address        Address      @relation(fields: [addressId], references: [id], onDelete: Cascade)
 
-  @@index(serviceId)
-  @@index(billingCycleId)
-  @@index(addressId)
+  @@index([serviceId])
+  @@index([billingCycleId])
+  @@index([addressId])
 }
 
 model Session {
@@ -175,7 +176,7 @@ model Session {
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index(userId)
+  @@index([userId])
 }
 
 model Subscription {
@@ -183,19 +184,17 @@ model Subscription {
   active          Boolean                @default(true)
   userId          String
   stripeId        String                 @unique @db.VarChar(40)
+  amount          Float?
   pickupsPerCycle Int                    @default(1)
   cycleRecurrence Recurrence             @default(monthly)
-  grossAmount     Float?
-  netAmount       Float?
-  fees            Float?
   createdAt       DateTime               @default(now())
   updatedAt       DateTime               @updatedAt
   deleted         Boolean                @default(false)
-  user            User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User                   @relation(fields: [userId], references: [id], onDelete: NoAction)
   services        SubscriptionServices[]
 
-  @@index(userId)
-  @@index(stripeId)
+  @@index([userId])
+  @@index([stripeId])
 }
 
 model SubscriptionServices {
@@ -208,8 +207,8 @@ model SubscriptionServices {
   service        Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 
   @@id([subscriptionId, serviceId])
-  @@index(subscriptionId)
-  @@index(serviceId)
+  @@index([subscriptionId])
+  @@index([serviceId])
 }
 
 model User {
@@ -217,6 +216,7 @@ model User {
   name             String?
   email            String?         @unique
   emailVerified    DateTime?
+  phone            String?
   image            String?
   role             RoleEnum        @default(subscriber)
   billingAddressId String?         @unique @db.VarChar(30)
@@ -225,16 +225,16 @@ model User {
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @default(now()) @updatedAt
   accounts         Account[]
-  addresses        Address[]       @relation(name: "addressUser")
+  addresses        Address[]       @relation("addressUser")
   billingCycles    BillingCycle[]
   payments         Payment[]
   sessions         Session[]
   subscriptions    Subscription[]
   paymentMethods   PaymentMethod[]
-  billingAddress   Address?        @relation(name: "billingAddress", fields: [billingAddressId], references: [id])
+  billingAddress   Address?        @relation("billingAddress", fields: [billingAddressId], references: [id])
 
   @@index([id, name, email])
-  @@index(stripeId)
+  @@index([stripeId])
 }
 
 model PaymentMethod {
@@ -252,8 +252,8 @@ model PaymentMethod {
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   payments  Payment[]
 
-  @@index(userId)
-  @@index(stripeId)
+  @@index([userId])
+  @@index([stripeId])
 }
 
 model VerificationToken {

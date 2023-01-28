@@ -2,7 +2,7 @@ import { Session } from "next-auth/core/types";
 import { getSession } from "next-auth/react";
 import { NextApiRequest, NextApiResponse } from "next/types";
 import { errorMessages } from "../../../../../data/messaging";
-import { getSubscriptionByStripeId, saveSubscriptionToUser } from "../../../../../lib/services/api/ApiSubscriptionService";
+import { getSubscriptionByStripeId, saveSubscriptionToUser, stripeSubscriptionExists } from "../../../../../lib/services/api/ApiSubscriptionService";
 import { getSubscriptionsFromSession } from "../../../../../lib/services/StripeService";
 
 export default async function handler(
@@ -32,8 +32,8 @@ export default async function handler(
     }
 
     if(subscription){
-        if(await getSubscriptionByStripeId(subscription.id)){
-            res.status(400).json({error: errorMessages.api.stripe.paymentMethodAlreadyExists.message});
+        if(await stripeSubscriptionExists(subscription.id)){
+            res.status(400).json({error: errorMessages.stripe.paymentMethodAlreadyExists.message});
             return
         }
         await saveSubscriptionToUser(subscription, session.user)

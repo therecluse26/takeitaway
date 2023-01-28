@@ -1,10 +1,11 @@
-import { IconCheck, IconX } from "@tabler/icons";
+import { IconCheck } from "@tabler/icons";
 import dynamic from "next/dynamic";
 import { JSXElementConstructor, useState } from "react";
 import { setPaymentMethodAsDefault } from "../../lib/services/UserService";
 import { getIconForBrand } from "../../lib/utils/icon-helpers";
 import { PaymentMethod, User } from "@prisma/client";
-import { showNotification } from "@mantine/notifications";
+import { UserWithRelations } from "../../lib/services/api/ApiUserService";
+import { notify, notifyError } from "../../helpers/notify";
 
 const Center = dynamic(() =>
   import("@mantine/core").then(
@@ -45,7 +46,7 @@ const PaymentMethodCard = ({
   refreshCallback,
 }: {
   paymentMethod: PaymentMethod;
-  user: User;
+  user: User | UserWithRelations;
   refreshCallback: () => void;
 }) => {
   const [makeDefaultLoading, setMakeDefaultLoading] = useState(false);
@@ -54,20 +55,10 @@ const PaymentMethodCard = ({
     setMakeDefaultLoading(true);
     setPaymentMethodAsDefault(user, paymentMethod)
       .then(() => {
-        showNotification({
-          title: "Success",
-          message: "Payment method set as default",
-          color: "green",
-          icon: <IconCheck />,
-        });
+        notify("Payment method set as default");
       })
       .catch(() => {
-        showNotification({
-          title: "Error",
-          message: "Unable to set payment method as default",
-          color: "red",
-          icon: <IconX />,
-        });
+        notifyError(500, "api", "Unable to set payment method as default");
       })
       .finally(() => {
         setMakeDefaultLoading(false);

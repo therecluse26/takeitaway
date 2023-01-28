@@ -11,6 +11,7 @@
     "db-migrate": "npx prisma migrate dev --skip-seed",
     "db-reset": "npx prisma migrate reset --skip-seed && npx prisma db push && npx prisma db seed",
     "db-push": "npx prisma db push",
+    "db-pull": "npx prisma db pull",
     "db-seed": "npx prisma db seed",
     "postinstall": "npx prisma generate"
   },

@@ -24,7 +24,7 @@ export default async function handler(
     const session_id = req.body?.session_id;
 
     if(!session_id){
-        res.status(errorMessages.api.stripe.noSessionId.code).json({error: errorMessages.api.stripe.noSessionId.message});
+        res.status(errorMessages.stripe.noSessionId.code).json({error: errorMessages.stripe.noSessionId.message});
         return
     }
 
@@ -38,7 +38,7 @@ export default async function handler(
 
     if(paymentMethod){
         if(await getPaymentMethodByStripeId(paymentMethod.id)){
-            res.status(400).json({error: errorMessages.api.stripe.paymentMethodAlreadyExists.message});
+            res.status(400).json({error: errorMessages.stripe.paymentMethodAlreadyExists.message});
             return
         }
         await savePaymentMethodToUser(paymentMethod, session.user)

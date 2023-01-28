@@ -5,8 +5,10 @@ import { User } from "next-auth/core/types";
 const prisma = new PrismaClient()
 
 export type UserWithRelations = User & {
+  billingAddress: Address|null;
   addresses: Address[];
   subscriptions: Subscription[];
+  paymentMethods: UserPaymentMethod[];
 }
 
 export async function getUserWithRelations(id: string): Promise<UserWithRelations|null> {
@@ -15,7 +17,13 @@ export async function getUserWithRelations(id: string): Promise<UserWithRelation
       id: id
     },
     include: {
-      addresses: true,
+      billingAddress: true,
+      addresses: {
+        where: {
+          type: "service"
+        }
+      },
+      paymentMethods: true,
       subscriptions: true
     }
   });

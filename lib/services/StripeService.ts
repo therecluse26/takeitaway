@@ -4,56 +4,90 @@ import axios from "axios";
 import { errorMessages } from "../../data/messaging";
 import { CartItem } from "./CheckoutService";
 import { STRIPE_CONFIG } from "../../data/configuration";
-import { User } from "next-auth";
+import { getSessionUser } from "./UserService";
+import { notifyError } from "../../helpers/notify";
+import { UserWithRelations } from "./api/ApiUserService";
+import { randomInt } from "crypto";
 
-const stripe = new Stripe(STRIPE_CONFIG.stripeApiKey, { apiVersion: "2022-11-15"});
+const stripe = new Stripe(STRIPE_CONFIG.stripeApiKey, { apiVersion: "2022-11-15" });
 
-export function redirectToCheckout(user: User, sessionMode: "setup"|"payment"|"subscription", successUrl: URL, cancelUrl: URL, lineItems: CartItem[]|[] = [])
-{
+export async function redirectToCheckout(sessionMode: "setup" | "payment" | "subscription", successUrl: URL, cancelUrl: URL, lineItems: CartItem[] | [] = []) {
 
-  let updatedSuccessUrl = new URL(`${successUrl.toString()}?session_id={CHECKOUT_SESSION_ID}`);
+  try {
 
-  let data: Stripe.Checkout.SessionCreateParams = { 
-    mode: sessionMode, 
-    success_url: updatedSuccessUrl.toString(), 
-    cancel_url: cancelUrl.toString(),
-  };
-  
-  if(sessionMode === 'subscription' && lineItems.length > 0){
-    // Automatic tax calculation for subscriptions
-    data.automatic_tax = {
-      enabled: true,
+    const user = await getSessionUser(true) as UserWithRelations;
+
+    if (!user) {
+      window.location.assign("/api/auth/signin");
+      return;
+    }
+
+    if (!user.billingAddressId) {
+      window.location.assign("/checkout/account-details");
+      return;
+    }
+
+    // let updatedSuccessUrl = new URL(`${successUrl.toString()}?session_id={CHECKOUT_SESSION_ID}`);
+
+    let updatedSuccessUrl = new URL(successUrl.toString());
+    let urlParams = new URLSearchParams(updatedSuccessUrl.search);
+    urlParams.set('t', Date.now().toString());
+    updatedSuccessUrl.search = urlParams.toString() + `&session_id={CHECKOUT_SESSION_ID}`;
+
+    let data: Stripe.Checkout.SessionCreateParams = {
+      mode: sessionMode,
+      success_url: updatedSuccessUrl.toString(),
+      cancel_url: cancelUrl.toString(),
     };
 
-    data.line_items = lineItems.map((item) => {
-      return {
-        quantity: item.quantity,
-        price: item.service.priceId,
-      } as Stripe.Checkout.SessionCreateParams.LineItem;
-    });
-  }
+    if (sessionMode === 'subscription' && lineItems.length > 0) {
 
-  axios.post('/api/stripe/get-checkout-session', data)
-  .then((resp) => {
-    if(resp.data.url){
-      window.location.assign(resp.data.url)
+      if (user.paymentMethods.length === 0) {
+        window.location.assign("/checkout/account-details");
+        return;
+      }
+
+      // Automatic tax calculation for subscriptions
+      data.automatic_tax = {
+        enabled: true,
+
+      };
+
+      data.line_items = lineItems.map((item) => {
+        return {
+          quantity: item.quantity,
+          price: item.service.priceId,
+        } as Stripe.Checkout.SessionCreateParams.LineItem;
+      });
     }
-  })
-  .catch((err) => {
+
+    axios.post('/api/stripe/get-checkout-session', data)
+      .then((resp) => {
+        if (resp.data.url) {
+          window.location.assign(resp.data.url)
+        }
+      })
+      .catch((err) => {
+        console.error(err)
+        notifyError(err.response.status, "api");
+        return;
+      });
+
+  } catch (err: any) {
     console.error(err);
-    return null;
-  });
+    notifyError(err.response.status ?? 500, "api");
+    return;
+  }
 }
 
-export async function getPaymentMethodFromSession(sessionId: string): Promise<PaymentMethod>
-{
+export async function getPaymentMethodFromSession(sessionId: string): Promise<PaymentMethod> {
   // Retrieve Stripe session
   const stripeSession = await stripe.checkout.sessions.retrieve(sessionId)
     .catch((err: any) => {
       throw err.raw.message;
     });
-  if(!stripeSession){
-      throw errorMessages.api.stripe.noSession.message;
+  if (!stripeSession) {
+    throw errorMessages.stripe.noSession.message;
   }
 
   const intentId = stripeSession.setup_intent?.toString() ?? "";
@@ -63,8 +97,8 @@ export async function getPaymentMethodFromSession(sessionId: string): Promise<Pa
     .catch((err: any) => {
       throw err.raw.message;
     });
-  if(!setupIntent){
-      throw errorMessages.api.stripe.noSetupIntent.message;
+  if (!setupIntent) {
+    throw errorMessages.stripe.noSetupIntent.message;
   }
 
   const paymentMethodId = setupIntent.payment_method?.toString() ?? "";
@@ -77,23 +111,22 @@ export async function getPaymentMethodFromSession(sessionId: string): Promise<Pa
     .catch((err: any) => {
       throw err.raw.message;
     });
-  if(!paymentMethod){
-      throw errorMessages.api.stripe.paymentMethod.message;
+  if (!paymentMethod) {
+    throw errorMessages.stripe.paymentMethod.message;
   }
 
   return paymentMethod;
 }
 
 
-export async function getSubscriptionsFromSession(sessionId: string): Promise<Stripe.Subscription>
-{
+export async function getSubscriptionsFromSession(sessionId: string): Promise<Stripe.Subscription> {
   // Retrieve Stripe session
   const stripeSession = await stripe.checkout.sessions.retrieve(sessionId)
     .catch((err: any) => {
       throw err.raw.message;
     });
-  if(!stripeSession){
-      throw errorMessages.api.stripe.noSession.message;
+  if (!stripeSession) {
+    throw errorMessages.stripe.noSession.message;
   }
 
 
@@ -105,8 +138,8 @@ export async function getSubscriptionsFromSession(sessionId: string): Promise<St
     .catch((err: any) => {
       throw err.raw.message;
     });
-  if(!subscription){
-      throw errorMessages.api.stripe.noSubscription.message;
+  if (!subscription) {
+    throw errorMessages.stripe.noSubscription.message;
   }
 
   return subscription;

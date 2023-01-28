@@ -91,7 +91,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       return false;
     });
 
-  console.log(user);
   if (user === false) {
     return {
       notFound: true,

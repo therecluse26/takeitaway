@@ -39,6 +39,13 @@ export function formatAmountForDisplay(
     }
     return zeroDecimalCurrency ? amount : Math.round(amount * 100)
   }
+
+  export function getStripeIntegerAsDecimal(
+    amount: number,
+  ): number {
+    return amount / 100;
+  }
+
   
   export function formatAmountFromStripe(
     amount: number,
