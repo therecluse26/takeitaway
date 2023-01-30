@@ -1,8 +1,14 @@
 import { Center, Loader } from '@mantine/core';
+import { Subscription } from '@prisma/client';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import { saveSessionToUser } from '../../lib/services/CheckoutService';
+import PageContainer from '../../components/PageContainer';
+import { notifyError } from '../../helpers/notify';
+import {
+  clearCart,
+  saveSubscriptionToUser,
+} from '../../lib/services/CheckoutService';
 
 export default function SaveSubscription() {
   const router = useRouter();
@@ -17,16 +23,25 @@ export default function SaveSubscription() {
   useEffect(() => {
     // Save payment method to user by session_id
     if (user && session_id) {
-      saveSessionToUser(user, session_id as string).then(() => {
-        router.push('/subscriptions/success');
-      });
+      saveSubscriptionToUser(user, session_id as string)
+        .then((resp) => {
+          const subscription: Subscription = resp.data;
+          clearCart();
+          router.push(`/subscriptions/success/${subscription.id}`);
+        })
+        .catch((err) => {
+          notifyError(err.response.status, 'api');
+          router.push(`/subscriptions/failure`);
+        });
     }
   }, [session_id, user, router]);
 
   return (
-    <Center>
-      <Loader></Loader>
-    </Center>
+    <PageContainer>
+      <Center>
+        <Loader></Loader>
+      </Center>
+    </PageContainer>
   );
 }
 

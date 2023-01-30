@@ -21,9 +21,17 @@ export async function getSubscriptionByStripeId(subscriptionStripeId: string): P
   });
 }
 
-export async function saveSubscriptionToUser(subscription: Stripe.Subscription, user: User): Promise<Subscription>{
+export async function getSubscriptionById(id: string): Promise<Subscription | null> {    
+  return await prisma.subscription.findUnique({
+    where: {
+      id: id
+    }
+  });
+}
 
-  const itemTotalQuantity = subscription.items?.data.reduce((total: number, item) => {
+export async function saveSubscriptionToUser(stripeSubscription: Stripe.Subscription, user: User): Promise<Subscription>{
+
+  const itemTotalQuantity = stripeSubscription.items?.data.reduce((total: number, item) => {
     const product: Stripe.Product = item?.price?.product as Stripe.Product;
     if(product){
       return total + (parseInt(product.metadata.pickupsPerCycle ?? 0));
@@ -31,33 +39,32 @@ export async function saveSubscriptionToUser(subscription: Stripe.Subscription, 
     return total;
   }, 0);
 
-  let amount: number = subscription.items?.data.reduce((total: number, item) => {
+  let amount: number = stripeSubscription.items?.data.reduce((total: number, item) => {
     return total + (item.price?.unit_amount ?? 0);
   }, 0);
 
-  const updatedSubscription = await prisma.subscription.upsert({
+  const localSubscription: Subscription = await prisma.subscription.upsert({
     where:{
-      stripeId: subscription.id
+      stripeId: stripeSubscription.id
     },
     update: {
       userId: user.id,
       cycleRecurrence: Recurrence.monthly,
       pickupsPerCycle: itemTotalQuantity,
-      active: subscription.status === "active",
+      active: stripeSubscription.status === "active",
       amount: getStripeIntegerAsDecimal(amount),
       updatedAt: new Date()
     },
     create: {
       userId: user.id,
-      stripeId: subscription.id,
+      stripeId: stripeSubscription.id,
       cycleRecurrence: Recurrence.monthly,
       pickupsPerCycle: itemTotalQuantity,
-      active: subscription.status === "active",
+      active: stripeSubscription.status === "active",
       amount: getStripeIntegerAsDecimal(amount),
       createdAt: new Date(),
       updatedAt: new Date()
-    } as Subscription
+    }
   });
-
-  return updatedSubscription;
+  return localSubscription;
 }

@@ -8,10 +8,6 @@ import { savePaymentMethodToUser } from '../../lib/services/UserService';
 export default function SavePaymentMethod() {
   const router = useRouter();
   const { session_id, checkout } = router.query;
-
-  console.log('session_id', session_id);
-  console.log('checkout', checkout);
-
   const { data: session }: { status: String; data: any } = useSession({
     required: false,
   });

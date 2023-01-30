@@ -10,7 +10,6 @@ import {
   Text,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { User } from "@prisma/client";
 import { IconLogin, IconShoppingCart, IconTrashOff } from "@tabler/icons";
 import { Session } from "next-auth";
 import { signIn } from "next-auth/react";

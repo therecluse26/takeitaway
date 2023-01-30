@@ -22,6 +22,10 @@ export function getCartItems() {
     }
     return [];
   }
+
+export function clearCart() {
+    localStorage.removeItem("cart");
+}
   
 export function getItem(service: Service) {
     const cartItems = getCartItems();
@@ -77,6 +81,6 @@ export function removeServiceFromCart(service: Service): Promise<any> {
 }
 
 
-export async function saveSessionToUser(user: User, session_id: string){
+export async function saveSubscriptionToUser(user: User, session_id: string){
     return await axios.post(`/api/users/${user.id}/subscriptions/save`, {session_id: session_id});
 }

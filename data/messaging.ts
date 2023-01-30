@@ -44,6 +44,11 @@ export type ErrorMessage = {
 
 const errorMessages = {
     pages: {
+        badRequest: {
+            code: 400,
+            title: "Bad Request",
+            description: "The request could not be understood by the server due to a bad input."
+        },
         unauthorized: {
             code: 403,
             title: "This is a restricted area",
@@ -61,6 +66,10 @@ const errorMessages = {
         },
     },
     api: {
+        badRequest: {
+            code: 400,
+            message: "The request could not be understood by the server due to a bad input."
+        },
         unauthorized: {
             code: 403,
             message: "You are not authorized to perform this action",
@@ -107,6 +116,10 @@ const errorMessages = {
             code: 400,
             message: "The specified payment method already exists"
         },
+        subscriptionNotFound: {
+            code: 404,
+            message: "No subscription found"
+        }
     },
     form: {
         failedToSubmit: {
