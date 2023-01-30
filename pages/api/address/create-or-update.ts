@@ -1,6 +1,5 @@
 import { Address } from '@prisma/client'
 import { NextApiRequest, NextApiResponse } from 'next/types'
-import { notifyError } from '../../../helpers/notify'
 import { createOrUpdateAddress, updateBillingAddress } from '../../../lib/services/api/ApiAddressService'
 
 export default async function handler(

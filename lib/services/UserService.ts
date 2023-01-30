@@ -1,7 +1,7 @@
 import { DataTableSortStatus } from 'mantine-datatable/dist/types/DataTableSortStatus';
 import axios from 'axios';
 import { PaymentMethod } from '@prisma/client';
-import { getSession, useSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { User } from 'next-auth';
 import { UserWithRelations } from './api/ApiUserService';
 

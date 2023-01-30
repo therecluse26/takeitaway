@@ -26,7 +26,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   return {
     props: {
-      ...getSessionUserProps(context),
+      ...(await getSessionUserProps(context)),
       subscription: JSON.parse(JSON.stringify(subscription)),
     },
   };

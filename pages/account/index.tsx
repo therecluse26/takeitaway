@@ -63,5 +63,5 @@ export default function Account(props: { user: UserWithRelations }) {
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
-  return getSessionUserProps(context);
+  return await getSessionUserProps(context);
 };
