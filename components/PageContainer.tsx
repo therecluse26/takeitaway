@@ -15,7 +15,7 @@ export default function PageContainer({
     <>
       {highlightedTitle && <HighlightedTitle title={highlightedTitle} />}
 
-      <div style={{ paddingTop: highlightedTitle ? 0 : 40 }}>
+      <div style={{ paddingTop: highlightedTitle ? 0 : 40, paddingBottom: 40 }}>
         {title && (
           <Container>
             <Center>

@@ -23,7 +23,7 @@ export default function HighlightedTitle({ title }: { title: string }) {
   return (
     <div className={classes.titleBackground}>
       <Center>
-        <Title className={classes.title} order={2}>
+        <Title className={classes.title} order={3}>
           {title}
         </Title>
       </Center>
