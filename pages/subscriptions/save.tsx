@@ -1,13 +1,19 @@
 import { Center, Loader } from '@mantine/core';
+import { Subscription } from '@prisma/client';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import PageContainer from '../../components/PageContainer';
-import { savePaymentMethodToUser } from '../../lib/services/UserService';
+import { notifyError } from '../../helpers/notify';
+import {
+  clearCart,
+  saveSubscriptionToUser,
+} from '../../lib/services/CheckoutService';
 
-export default function SavePaymentMethod() {
+export default function SaveSubscription() {
   const router = useRouter();
-  const { session_id, checkout } = router.query;
+  const { session_id } = router.query;
+
   const { data: session }: { status: String; data: any } = useSession({
     required: false,
   });
@@ -17,20 +23,23 @@ export default function SavePaymentMethod() {
   useEffect(() => {
     // Save payment method to user by session_id
     if (user && session_id) {
-      savePaymentMethodToUser(user, session_id as string).then(() => {
-        if (checkout) {
-          router.push('/checkout/account-details');
-          return;
-        }
-        router.push('/account');
-      });
+      saveSubscriptionToUser(user, session_id as string)
+        .then((resp) => {
+          const subscription: Subscription = resp.data;
+          clearCart();
+          router.push(`/subscriptions/success/${subscription.id}`);
+        })
+        .catch((err) => {
+          notifyError(err.response.status, 'api');
+          router.push(`/subscriptions/failure`);
+        });
     }
-  }, [session_id, user, router, checkout]);
+  }, [session_id, user, router]);
 
   return (
     <PageContainer>
       <Center>
-        <Loader />
+        <Loader></Loader>
       </Center>
     </PageContainer>
   );

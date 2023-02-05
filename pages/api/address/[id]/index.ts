@@ -26,9 +26,6 @@ export default async function GetAddress(req: NextApiRequest, res: NextApiRespon
             where: {
                 id: id
             },
-            include: {
-                subscription: true
-            },
         })
     );
     

@@ -1,6 +1,8 @@
-import { Address, PrismaClient } from "@prisma/client";
+import { Address, PrismaClient, User } from "@prisma/client";
 import NodeGeocoder, { Options } from 'node-geocoder';
-import {GEOCODER_CONFIG} from "../../../data/configuration";
+import { GEOCODER_CONFIG } from "../../../data/configuration";
+import { formatAddress } from "../AddressService";
+import { updateCustomerBillingAddress } from "./ApiStripeService";
 
 const prisma = new PrismaClient()
 
@@ -8,8 +10,8 @@ async function getAddress(id: string): Promise<Address> {
   const address = await prisma.address.findUnique({
     where: { id },
   });
-  
-  if (!address){
+
+  if (!address) {
     throw new Error("Address not found");
   }
 
@@ -23,37 +25,31 @@ async function updateAddress(address: Address): Promise<Address> {
   });
 }
 
+async function geocodeAddress(address: Address | string): Promise<Address> {
 
+  if (typeof address === "string") {
+    address = await getAddress(address)
+  }
 
-async function geocodeAddress(address: Address|string): Promise<Address> {
+  const geocoder = NodeGeocoder(GEOCODER_CONFIG as Options);
+  const geocodeResult = await geocoder.geocode(formatAddress(address));
 
-    if(typeof address === "string"){
-        address = await getAddress(address)
-    }
+  if (geocodeResult.length > 0) {
 
-    const geocoder = NodeGeocoder(GEOCODER_CONFIG as Options);
-    const geocodeResult = await geocoder.geocode(formatAddress(address));
+    const { latitude, longitude, city, countryCode, state, zipcode } = geocodeResult[0];
 
-    if(geocodeResult.length > 0){
+    address.city = city ? city : address.city;
+    address.country = countryCode ? countryCode : address.country;
+    address.state = state ? state : address.state;
+    address.zip = zipcode ? zipcode : address.zip;
+    address.latitude = latitude ? latitude : address.latitude;
+    address.longitude = longitude ? longitude : address.longitude;
 
-      const {latitude, longitude, city, countryCode, state, zipcode} = geocodeResult[0];
+    address = await updateAddress(address)
 
-      address.city = city ? city : address.city;
-      address.country = countryCode ? countryCode : address.country;
-      address.state = state ? state : address.state;
-      address.zip = zipcode ? zipcode : address.zip;
-      address.latitude = latitude ? latitude : address.latitude;
-      address.longitude = longitude ? longitude : address.longitude;
-      
-      address = await updateAddress(address)
+  }
 
-    }
-  
-    return address
-}
-
-function formatAddress(address: Address): string {
-  return `${address.street}, ${address.city}, ${address.state} ${address.zip}`;
+  return address
 }
 
 async function getUserAddresses(id: string): Promise<Address[]> {
@@ -62,5 +58,27 @@ async function getUserAddresses(id: string): Promise<Address[]> {
   });
 }
 
+export async function createOrUpdateAddress(address: Address): Promise<Address> {
+  if (address.id) {
+    return await prisma.address.update({
+      where: { id: address.id },
+      data: address,
+    });
+  }
+  return await prisma.address.create({
+    data: address,
+  });
+}
 
-export {updateAddress, getAddress, getUserAddresses, formatAddress, geocodeAddress}
+export async function updateBillingAddress(userId: string, address: Address): Promise<User> {
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: { billingAddressId: address.id },
+  });
+
+  await updateCustomerBillingAddress(user, address);
+
+  return user;
+}
+
+export { updateAddress, getAddress, getUserAddresses, geocodeAddress }

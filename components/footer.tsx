@@ -46,7 +46,7 @@ export default function FooterBar(): ReactElement<
             <Link href="/privacy-policy" className={classes.link}>
               Privacy Policy
             </Link>
-            <Link href="/refunds-policy" className={classes.link}>
+            <Link href="/refund-returns" className={classes.link}>
               Refund and Returns Policy
             </Link>
           </Group>

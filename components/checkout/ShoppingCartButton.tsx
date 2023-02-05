@@ -2,6 +2,7 @@ import {
   Button,
   Center,
   Group,
+  Loader,
   Menu,
   Modal,
   Space,
@@ -14,6 +15,7 @@ import { Session } from "next-auth";
 import { signIn } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 import { CartItem } from "../../lib/services/CheckoutService";
+import { redirectToCheckout } from "../../lib/services/StripeService";
 import { formatAmountForDisplay } from "../../lib/utils/stripe-helpers";
 
 function getCartItems() {
@@ -43,6 +45,7 @@ export default function ShoppingCartButton({
   const [dialogOpened, { close: closeDialog, open: openDialog }] =
     useDisclosure(false);
   const [clearCartConfirmed, setClearCartConfirmed] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   function clearCart() {
     openDialog();
@@ -89,74 +92,95 @@ export default function ShoppingCartButton({
 
   return (
     <>
-      <Menu
-        trigger="hover"
-        opened={cartOpened}
-        onOpen={openCartSetter}
-        onClose={closeCartSetter}
-      >
-        <Menu.Target>
-          <Button variant="subtle">
-            <IconShoppingCart /> <Space mr="sm" />{" "}
-            {formatAmountForDisplay(cartTotal)}
-          </Button>
-        </Menu.Target>
-        <Menu.Dropdown>
-          <Menu.Item>
-            <Stack>
-              {getCartItems().length > 0 ? (
-                <>{buildCartItems()}</>
-              ) : (
-                <Text>Cart is empty</Text>
-              )}
-            </Stack>
-          </Menu.Item>
-          {getCartItems().length > 0 ? (
-            <>
-              {session ? (
-                <Menu.Item icon={<IconShoppingCart />} color={"blue"}>
-                  Checkout
-                </Menu.Item>
-              ) : (
-                <Menu.Item
-                  color={"blue"}
-                  icon={<IconLogin />}
-                  onClick={() => {
-                    signIn();
-                  }}
-                >
-                  Sign in to checkout
-                </Menu.Item>
-              )}
-              <Menu.Item
-                icon={<IconTrashOff />}
-                color="red"
-                onClick={clearCart}
-              >
-                Clear Cart
+      {checkoutLoading ? (
+        <Loader size="sm" />
+      ) : (
+        <>
+          <Menu
+            trigger="hover"
+            opened={cartOpened}
+            onOpen={openCartSetter}
+            onClose={closeCartSetter}
+          >
+            <Menu.Target>
+              <Button variant="subtle">
+                <IconShoppingCart /> <Space mr="sm" />{" "}
+                {formatAmountForDisplay(cartTotal)}
+              </Button>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item>
+                <Stack>
+                  {getCartItems().length > 0 ? (
+                    <>{buildCartItems()}</>
+                  ) : (
+                    <Text>Cart is empty</Text>
+                  )}
+                </Stack>
               </Menu.Item>
-            </>
-          ) : null}
-        </Menu.Dropdown>
-      </Menu>
+              {getCartItems().length > 0 ? (
+                <>
+                  {session ? (
+                    <Menu.Item
+                      icon={<IconShoppingCart />}
+                      color={"blue"}
+                      onClick={async () => {
+                        setCheckoutLoading(true);
+                        await redirectToCheckout(
+                          "subscription",
+                          new URL(
+                            window.location.origin + `/subscriptions/save`
+                          ),
+                          new URL(window.location.href),
+                          getCartItems()
+                        );
+                        setCheckoutLoading(false);
+                      }}
+                    >
+                      Checkout
+                    </Menu.Item>
+                  ) : (
+                    <Menu.Item
+                      color={"blue"}
+                      icon={<IconLogin />}
+                      onClick={() => {
+                        signIn();
+                      }}
+                    >
+                      Sign in to checkout
+                    </Menu.Item>
+                  )}
+                  <Menu.Item
+                    icon={<IconTrashOff />}
+                    color="red"
+                    onClick={clearCart}
+                  >
+                    Clear Cart
+                  </Menu.Item>
+                </>
+              ) : null}
+            </Menu.Dropdown>
+          </Menu>
 
-      <Modal
-        onClose={closeDialog}
-        opened={dialogOpened}
-        withCloseButton={false}
-        size="auto"
-        centered
-      >
-        <Text>Are you sure you want to clear your cart?</Text>
-        <Center>
-          <Group mt={"lg"}>
-            <Button onClick={() => setClearCartConfirmed(true)}>Yes</Button>
-            <Button onClick={closeDialog} color="red">
-              No
-            </Button>
-          </Group>
-        </Center>
-      </Modal>
+          <Modal
+            onClose={closeDialog}
+            opened={dialogOpened}
+            withCloseButton={false}
+            size="auto"
+            centered
+          >
+            <Text>Are you sure you want to clear your cart?</Text>
+            <Center>
+              <Group mt={"lg"}>
+                <Button onClick={() => setClearCartConfirmed(true)}>Yes</Button>
+                <Button onClick={closeDialog} color="red">
+                  No
+                </Button>
+              </Group>
+            </Center>
+          </Modal>
+        </>
+      )}
     </>
   );
 }

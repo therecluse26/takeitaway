@@ -33,11 +33,22 @@ const pageMessages = {
                     <li>Sat: 8AM - 5PM</li>
                 </ul>`,
     }
-    
+
+}
+
+export type ErrorMessage = {
+    code: number,
+    message: string,
+    description?: string,
 }
 
 const errorMessages = {
     pages: {
+        badRequest: {
+            code: 400,
+            title: "Bad Request",
+            description: "The request could not be understood by the server due to a bad input."
+        },
         unauthorized: {
             code: 403,
             title: "This is a restricted area",
@@ -55,6 +66,10 @@ const errorMessages = {
         },
     },
     api: {
+        badRequest: {
+            code: 400,
+            message: "The request could not be understood by the server due to a bad input."
+        },
         unauthorized: {
             code: 403,
             message: "You are not authorized to perform this action",
@@ -71,31 +86,39 @@ const errorMessages = {
             code: 500,
             message: "The server encountered an error and could not complete your request."
         },
-        stripe: {
-            noCustomer: {
-                code: 500,
-                message: "No Stripe customer found for this user"
-            },
-            noSessionId: {
-                code: 400,
-                message: "No Stripe session ID found"
-            },
-            noSession: {
-                code: 400,
-                message: "No Stripe session found"
-            },
-            noSetupIntent: {
-                code: 400,
-                message: "No Stripe setup intent found"
-            },
-            paymentMethod: {
-                code: 400,
-                message: "No Stripe payment method found"
-            },
-            paymentMethodAlreadyExists: {
-                code: 400,
-                message: "The specified payment method already exists"
-            },
+    },
+    stripe: {
+        noCustomer: {
+            code: 500,
+            message: "No Stripe customer found for this user"
+        },
+        noSessionId: {
+            code: 400,
+            message: "No Stripe session ID found"
+        },
+        noSession: {
+            code: 400,
+            message: "No Stripe session found"
+        },
+        noSetupIntent: {
+            code: 400,
+            message: "No Stripe setup intent found"
+        },
+        noSubscription: {
+            code: 400,
+            message: "No Stripe subscription found"
+        },
+        paymentMethod: {
+            code: 400,
+            message: "No Stripe payment method found"
+        },
+        paymentMethodAlreadyExists: {
+            code: 400,
+            message: "The specified payment method already exists"
+        },
+        subscriptionNotFound: {
+            code: 404,
+            message: "No subscription found"
         }
     },
     form: {
@@ -116,4 +139,4 @@ const uiMessages = {
     subscribeNowBtn: "Subscribe Now",
 }
 
-export {errorMessages, pageMessages, uiMessages, companyInfo }
+export { errorMessages, pageMessages, uiMessages, companyInfo }

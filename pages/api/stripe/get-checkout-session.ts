@@ -19,7 +19,7 @@ export default async function handler(
     const stripeUser = await getUserStripeId(session.user)
 
     if(!stripeUser){
-        res.status(errorMessages.api.stripe.noCustomer.code).json({error: errorMessages.api.stripe.noCustomer.message});
+        res.status(errorMessages.stripe.noCustomer.code).json({error: errorMessages.stripe.noCustomer.message});
         return
     }
 

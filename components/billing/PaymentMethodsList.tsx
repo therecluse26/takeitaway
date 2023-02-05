@@ -5,6 +5,7 @@ import { redirectToCheckout } from "../../lib/services/StripeService";
 import { PaymentMethod, User } from "@prisma/client";
 import PaymentMethodCard from "./PaymentMethodCard";
 import { getUserPaymentMethods } from "../../lib/services/UserService";
+import { UserWithRelations } from "../../lib/services/api/ApiUserService";
 
 const Button = dynamic(() =>
   import("@mantine/core").then(
@@ -24,17 +25,19 @@ const Loader = dynamic(() =>
     (mod) => mod.Loader as JSXElementConstructor<any>
   )
 );
-const Container = dynamic(() =>
-  import("@mantine/core").then(
-    (mod) => mod.Container as JSXElementConstructor<any>
-  )
-);
 
-const PaymentMethodsList = ({ user }: { user: User }) => {
+const PaymentMethodsList = ({
+  user,
+  checkout = false,
+}: {
+  user: User | UserWithRelations;
+  checkout?: boolean;
+}) => {
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[] | null>(
     null
   );
   const [loadingPaymentMethods, setLoadingPaymentMethods] = useState(false);
+  const [loadingAddPaymentMethod, setLoadingAddPaymentMethod] = useState(false);
 
   useEffect(() => {
     if (user.id && paymentMethods === null) {
@@ -67,20 +70,18 @@ const PaymentMethodsList = ({ user }: { user: User }) => {
           <Center>
             <h2>Payment Methods</h2>
           </Center>
-          <Container size="xl">
-            <Grid gutter="lg">
-              {paymentMethods &&
-                paymentMethods.map((paymentMethod) => (
-                  <Grid.Col key={paymentMethod.id} md={6} lg={4}>
-                    <PaymentMethodCard
-                      refreshCallback={refreshMethods}
-                      user={user}
-                      paymentMethod={paymentMethod}
-                    />
-                  </Grid.Col>
-                ))}
-            </Grid>
-          </Container>
+          <Grid gutter="lg">
+            {paymentMethods &&
+              paymentMethods.map((paymentMethod) => (
+                <Grid.Col key={paymentMethod.id} md={6} lg={4}>
+                  <PaymentMethodCard
+                    refreshCallback={refreshMethods}
+                    user={user}
+                    paymentMethod={paymentMethod}
+                  />
+                </Grid.Col>
+              ))}
+          </Grid>
 
           <Space h="lg"></Space>
 
@@ -88,16 +89,30 @@ const PaymentMethodsList = ({ user }: { user: User }) => {
             {/* This is the button that redirects to Stripe Checkout to add a new payment method */}
             <Button
               onClick={() => {
+                setLoadingAddPaymentMethod(true);
+
+                let saveUrl = new URL(
+                  window.location.origin + `/account/save-payment-method`
+                );
+
+                if (checkout) {
+                  const searchParams = new URLSearchParams(saveUrl.search);
+                  searchParams.set("checkout", "true");
+                  saveUrl.search = searchParams.toString();
+                }
+
                 redirectToCheckout(
                   "setup",
-                  new URL(
-                    window.location.origin + `/account/save-payment-method`
-                  ),
+                  saveUrl,
                   new URL(window.location.href)
                 );
               }}
             >
-              New Payment Method
+              {loadingAddPaymentMethod ? (
+                <Loader size={"sm"} m={"1rem"} color="white" />
+              ) : (
+                "New Payment Method"
+              )}
             </Button>
           </Center>
         </>

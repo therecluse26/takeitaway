@@ -1,12 +1,57 @@
-import { PrismaClient, PaymentMethod as UserPaymentMethod } from "@prisma/client";
+import { PrismaClient, PaymentMethod as UserPaymentMethod, Address, Subscription } from "@prisma/client";
 import { PaymentMethod } from "@stripe/stripe-js";
 import { User } from "next-auth/core/types";
 
 const prisma = new PrismaClient()
 
-export async function savePaymentMethodToUser(paymentMethod: PaymentMethod, user: User): Promise<UserPaymentMethod>{
+export type UserWithRelations = User & {
+  billingAddress: Address|null;
+  addresses: Address[];
+  subscriptions: Subscription[];
+  paymentMethods: UserPaymentMethod[];
+}
+
+export async function getUserWithRelations(id: string): Promise<UserWithRelations|null> {
+  return await prisma.user.findUnique({
+    where: {
+      id: id
+    },
+    include: {
+      billingAddress: true,
+      addresses: {
+        where: {
+          type: "service"
+        }
+      },
+      paymentMethods: true,
+      subscriptions: true
+    }
+  });
+}
+
+export async function getPaginatedUsers(paginatedQuery: any) {
+  return await prisma.user.findMany(
+    {
+      ...paginatedQuery,
+      include: {
+        _count: {
+          select: {
+            addresses: true,
+            subscriptions: true,
+          }
+        }
+      }
+    }
+  );
+}
+
+export async function getUnpaginatedUsersCount(unpaginatedQuery: any) {
+  return await prisma.user.count(unpaginatedQuery);
+}
+
+export async function savePaymentMethodToUser(paymentMethod: PaymentMethod, user: User): Promise<UserPaymentMethod> {
   const updatedPaymentMethod = await prisma.paymentMethod.upsert({
-    where:{
+    where: {
       stripeId: paymentMethod.id
     },
     update: {
@@ -35,7 +80,7 @@ export async function savePaymentMethodToUser(paymentMethod: PaymentMethod, user
   return updatedPaymentMethod;
 }
 
-export async function setPaymentMethodAsDefault(paymentMethod: UserPaymentMethod): Promise<UserPaymentMethod>{
+export async function setPaymentMethodAsDefault(paymentMethod: UserPaymentMethod): Promise<UserPaymentMethod> {
   // Set all other payment methods to not default
   await prisma.paymentMethod.updateMany({
     where: {
@@ -60,7 +105,7 @@ export async function setPaymentMethodAsDefault(paymentMethod: UserPaymentMethod
   });
 }
 
-export async function getPaymentMethodsForUser(user: User): Promise<UserPaymentMethod[]>{
+export async function getPaymentMethodsForUser(user: User): Promise<UserPaymentMethod[]> {
   return prisma.paymentMethod.findMany({
     where: {
       userId: user.id
@@ -71,7 +116,7 @@ export async function getPaymentMethodsForUser(user: User): Promise<UserPaymentM
   });
 }
 
-export async function getPaymentMethodByStripeId(id: string): Promise<UserPaymentMethod|null>{
+export async function getPaymentMethodByStripeId(id: string): Promise<UserPaymentMethod | null> {
   return await prisma.paymentMethod.findUnique({
     where: {
       stripeId: id
@@ -79,17 +124,17 @@ export async function getPaymentMethodByStripeId(id: string): Promise<UserPaymen
   });
 }
 
-export async function getPaymentMethodById(id: string): Promise<UserPaymentMethod|null>{
+export async function getPaymentMethodById(id: string): Promise<UserPaymentMethod | null> {
   return await prisma.paymentMethod.findUnique({
     where: {
       id: id
     }
   });
-  
+
 }
 
-export async function deleteAccount(user: User): Promise<boolean>{
-  
+export async function deleteAccount(user: User): Promise<boolean> {
+
   return await prisma.user.update({
     where: {
       id: user.id
@@ -97,6 +142,6 @@ export async function deleteAccount(user: User): Promise<boolean>{
     data: {
       deleted: true
     }
-    
+
   }).then(() => true);
 }

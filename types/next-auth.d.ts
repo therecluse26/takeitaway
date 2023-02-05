@@ -1,8 +1,7 @@
-import NextAuth from "next-auth"
-import { TRole } from "../data/permissions"
+import { User as PrismaUser } from "@prisma/client"
 
 declare module "next-auth" {
-    interface User {
+    interface User extends PrismaUser {
         role: string,
     }
 
