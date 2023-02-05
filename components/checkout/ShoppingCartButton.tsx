@@ -1,36 +1,96 @@
 import {
+  ActionIcon,
   Button,
   Center,
   Group,
   Loader,
   Menu,
   Modal,
+  NumberInput,
   Space,
   Stack,
   Text,
 } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useFocusWithin } from "@mantine/hooks";
 import { IconLogin, IconShoppingCart, IconTrashOff } from "@tabler/icons";
 import { Session } from "next-auth";
 import { signIn } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
-import { CartItem } from "../../lib/services/CheckoutService";
+import {
+  CartItem,
+  getCartItems,
+  removeServiceFromCart,
+  updateServiceQuantity,
+} from "../../lib/services/CheckoutService";
 import { redirectToCheckout } from "../../lib/services/StripeService";
 import { formatAmountForDisplay } from "../../lib/utils/stripe-helpers";
 
-function getCartItems() {
-  const cart = localStorage.getItem("cart");
-  if (cart) {
-    return JSON.parse(cart);
-  }
-  return [];
-}
-
 function buildCartItems() {
+  const minQuantity = 1;
+  const maxQuantity = 99;
+
   return getCartItems().map((item: CartItem) => (
-    <Text key={item.service.id}>
-      {item.service.name} - {formatAmountForDisplay(item.service.price)}
-    </Text>
+    <Menu.Item key={"menu_item_" + item.service.id}>
+      <Stack>
+        <Center>
+          <Text key={item.service.id}>
+            {item.service.name} - {formatAmountForDisplay(item.service.price)}
+          </Text>
+        </Center>
+        <Center>
+          <Group spacing={2}>
+            <ActionIcon
+              size={"md"}
+              variant="default"
+              onClick={() => {
+                if (item.quantity > minQuantity) {
+                  updateServiceQuantity(item.service, item.quantity - 1);
+                }
+              }}
+            >
+              –
+            </ActionIcon>
+
+            <NumberInput
+              hideControls
+              value={item.quantity}
+              onChange={(val) => {
+                updateServiceQuantity(item.service, val ?? 1);
+              }}
+              max={maxQuantity}
+              min={minQuantity}
+              step={1}
+              size={"xs"}
+              styles={{ input: { width: 54, textAlign: "center" } }}
+            />
+
+            <ActionIcon
+              size={"md"}
+              variant="default"
+              onClick={() => {
+                if (item.quantity < maxQuantity) {
+                  updateServiceQuantity(item.service, item.quantity + 1);
+                }
+              }}
+            >
+              +
+            </ActionIcon>
+          </Group>
+        </Center>
+        <Center>
+          <Button
+            onClick={() => {
+              removeServiceFromCart(item.service);
+            }}
+            size="xs"
+            variant="outline"
+            color="red"
+          >
+            Remove
+          </Button>
+        </Center>
+      </Stack>
+    </Menu.Item>
   ));
 }
 
@@ -46,6 +106,7 @@ export default function ShoppingCartButton({
     useDisclosure(false);
   const [clearCartConfirmed, setClearCartConfirmed] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const { ref, focused } = useFocusWithin();
 
   function clearCart() {
     openDialog();
@@ -65,7 +126,7 @@ export default function ShoppingCartButton({
     if (cartItems.length > 0) {
       let total = 0;
       cartItems.forEach((item: CartItem) => {
-        total += item.service.price;
+        total += item.service.price * item.quantity;
       });
       setCartTotal(total);
       return total;
@@ -95,12 +156,16 @@ export default function ShoppingCartButton({
       {checkoutLoading ? (
         <Loader size="sm" />
       ) : (
-        <>
+        <div ref={ref}>
           <Menu
             trigger="hover"
             opened={cartOpened}
             onOpen={openCartSetter}
-            onClose={closeCartSetter}
+            onClose={() => {
+              if (!focused) {
+                closeCartSetter();
+              }
+            }}
           >
             <Menu.Target>
               <Button variant="subtle">
@@ -109,15 +174,11 @@ export default function ShoppingCartButton({
               </Button>
             </Menu.Target>
             <Menu.Dropdown>
-              <Menu.Item>
-                <Stack>
-                  {getCartItems().length > 0 ? (
-                    <>{buildCartItems()}</>
-                  ) : (
-                    <Text>Cart is empty</Text>
-                  )}
-                </Stack>
-              </Menu.Item>
+              {getCartItems().length > 0 ? (
+                <>{buildCartItems()}</>
+              ) : (
+                <Text>Cart is empty</Text>
+              )}
               {getCartItems().length > 0 ? (
                 <>
                   {session ? (
@@ -179,7 +240,7 @@ export default function ShoppingCartButton({
               </Group>
             </Center>
           </Modal>
-        </>
+        </div>
       )}
     </>
   );

@@ -15,7 +15,7 @@ export function getCart(): CartItem[] {
     return [];
 }
 
-export function getCartItems() {
+export function getCartItems(): CartItem[] {
     const cart = localStorage.getItem("cart");
     if (cart) {
       return JSON.parse(cart);
@@ -68,6 +68,24 @@ export function removeServiceFromCart(service: Service): Promise<any> {
         const cartItem = cart.find(item => item.service.id === service.id);
         if (cartItem) {
             cart.splice(cart.indexOf(cartItem), 1);
+            saveCart(cart);
+        }
+
+        window.dispatchEvent(new Event("cartUpdated"));
+    } catch(err) {
+        console.error(err);
+        return Promise.reject(err);
+    }
+
+    return Promise.resolve();
+}
+
+export function updateServiceQuantity(service: Service, quantity: number): Promise<any> {
+    try {
+        const cart = getCart();
+        const cartItem = cart.find(item => item.service.id === service.id);
+        if (cartItem) {
+            cartItem.quantity = quantity;
             saveCart(cart);
         }
 

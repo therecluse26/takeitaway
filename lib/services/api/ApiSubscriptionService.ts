@@ -31,10 +31,10 @@ export async function getSubscriptionById(id: string): Promise<Subscription | nu
 
 export async function saveSubscriptionToUser(stripeSubscription: Stripe.Subscription, user: User): Promise<Subscription>{
 
-  const itemTotalQuantity = stripeSubscription.items?.data.reduce((total: number, item) => {
+  const itemTotalPickupCount = stripeSubscription.items?.data.reduce((total: number, item: Stripe.SubscriptionItem) => {
     const product: Stripe.Product = item?.price?.product as Stripe.Product;
     if(product){
-      return total + (parseInt(product.metadata.pickupsPerCycle ?? 0));
+      return total + (parseInt(product.metadata.pickupsPerCycle ?? 0) * (item.quantity ?? 1));
     }
     return total;
   }, 0);
@@ -50,7 +50,7 @@ export async function saveSubscriptionToUser(stripeSubscription: Stripe.Subscrip
     update: {
       userId: user.id,
       cycleRecurrence: Recurrence.monthly,
-      pickupsPerCycle: itemTotalQuantity,
+      pickupsPerCycle: itemTotalPickupCount,
       active: stripeSubscription.status === "active",
       amount: getStripeIntegerAsDecimal(amount),
       updatedAt: new Date()
@@ -59,7 +59,7 @@ export async function saveSubscriptionToUser(stripeSubscription: Stripe.Subscrip
       userId: user.id,
       stripeId: stripeSubscription.id,
       cycleRecurrence: Recurrence.monthly,
-      pickupsPerCycle: itemTotalQuantity,
+      pickupsPerCycle: itemTotalPickupCount,
       active: stripeSubscription.status === "active",
       amount: getStripeIntegerAsDecimal(amount),
       createdAt: new Date(),
