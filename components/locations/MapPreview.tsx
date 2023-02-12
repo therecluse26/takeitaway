@@ -62,7 +62,7 @@ const MapPreview = ({
     if (visible) {
       setTimeout(() => {
         map.invalidateSize();
-      }, 200);
+      }, 100);
     }
 
     return null;
