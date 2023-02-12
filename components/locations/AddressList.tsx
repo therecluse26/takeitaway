@@ -19,6 +19,10 @@ const MapPreview = dynamic(
   { ssr: false }
 );
 
+const addressIsVisible = (address: Address, visibleAddress: string | null) => {
+  return visibleAddress === address.id;
+};
+
 export default function AddressList({
   type,
   addresses,
@@ -30,6 +34,7 @@ export default function AddressList({
   user: User | UserWithRelations | null;
   title?: string | null;
 }) {
+  const [visibleAddress, setVisibleAddress] = useState<string | null>(null);
   const [loadedMaps, setLoadedMaps] = useState<string[]>([]);
   const [displayedAddresses, setDisplayedAddresses] =
     useState<Address[]>(addresses);
@@ -45,7 +50,14 @@ export default function AddressList({
       <Card radius="md">
         {title && <Title order={2}>{title}</Title>}
         {displayedAddresses.length > 0 ? (
-          <Accordion variant="contained">
+          <Accordion
+            variant="contained"
+            onChange={(addressId: string | null) => {
+              if (addressId) {
+                setVisibleAddress(addressId);
+              }
+            }}
+          >
             {displayedAddresses.map((address: Address) => (
               <Accordion.Item
                 key={address.id}
@@ -66,7 +78,10 @@ export default function AddressList({
                 </Accordion.Control>
                 <Accordion.Panel>
                   {loadedMaps.includes(address.id) ? (
-                    <MapPreview address={address} />
+                    <MapPreview
+                      address={address}
+                      visible={addressIsVisible(address, visibleAddress)}
+                    />
                   ) : null}
                 </Accordion.Panel>
               </Accordion.Item>
