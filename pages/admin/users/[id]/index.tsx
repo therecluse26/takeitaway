@@ -43,7 +43,11 @@ export default function UserDetail(props: { user: UserWithRelations }) {
   const RoleBadge = () => {
     const role =
       props.user.role.charAt(0).toUpperCase() + props.user.role.slice(1);
-    return <Badge color="blue">{role}</Badge>;
+    return (
+      <>
+        <Badge color="blue">{role}</Badge>
+      </>
+    );
   };
 
   return (

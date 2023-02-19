@@ -1,5 +1,11 @@
+import PageContainer from '../../../components/PageContainer';
+
 export default function ServiceArea() {
-  return <>Service Area</>;
+  return (
+    <PageContainer title="Service Area">
+      <h1>test</h1>
+    </PageContainer>
+  );
 }
 
 export async function getStaticProps() {

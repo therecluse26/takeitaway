@@ -57,6 +57,8 @@ const MapPreview = ({
     return data;
   };
 
+  // This is a workaround for a bug in react-leaflet that causes the map to
+  // not render properly when it is initially hidden.
   function SizeInvalidator({ visible }: { visible: boolean }) {
     const map = useMap();
     if (visible) {

@@ -1,6 +1,6 @@
 import { Address } from '@prisma/client'
 import { NextApiRequest, NextApiResponse } from 'next/types'
-import { createOrUpdateAddress, updateBillingAddress } from '../../../lib/services/api/ApiAddressService'
+import { addressIsWithinGeofence, createOrUpdateAddress, updateBillingAddress } from '../../../lib/services/api/ApiAddressService'
 
 export default async function handler(
   req: NextApiRequest,
@@ -27,6 +27,11 @@ export default async function handler(
       data.id = req.body.id;
     }
     
+    if(!addressIsWithinGeofence(data)){
+      res.status(500).json(new Error("Address is not wihin our service area"))
+      return;
+    }
+
     const address = await createOrUpdateAddress(
       data
     )
