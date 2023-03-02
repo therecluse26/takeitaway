@@ -47,6 +47,7 @@ model Address {
   billingUser     User?            @relation("billingAddress")
   serviceRequests ServiceRequest[]
   serviceLogs     ServiceLog[]
+  Provider        Provider[]
 
   @@index([userId])
 }
@@ -106,10 +107,40 @@ model Payment {
   @@index([billingCycleId])
 }
 
+model Provider {
+  id            String            @id @default(cuid())
+  userId        String
+  addressId     String
+  serviceRadius Int
+  availability  Json?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  deleted       Boolean           @default(false)
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  address       Address           @relation(fields: [addressId], references: [id], onDelete: Cascade)
+  timeOff       ProviderTimeOff[]
+
+  @@index([userId])
+  @@index([addressId])
+}
+
+model ProviderTimeOff {
+  id         String    @id @default(cuid())
+  providerId String
+  day        DateTime  @db.Date
+  allDay     Boolean   @default(true)
+  startTime  DateTime?
+  endTime    DateTime?
+
+  provider Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([providerId])
+}
+
 model Service {
   id                   String                 @id @default(cuid())
   stripeId             String?                @db.VarChar(30)
-  type                 ServiceType            @default(recurring)
+  type                 ServiceType            @default(pickup_recurring)
   name                 String
   description          String                 @db.VarChar(2000)
   price                Float
@@ -123,7 +154,7 @@ model Service {
   deleted              Boolean                @default(false)
   serviceRequests      ServiceRequest[]
   serviceLogs          ServiceLog[]
-  SubscriptionServices SubscriptionServices[]
+  subscriptionServices SubscriptionServices[]
 
   @@index([stripeId])
 }
@@ -232,6 +263,7 @@ model User {
   subscriptions    Subscription[]
   paymentMethods   PaymentMethod[]
   billingAddress   Address?        @relation("billingAddress", fields: [billingAddressId], references: [id])
+  Provider         Provider[]
 
   @@index([id, name, email])
   @@index([stripeId])
@@ -265,8 +297,8 @@ model VerificationToken {
 }
 
 enum ServiceType {
-  recurring
-  oneTime
+  pickup_recurring
+  pickup_one_time
   addOn
 }
 
@@ -287,4 +319,14 @@ enum Recurrence {
 enum AddressType {
   billing
   service
+}
+
+enum Weekdays {
+  monday
+  tuesday
+  wednesday
+  thursday
+  friday
+  saturday
+  sunday
 }

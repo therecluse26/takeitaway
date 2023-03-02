@@ -5,6 +5,7 @@ import {
   IconLogout,
   IconUser,
   IconLogin,
+  IconTruck,
 } from "@tabler/icons";
 import { userCan } from "../lib/services/PermissionService";
 import {
@@ -64,10 +65,23 @@ export default function UserButton({
             >
               Manage Users
             </Menu.Item>
-
-            <Menu.Divider />
           </>
         )}
+
+        {userCan(user, ["providers:read"]) && (
+          <>
+            <Menu.Item
+              component={Link}
+              href={"/admin/providers"}
+              icon={<IconTruck size={14} stroke={1.5} />}
+              onClick={onClick}
+            >
+              Manage Providers
+            </Menu.Item>
+          </>
+        )}
+
+        <Menu.Divider />
 
         <Menu.Item
           component={Link}

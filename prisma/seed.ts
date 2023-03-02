@@ -23,7 +23,7 @@ async function main() {
     if(!!process.env.SEED_TEST_DATA === true) {
         // Create superadmin user
         if(process.env.SUPERADMIN_EMAIL) {
-            await prisma.user.create({
+            const superAdmin = await prisma.user.create({
                 data: {
                     name: process.env.SUPERADMIN_NAME ?? "Super Admin",
                     email: process.env.SUPERADMIN_EMAIL,
@@ -35,6 +35,35 @@ async function main() {
                     }
                 }
             })
+
+            const address = await prisma.address.create({
+                data: {
+                    street: '200 W Washington St',
+                    city: 'Phoenix',
+                    state: 'AZ',
+                    zip: '85003',
+                    country: 'US',
+                    latitude: 33.4484,
+                    longitude: -112.0740,
+                    userId: superAdmin.id,
+                }
+            })
+
+            await prisma.provider.create({
+                data: {
+                    userId: superAdmin.id,
+                    addressId: address.id,
+                    serviceRadius: 30,
+                    availability: [
+                        {"day": "monday", "start": "08:00", "end": "17:00"},
+                        {"day": "tuesday", "start": "08:00", "end": "17:00"},
+                        {"day": "wednesday", "start": "08:00", "end": "17:00"},
+                        {"day": "thursday", "start": "08:00", "end": "17:00"},
+                        {"day": "friday", "start": "08:00", "end": "17:00"}
+                    ]
+                }
+            })
+
         }
 
         const userCount = parseInt(process.env.SEED_TEST_USER_COUNT ?? "") ?? 100;
@@ -53,13 +82,12 @@ async function main() {
             })
         }
 
-
         // Create test services
         await prisma.service.createMany(
             {
                 data: [
                     {
-                        type: ServiceType.recurring,
+                        type: ServiceType.pickup_recurring,
                         name: 'Single Pickup',
                         description: `Each subscription service pick-up will be limited to 3 cans per household (1 recycle can/ 2 garbage cans)
                         <br/>
@@ -73,7 +101,7 @@ async function main() {
                         updatedAt: new Date()
                     }, 
                     {
-                        type: ServiceType.recurring,
+                        type: ServiceType.pickup_recurring,
                         name: '2 Pickups',
                         description: `Each subscription service pick-up will be limited to 3 cans per household (1 recycle can/ 2 garbage cans)
                         <br/>
@@ -87,7 +115,7 @@ async function main() {
                         updatedAt: new Date()
                     }, 
                     {
-                        type: ServiceType.recurring,
+                        type: ServiceType.pickup_recurring,
                         name: '4 Pickups',
                         description: `Each subscription service pick-up will be limited to 3 cans per household (1 recycle can/ 2 garbage cans)
                         <br/>
@@ -101,7 +129,7 @@ async function main() {
                         updatedAt: new Date()
                     }, 
                     {
-                        type: ServiceType.recurring,
+                        type: ServiceType.pickup_recurring,
                         name: '6 pickups',
                         description: `Each subscription service pick-up will be limited to 3 cans per household (1 recycle can/ 2 garbage cans)
                         <br/>
@@ -115,7 +143,7 @@ async function main() {
                         updatedAt: new Date()
                     },
                     {
-                        type: ServiceType.recurring,
+                        type: ServiceType.pickup_recurring,
                         name: '10 pickups',
                         description: `<ul>
                             <li>Usually for multiple property owners or property management companies</li>
@@ -133,7 +161,7 @@ async function main() {
                         updatedAt: new Date()
                     },
                     {
-                        type: ServiceType.recurring,
+                        type: ServiceType.pickup_recurring,
                         name: '15 pickups',
                         description: `<ul>
                             <li>Usually for multiple property owners or property management companies</li>
@@ -151,7 +179,7 @@ async function main() {
                         updatedAt: new Date()
                     },
                     {
-                        type: ServiceType.recurring,
+                        type: ServiceType.pickup_recurring,
                         name: '20 pickups',
                         description: `<ul>
                             <li>Usually for multiple property owners or property management companies</li>
@@ -169,7 +197,7 @@ async function main() {
                         updatedAt: new Date()
                     },
                     {
-                        type: ServiceType.oneTime,
+                        type: ServiceType.pickup_one_time,
                         name: 'One-Time Pickup',
                         description: 'Single pickup',
                         price: 60,

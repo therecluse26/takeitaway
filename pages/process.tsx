@@ -23,17 +23,17 @@ export default function Process() {
                 you average per month per property that you rent out.
               </Text>
               <Text color="dimmed">
-                When signing up, you’ll be asked for your credit card info which
+                When signing up, you`ll be asked for your credit card info which
                 will automatically be charged, based on the subscription service
-                you’ve chosen, once a month for the duration of your
-                subscription, until it’s termination. Every time your credit/
+                you`ve chosen, once a month for the duration of your
+                subscription, until it`s termination. Every time your credit/
                 debit card is charged you will receive a receipt via email that
                 you can use for tax purposes. If you own multiple properties
-                that you rent, you’re able to subscribe to one of our plans and
+                that you rent, you`re able to subscribe to one of our plans and
                 share the amount of pick-ups in between those rental properties.
                 Also, if your trash cans are behind a gate and there is a gate
                 code needed to collect the trash from the cans or if your
-                property is in a gated community, then there will be a ‘notes’
+                property is in a gated community, then there will be a `notes`
                 section when scheduling that you can enter any pertinent
                 information we may need for that particular property.
               </Text>
@@ -44,11 +44,11 @@ export default function Process() {
                 to and around your rental property which ends up being a
                 nuisance to your neighbors and future renters. What happens if
                 you have a rental end one day and have another starting the next
-                day and the garbage is still sitting in your trash can? We’ll
-                come and get it so you won’t have to worry about that situation
+                day and the garbage is still sitting in your trash can? We`ll
+                come and get it so you won`t have to worry about that situation
                 even happening. Just create an account on our website, enter in
-                all pertinent info, and schedule the day you’d like the pick-up
-                to take place and we’ll be there to take care of it for you on
+                all pertinent info, and schedule the day you`d like the pick-up
+                to take place and we`ll be there to take care of it for you on
                 the same day, or within 24 hours depending on what time the
                 pick-up is requested on that particular day. You also have the
                 option to request a pick-up on days in the future based on your

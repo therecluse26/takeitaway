@@ -17,7 +17,7 @@ export default function PrivacyPolicy() {
             <Stack>
               <Text color="dimmed">
                 When visitors leave comments on the site we collect the data
-                shown in the comments form, and also the visitor’s IP address
+                shown in the comments form, and also the visitor`s IP address
                 and browser user agent string to help spam detection.
               </Text>
               <Text color="dimmed">

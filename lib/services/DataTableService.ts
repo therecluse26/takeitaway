@@ -13,6 +13,7 @@ export function buildFindManyParams(req: NextApiRequest) {
     if(searchQuery){
         let whereQuery: any = {};
         for(const [key, value] of Object.entries(searchQuery)){ 
+            // Strict equality check for role
             if (key === "role" && value !== null && value !== ""){
                 whereQuery = {
                     ...whereQuery,
@@ -21,10 +22,31 @@ export function buildFindManyParams(req: NextApiRequest) {
             }
             else {
                 if(value !== "" && value !== null){
-                    whereQuery = {
-                        ...whereQuery,
-                        [key]: {
-                            contains: value
+
+                    // If key has dot notation, build recursive where query
+                    if(key.includes(".")){
+                        const keyParts = key.split(".");
+                        for(let i = keyParts.length - 1; i >= 0; i--){
+                            if(i === keyParts.length - 1){
+                                whereQuery = {
+                                    [keyParts[i]]: {
+                                        contains: value
+                                    }
+                                }
+                            }
+                            else {
+                                // Build query like: {relationKey: {contains: value}}
+                                whereQuery = {
+                                    [keyParts[i]]: {...whereQuery}
+                                }
+                            }
+                        }
+                    } else {
+                        whereQuery = {
+                            ...whereQuery,
+                            [key]: {
+                                contains: value
+                            }
                         }
                     }
                 }

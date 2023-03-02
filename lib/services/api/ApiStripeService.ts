@@ -132,7 +132,7 @@ export async function createStripePrice(productId: string, service: Service) {
 
     };
 
-    if(service.type === 'recurring'){
+    if(service.type === 'pickup_recurring'){
         price.recurring = {
             interval: 'month',
             interval_count: 1,
