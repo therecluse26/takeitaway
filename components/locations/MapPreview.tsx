@@ -2,13 +2,18 @@ import { Address } from "@prisma/client";
 import React, { JSXElementConstructor, useEffect } from "react";
 import { useState } from "react";
 import "leaflet/dist/leaflet.css";
-import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
-import { geocodeAddress } from "../../lib/services/AddressService";
+import { MapContainer, TileLayer, Marker, useMap, Circle } from "react-leaflet";
+import {
+  formatAddress,
+  geocodeAddress,
+} from "../../lib/services/AddressService";
 import dynamic from "next/dynamic";
 import { icon } from "leaflet";
 
 let DefaultIcon = icon({
   iconUrl: "/leaflet-marker-icon.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
 });
 
 const Center = dynamic(() =>
@@ -34,12 +39,18 @@ const Space = dynamic(() =>
 const MapPreview = ({
   address,
   visible,
+  showAddress = true,
+  showCoordinates = false,
+  serviceRadius = null,
 }: {
   address: Address;
   visible: boolean;
+  showAddress?: boolean;
+  showCoordinates?: boolean;
+  serviceRadius?: number | null;
 }) => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [zoom] = useState(12);
+  const [zoom] = useState(9);
   const [latitude, setLatitude] = useState(address.latitude);
   const [longitude, setLongitude] = useState(address.longitude);
   const mapRef = React.useRef(null);
@@ -98,6 +109,13 @@ const MapPreview = ({
                   <SizeInvalidator visible={visible} />
                   <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                   <Marker position={[latitude, longitude]} icon={DefaultIcon} />
+                  {serviceRadius && (
+                    <Circle
+                      center={[latitude, longitude]}
+                      pathOptions={{ color: "blue" }}
+                      radius={serviceRadius * 1609.34} // convert miles to meters
+                    />
+                  )}
                 </MapContainer>
               </>
             ) : (
@@ -107,9 +125,13 @@ const MapPreview = ({
           <Center>
             <Stack>
               <Space />
-              <Text>
-                {latitude ?? "?"}, {longitude ?? "?"}
-              </Text>
+              {showAddress && <Text>{formatAddress(address)}</Text>}
+              <Space />
+              {showCoordinates && latitude && longitude && (
+                <Text>
+                  {latitude}, {longitude}
+                </Text>
+              )}
             </Stack>
           </Center>
         </>

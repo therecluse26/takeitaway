@@ -1,4 +1,4 @@
-import { PrismaClient, Address, User, Provider } from "@prisma/client";
+import { PrismaClient, Address, User, Provider, ProviderTimeOff } from "@prisma/client";
 import { PaginatedResults } from "../../../types/pagination";
 
 const prisma = new PrismaClient()
@@ -6,6 +6,7 @@ const prisma = new PrismaClient()
 export type ProviderWithRelations = Provider & {
   user: User;
   address: Address; 
+  timeOff: ProviderTimeOff[]|null;
 }
 
 export type PaginatedProvidersWithRelations = PaginatedResults & {
@@ -25,6 +26,13 @@ export async function getProviderWithRelations(id: string): Promise<ProviderWith
     include: {
       user: true,
       address: true,
+      timeOff: {
+        where: {
+          day: {
+            gte: new Date()
+          }
+        }
+      },
     }
   });
 }

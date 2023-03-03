@@ -9,15 +9,27 @@ import {
   Anchor,
   Grid,
   TextInput,
+  Text,
+  Group,
 } from '@mantine/core';
-import { Provider } from '@prisma/client';
 import { useDebouncedValue, useViewportSize } from '@mantine/hooks';
 import { USEQUERY_STALETIME } from '../../../data/configuration';
 import PageContainer from '../../../components/PageContainer';
-import { getProviders } from '../../../lib/services/ProviderService';
+import {
+  formatStartAndEndTimes,
+  getProviders,
+  isAvailable,
+  localTimeZone,
+} from '../../../lib/services/ProviderService';
 import Link from 'next/link';
 import { formatAddress } from '../../../lib/services/AddressService';
-import { IconSearch } from '@tabler/icons';
+import {
+  IconClockHour3,
+  IconSearch,
+  IconThumbDown,
+  IconThumbUp,
+} from '@tabler/icons';
+import { ProviderWithRelations } from '../../../lib/services/api/ApiProviderService';
 
 const PAGE_SIZE = 15;
 
@@ -32,7 +44,7 @@ export default function ProviderTable() {
     setPage(1);
     setSortStatus(status);
   };
-  const [selectedRecords, setSelectedRecords] = useState<Provider[]>([]);
+
   const [search, setSearch] = useState({ 'user.name': '' });
   const [debouncedSearch] = useDebouncedValue(search, 500);
 
@@ -64,7 +76,7 @@ export default function ProviderTable() {
     <PageContainer title={'Manage Providers'}>
       <Container size="lg">
         <Center>
-          <Box sx={{ height: height - 300, width: width - 100 }}>
+          <Box sx={{ height: height - 400, width: width - 100 }}>
             <Grid align="center" mb="md">
               <Grid.Col xs={2}>
                 <TextInput
@@ -95,10 +107,10 @@ export default function ProviderTable() {
               columns={[
                 {
                   accessor: 'user.name',
-                  width: 150,
+                  width: 100,
                   ellipsis: true,
                   sortable: true,
-                  render: (record: any): any => {
+                  render: (record: ProviderWithRelations): any => {
                     return (
                       <Anchor
                         component={Link}
@@ -112,21 +124,78 @@ export default function ProviderTable() {
                 {
                   accessor: 'address.id',
                   title: 'Address',
-                  width: 150,
-                  sortable: true,
+                  width: 120,
+                  sortable: false,
                   visibleMediaQuery: aboveXsMediaQuery,
-                  render: (record: any): any => {
+                  render: (record: ProviderWithRelations): any => {
                     return <>{formatAddress(record.address)}</>;
                   },
                 },
                 {
                   accessor: 'serviceRadius',
                   title: 'Service Radius',
-                  width: 150,
+                  width: 80,
                   sortable: true,
                   visibleMediaQuery: aboveXsMediaQuery,
-                  render: (record: any): any => {
+                  render: (record: ProviderWithRelations): any => {
                     return <>{record.serviceRadius + ' miles'}</>;
+                  },
+                },
+                {
+                  accessor: 'availability',
+                  title: `Availability (${localTimeZone})`,
+                  width: 120,
+                  sortable: false,
+                  visibleMediaQuery: aboveXsMediaQuery,
+                  render: (record: ProviderWithRelations): any => {
+                    return (
+                      <>
+                        {isAvailable(
+                          record.availability,
+                          new Date(),
+                          record.timeOff
+                        ) ? (
+                          <>
+                            <Grid align="center" justify="center">
+                              <Grid.Col span={4}>
+                                <Group spacing={8}>
+                                  <Text c="green">
+                                    <IconThumbUp size={14} />
+                                  </Text>
+
+                                  <Text c="green">Available</Text>
+                                </Group>
+                              </Grid.Col>
+
+                              <Grid.Col span={8}>
+                                <Group spacing={8}>
+                                  <IconClockHour3 size={14} />
+                                  <Text size="sm">
+                                    {formatStartAndEndTimes(
+                                      record.availability,
+                                      new Date()
+                                    )}
+                                  </Text>
+                                </Group>
+                              </Grid.Col>
+                            </Grid>
+                          </>
+                        ) : (
+                          <>
+                            <Grid align="center" justify="center">
+                              <Grid.Col span={12}>
+                                <Group spacing={8}>
+                                  <Text c="red">
+                                    <IconThumbDown size={12} />
+                                  </Text>
+                                  <Text c="red">Unavailable</Text>
+                                </Group>
+                              </Grid.Col>
+                            </Grid>
+                          </>
+                        )}
+                      </>
+                    );
                   },
                 },
               ]}
@@ -137,8 +206,6 @@ export default function ProviderTable() {
               recordsPerPage={PAGE_SIZE}
               sortStatus={sortStatus}
               onSortStatusChange={handleSortStatusChange}
-              selectedRecords={selectedRecords}
-              onSelectedRecordsChange={setSelectedRecords}
             />
           </Box>
         </Center>

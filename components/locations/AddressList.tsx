@@ -7,9 +7,10 @@ import {
   Title,
   Text,
 } from "@mantine/core";
-import { Address, AddressType, User } from "@prisma/client";
+import { Address, AddressType, Provider, User } from "@prisma/client";
 import dynamic from "next/dynamic";
 import { useState } from "react";
+import { ProviderWithRelations } from "../../lib/services/api/ApiProviderService";
 import { UserWithRelations } from "../../lib/services/api/ApiUserService";
 import AddressForm from "./AddressForm";
 
@@ -27,12 +28,16 @@ export default function AddressList({
   type,
   addresses,
   user = null,
+  provider = null,
   title = null,
+  showPickups = true,
 }: {
   type: AddressType;
   addresses: Address[];
-  user: User | UserWithRelations | null;
+  user?: User | UserWithRelations | null;
+  provider?: Provider | ProviderWithRelations | null;
   title?: string | null;
+  showPickups?: boolean;
 }) {
   const [visibleAddress, setVisibleAddress] = useState<string | null>(null);
   const [loadedMaps, setLoadedMaps] = useState<string[]>([]);
@@ -73,7 +78,10 @@ export default function AddressList({
                 <Accordion.Control>
                   <Group position="apart">
                     {formatAddress(address)}{" "}
-                    {type === "service" && <PickupsBadge />}
+                    {type === "service" && showPickups && <PickupsBadge />}
+                    {type === "provider" && (
+                      <ServiceRadius radius={provider?.serviceRadius} />
+                    )}
                   </Group>
                 </Accordion.Control>
                 <Accordion.Panel>
@@ -81,6 +89,7 @@ export default function AddressList({
                     <MapPreview
                       address={address}
                       visible={addressIsVisible(address, visibleAddress)}
+                      serviceRadius={provider?.serviceRadius}
                     />
                   ) : null}
                 </Accordion.Panel>
@@ -91,30 +100,34 @@ export default function AddressList({
           <Text>No addresses found</Text>
         )}
       </Card>
-      <Card p="lg" radius="md">
-        {addingNewAddress ? (
-          <>
-            <AddressForm
-              type="service"
-              user={user}
-              onCanceled={() => {
-                setAddingNewAddress(false);
-              }}
-              onSubmitted={(address: Address) => {
-                addNewAddress(address);
-              }}
-            />
-          </>
-        ) : (
-          <Button
-            onClick={() => {
-              setAddingNewAddress(true);
-            }}
-          >
-            + Add Location
-          </Button>
-        )}
-      </Card>
+      {user ? (
+        <>
+          <Card p="lg" radius="md">
+            {addingNewAddress ? (
+              <>
+                <AddressForm
+                  type="service"
+                  user={user}
+                  onCanceled={() => {
+                    setAddingNewAddress(false);
+                  }}
+                  onSubmitted={(address: Address) => {
+                    addNewAddress(address);
+                  }}
+                />
+              </>
+            ) : (
+              <Button
+                onClick={() => {
+                  setAddingNewAddress(true);
+                }}
+              >
+                + Add Location
+              </Button>
+            )}
+          </Card>
+        </>
+      ) : null}
     </>
   );
 }
@@ -123,6 +136,11 @@ const PickupsBadge = ({ pickups = 0 }) => {
   const badgeColor = pickups === 0 ? "gray" : "green";
   // Badge that shows the number of pickups the user has at the given location
   return <Badge color={badgeColor}>{pickups} monthly pickups</Badge>;
+};
+
+const ServiceRadius = ({ radius = 0 }) => {
+  // Badge that shows the service radius of the user at the given location
+  return <Badge color="blue">{radius} mile service radius</Badge>;
 };
 
 const formatAddress = (address: Address): string => {

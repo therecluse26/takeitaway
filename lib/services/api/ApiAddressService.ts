@@ -6,7 +6,7 @@ import { updateCustomerBillingAddress } from "./ApiStripeService";
 
 const prisma = new PrismaClient()
 
-async function getAddress(id: string): Promise<Address> {
+export async function getAddress(id: string): Promise<Address> {
   const address = await prisma.address.findUnique({
     where: { id },
   });
@@ -18,14 +18,14 @@ async function getAddress(id: string): Promise<Address> {
   return address;
 }
 
-async function updateAddress(address: Address): Promise<Address> {
+export async function updateAddress(address: Address): Promise<Address> {
   return await prisma.address.update({
     where: { id: address.id },
     data: address,
   });
 }
 
-async function geocodeAddress(address: Address | string): Promise<Address> {
+export async function geocodeAddress(address: Address | string): Promise<Address> {
 
   if (typeof address === "string") {
     address = await getAddress(address)
@@ -52,7 +52,7 @@ async function geocodeAddress(address: Address | string): Promise<Address> {
   return address
 }
 
-async function getUserAddresses(id: string): Promise<Address[]> {
+export async function getUserAddresses(id: string): Promise<Address[]> {
   return await prisma.address.findMany({
     where: { userId: id },
   });
@@ -81,4 +81,10 @@ export async function updateBillingAddress(userId: string, address: Address): Pr
   return user;
 }
 
-export { updateAddress, getAddress, getUserAddresses, geocodeAddress }
+export function addressIsWithinServiceArea(address: Address): boolean {
+  // Need to implement still 
+
+  // Find provider nearest to address
+  // and check if address is within serviceRadius
+  return true;
+}
