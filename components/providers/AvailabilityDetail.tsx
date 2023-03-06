@@ -27,7 +27,7 @@ export default function AvailabilityDetail({
   };
 
   return (
-    <Container size="md">
+    <Container size="xl">
       <Stack>
         <Title order={4}>Availability ({localTimeZone}) </Title>
         <Table withBorder withColumnBorders>

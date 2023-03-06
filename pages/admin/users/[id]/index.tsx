@@ -65,6 +65,9 @@ export default function UserDetail(props: { user: UserWithRelations }) {
           </Group>
 
           <AddressList
+            mapHeight="500px"
+            mapWidth="100%"
+            mapZoom={12}
             type="service"
             addresses={props.user.addresses}
             user={props.user}

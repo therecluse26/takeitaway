@@ -17,6 +17,7 @@ import { USEQUERY_STALETIME } from '../../../data/configuration';
 import PageContainer from '../../../components/PageContainer';
 import {
   formatStartAndEndTimes,
+  getNextScheduledDate,
   getProviders,
   isAvailable,
   localTimeZone,
@@ -143,11 +144,17 @@ export default function ProviderTable() {
                 },
                 {
                   accessor: 'availability',
-                  title: `Availability (${localTimeZone})`,
+                  title: `Availability (Your Timezone - ${localTimeZone})`,
                   width: 120,
                   sortable: false,
                   visibleMediaQuery: aboveXsMediaQuery,
                   render: (record: ProviderWithRelations): any => {
+                    const nextAvailableDate = getNextScheduledDate(
+                      record.availability,
+                      record.timeOff,
+                      new Date()
+                    )?.toLocaleDateString();
+
                     return (
                       <>
                         {isAvailable(
@@ -189,6 +196,11 @@ export default function ProviderTable() {
                                     <IconThumbDown size={12} />
                                   </Text>
                                   <Text c="red">Unavailable</Text>
+                                  <Text size="xs">
+                                    {nextAvailableDate
+                                      ? `(Back on ${nextAvailableDate})`
+                                      : '(No future availability)'}
+                                  </Text>
                                 </Group>
                               </Grid.Col>
                             </Grid>

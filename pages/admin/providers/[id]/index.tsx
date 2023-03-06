@@ -63,7 +63,7 @@ export default function ProviderDetail(props: {
       ) : (
         <>
           {props.provider ? (
-            <Container>
+            <Container size="xl">
               <Group position="center" mt="md" mb="xs">
                 <Avatar
                   src={props.provider.user.image}
@@ -83,6 +83,9 @@ export default function ProviderDetail(props: {
                 </Button>
               </Group>
               <AddressList
+                mapHeight="500px"
+                mapWidth="100%"
+                mapZoom={9}
                 type="provider"
                 addresses={[props.provider.address]}
                 provider={props.provider}

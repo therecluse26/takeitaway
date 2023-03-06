@@ -20,13 +20,13 @@ export async function getProviders({page, recordsPerPage, sortStatus: { columnAc
 }
 
 export const daysOfTheWeek = [
-    {label: "Sunday", value: "sunday"},
-    {label: "Monday", value: "monday"},
-    {label: "Tuesday", value: "tuesday"},
-    {label: "Wednesday", value: "wednesday"},
-    {label: "Thursday", value: "thursday"},
-    {label: "Friday", value: "friday"},
-    {label: "Saturday", value: "saturday"},
+    {number: 0, label: "Sunday", value: "sunday"},
+    {number: 1, label: "Monday", value: "monday"},
+    {number: 2, label: "Tuesday", value: "tuesday"},
+    {number: 3, label: "Wednesday", value: "wednesday"},
+    {number: 4, label: "Thursday", value: "thursday"},
+    {number: 5, label: "Friday", value: "friday"},
+    {number: 6, label: "Saturday", value: "saturday"},
 ];
 
 function dayNameToDayOfWeek(dayName: string): number {
@@ -70,6 +70,100 @@ export function convertUtcTimeToLocalTime(utcTime: string, ): string {
     return localTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 }
 
+// Check if the current time is within a given range
+export function currentTimeWithinRange(start: string, end: string): boolean {
+    const startParts = start.split(":");
+    const endParts = end.split(":");
+    const now = new Date();
+
+    const startDateTime = new Date();
+    startDateTime.setUTCHours(parseInt(startParts[0]));
+    startDateTime.setUTCMinutes(parseInt(startParts[1]));
+    
+    const endDateTime = new Date();
+    endDateTime.setUTCHours(parseInt(endParts[0]));
+    endDateTime.setUTCMinutes(parseInt(endParts[1]));
+
+    return now >= startDateTime && now <= endDateTime;
+}
+
+// Get month schedule for provider's availability
+export function getMonthSchedule(availability: Prisma.JsonArray|Prisma.JsonValue|null, timeOff: ProviderTimeOff[]|null, currentDate: Date): Date[] {
+    const monthSchedule: Date[] = [];
+
+    if (!availability) {
+        return monthSchedule;
+    }
+
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    const parsedAvailability = availability as Availability[];
+
+    // Loop through each day of the month
+    for(let i = 1; i <= 31; i++) {
+        const day = new Date(year, month, i);
+        if(timeOff?.find(t => t.day === day)) {
+            continue;
+        }
+        const dayNumber = day.getUTCDay();
+        
+        const dayName = daysOfTheWeek?.find(weekDay => weekDay?.number === dayNumber)?.value;
+        const availabilityForDay = parsedAvailability.find(a => a.day === dayName) as Availability;
+
+        // If the day is available, check if the current time is within the availability range
+        if(availabilityForDay) {
+            // Check if the provider is off on this day
+            monthSchedule.push(day);
+        }
+
+        // If the day is not available, check the next day
+        else {
+            continue;
+        }
+    }
+
+    return monthSchedule;
+}
+
+export function getNextAvailableDateFromSchedule(schedule: Date[], timeOff: ProviderTimeOff[]|null, date: Date): Date|null {
+    const nextAvailableDate = schedule.find(s => s >= date);
+
+    if(!nextAvailableDate) {
+        return null;
+    }
+
+    // If the next available date is on a day that the provider is off, check the next day
+    if(timeOff?.find(t => t.day === nextAvailableDate)) {
+        return getNextAvailableDateFromSchedule(schedule, timeOff, nextAvailableDate);
+    }
+
+    return nextAvailableDate;
+}
+
+// Get the next available date for a provider based on their availability and time off.
+// This function will check the next 3 months if the current month is not available.
+export function getNextScheduledDate(availability: Prisma.JsonArray|Prisma.JsonValue|null, timeOff: ProviderTimeOff[]|null, date: Date, levelsDeep: number = 0): Date|null 
+{    
+    if (levelsDeep > 3) {
+        return null;
+    }
+
+    // Get given month's schedule
+    let nextAvailable = getNextAvailableDateFromSchedule(getMonthSchedule(availability, timeOff, date), timeOff, date);
+
+    if(!nextAvailable) {
+        // Check the next month recursively
+        const nextMonth = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+        nextAvailable = getNextScheduledDate(availability, timeOff, nextMonth, levelsDeep + 1);
+    }
+    
+    return nextAvailable;
+}
+
+
+
+// Get the start and end times for a given Availability array and date
 export function getStartAndEndTimes(availability: Prisma.JsonArray|Prisma.JsonValue, dateToCheck: Date): {start: string|null, end: string|null}
 {
     const parsedAvailability = availability as Availability[];
@@ -115,7 +209,10 @@ export function isAvailable(availability: Prisma.JsonArray|Prisma.JsonValue|null
        
         const parsedAvailability = a as Availability;
         
-        return dayNameToDayOfWeek(parsedAvailability.day) === dayOfWeek
+        if(dayNameToDayOfWeek(parsedAvailability.day) === dayOfWeek)
+        {
+            return currentTimeWithinRange(parsedAvailability.start, parsedAvailability.end);
+        }
     });
 
     if(available) {

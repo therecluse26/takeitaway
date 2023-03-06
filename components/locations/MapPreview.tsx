@@ -42,15 +42,21 @@ const MapPreview = ({
   showAddress = true,
   showCoordinates = false,
   serviceRadius = null,
+  mapHeight = "400px",
+  mapWidth = "600px",
+  mapZoom = 13,
 }: {
   address: Address;
   visible: boolean;
   showAddress?: boolean;
   showCoordinates?: boolean;
   serviceRadius?: number | null;
+  mapHeight?: string;
+  mapWidth?: string;
+  mapZoom?: number;
 }) => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [zoom] = useState(9);
+  const [zoom] = useState(mapZoom);
   const [latitude, setLatitude] = useState(address.latitude);
   const [longitude, setLongitude] = useState(address.longitude);
   const mapRef = React.useRef(null);
@@ -104,7 +110,7 @@ const MapPreview = ({
                   ref={mapRef}
                   center={[latitude, longitude]}
                   zoom={zoom}
-                  style={{ height: "400px", width: "600px" }}
+                  style={{ height: mapHeight, width: mapWidth }}
                 >
                   <SizeInvalidator visible={visible} />
                   <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />

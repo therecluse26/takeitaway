@@ -31,6 +31,9 @@ export default function AddressList({
   provider = null,
   title = null,
   showPickups = true,
+  mapHeight = "400px",
+  mapWidth = "600px",
+  mapZoom = 13,
 }: {
   type: AddressType;
   addresses: Address[];
@@ -38,6 +41,9 @@ export default function AddressList({
   provider?: Provider | ProviderWithRelations | null;
   title?: string | null;
   showPickups?: boolean;
+  mapHeight?: string;
+  mapWidth?: string;
+  mapZoom?: number;
 }) {
   const [visibleAddress, setVisibleAddress] = useState<string | null>(null);
   const [loadedMaps, setLoadedMaps] = useState<string[]>([]);
@@ -87,6 +93,9 @@ export default function AddressList({
                 <Accordion.Panel>
                   {loadedMaps.includes(address.id) ? (
                     <MapPreview
+                      mapHeight={mapHeight}
+                      mapWidth={mapWidth}
+                      mapZoom={mapZoom}
                       address={address}
                       visible={addressIsVisible(address, visibleAddress)}
                       serviceRadius={provider?.serviceRadius}
