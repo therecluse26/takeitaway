@@ -17,26 +17,34 @@ import {
 import { Availability } from "../../types/provider";
 
 function setAvailabilityForDay(
-  availability: Availability[],
+  availability: Availability[] | null,
+  availabilitySetter: (a: Availability[] | null) => void,
   day: string,
   startTime: string,
   endTime: string
 ) {
+  if (!availability) {
+    return;
+  }
   const availabilityForDay = availability.find((a) => a.day === day);
   if (availabilityForDay) {
     availabilityForDay.start = startTime;
     availabilityForDay.end = endTime;
   } else {
-    availability.push({
-      day: day,
-      start: startTime,
-      end: endTime,
-    } as Availability);
+    availabilitySetter([
+      ...availability,
+      {
+        day: day,
+        start: startTime,
+        end: endTime,
+      } as Availability,
+    ]);
   }
 }
 
 function generateTimeInput(
   dayAvailability: Availability | undefined,
+  availabilitySetter: (a: Availability[] | null) => void,
   startOrEnd: "start" | "end",
   updatedAvailability: Availability[] | null
 ) {
@@ -56,6 +64,7 @@ function generateTimeInput(
             if (value) {
               setAvailabilityForDay(
                 updatedAvailability ?? [],
+                availabilitySetter,
                 "sunday",
                 value.toTimeString(),
                 dayAvailability[startOrEnd] ?? ""
@@ -71,8 +80,10 @@ function generateTimeInput(
 
 export default function AvailabilityDetail({
   availability,
+  readonly = false,
 }: {
   availability: Availability[];
+  readonly?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
 
@@ -98,16 +109,26 @@ export default function AvailabilityDetail({
 
   function generateNotAvailableCheckbox(
     day: string,
-    updatedAvailability: Availability[] | null
+    updatedAvailability: Availability[] | null,
+    availabilitySetter: (a: Availability[] | null) => void
   ) {
     return (
       <Checkbox
         label="Not Available"
-        onChange={(checked) => {
-          if (checked) {
+        onChange={(event) => {
+          if (event?.target?.checked) {
             setUpdatedAvailability(
               updatedAvailability?.filter((a) => a.day !== day) ?? null
             );
+          } else {
+            setAvailabilityForDay(
+              updatedAvailability,
+              availabilitySetter,
+              day,
+              availability.find((a) => a.day === day)?.start ?? "00:00:00",
+              availability.find((a) => a.day === day)?.end ?? "00:00:00"
+            );
+            console.log(updatedAvailability);
           }
         }}
       />
@@ -119,7 +140,7 @@ export default function AvailabilityDetail({
       <Stack>
         <Group>
           <Title order={4}>Availability ({localTimeZone}) </Title>
-          {editing ? (
+          {editing && !readonly ? (
             <>
               {" "}
               <Button
@@ -138,176 +159,216 @@ export default function AvailabilityDetail({
               </Button>
             </>
           ) : (
-            <Button
-              onClick={() => setEditing(true)}
-              color="blue"
-              variant="subtle"
-            >
-              Edit
-            </Button>
+            <>
+              {!readonly && (
+                <Button
+                  onClick={() => setEditing(true)}
+                  color="blue"
+                  variant="subtle"
+                >
+                  Edit
+                </Button>
+              )}
+            </>
           )}
         </Group>
-        {editing ? (
-          <Table>
-            <thead>
-              <tr>
-                <th>Day</th>
-                <th>Start</th>
-                <th>End</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Sunday</td>
-                <td>
-                  {generateTimeInput(
-                    sundayAvailability,
-                    "start",
-                    updatedAvailability
-                  )}
-                </td>
-                <td>
-                  {generateTimeInput(
-                    sundayAvailability,
-                    "end",
-                    updatedAvailability
-                  )}
-                </td>
-                <td>
-                  {generateNotAvailableCheckbox("sunday", updatedAvailability)}
-                </td>
-              </tr>
-              <tr>
-                <td>Monday</td>
-                <td>
-                  {generateTimeInput(
-                    mondayAvailability,
-                    "start",
-                    updatedAvailability
-                  )}
-                </td>
-                <td>
-                  {generateTimeInput(
-                    mondayAvailability,
-                    "end",
-                    updatedAvailability
-                  )}
-                </td>
-                <td>
-                  {generateNotAvailableCheckbox("monday", updatedAvailability)}
-                </td>
-              </tr>
-              <tr>
-                <td>Tuesday</td>
-                <td>
-                  {generateTimeInput(
-                    tuesdayAvailability,
-                    "start",
-                    updatedAvailability
-                  )}
-                </td>
-                <td>
-                  {generateTimeInput(
-                    tuesdayAvailability,
-                    "end",
-                    updatedAvailability
-                  )}
-                </td>
-                <td>
-                  {generateNotAvailableCheckbox("tuesday", updatedAvailability)}
-                </td>
-              </tr>
-              <tr>
-                <td>Wednesday</td>
-                <td>
-                  {generateTimeInput(
-                    wednesdayAvailability,
-                    "start",
-                    updatedAvailability
-                  )}
-                </td>
-                <td>
-                  {generateTimeInput(
-                    wednesdayAvailability,
-                    "end",
-                    updatedAvailability
-                  )}
-                </td>
-                <td>
-                  {generateNotAvailableCheckbox(
-                    "wednesday",
-                    updatedAvailability
-                  )}
-                </td>
-              </tr>
-              <tr>
-                <td>Thursday</td>
-                <td>
-                  {generateTimeInput(
-                    thursdayAvailability,
-                    "start",
-                    updatedAvailability
-                  )}
-                </td>
-                <td>
-                  {generateTimeInput(
-                    thursdayAvailability,
-                    "end",
-                    updatedAvailability
-                  )}
-                </td>
-                <td>
-                  {generateNotAvailableCheckbox(
-                    "thursday",
-                    updatedAvailability
-                  )}
-                </td>
-              </tr>
-              <tr>
-                <td>Friday</td>
-                <td>
-                  {generateTimeInput(
-                    fridayAvailability,
-                    "start",
-                    updatedAvailability
-                  )}
-                </td>
-                <td>
-                  {generateTimeInput(
-                    fridayAvailability,
-                    "end",
-                    updatedAvailability
-                  )}
-                </td>
-                <td>
-                  {generateNotAvailableCheckbox("friday", updatedAvailability)}
-                </td>
-              </tr>
-              <tr>
-                <td>Saturday</td>
-                <td>
-                  {generateTimeInput(
-                    saturdayAvailability,
-                    "start",
-                    updatedAvailability
-                  )}
-                </td>
-                <td>
-                  {generateTimeInput(
-                    saturdayAvailability,
-                    "end",
-                    updatedAvailability
-                  )}
-                </td>
-                <td>
-                  {generateNotAvailableCheckbox(
-                    "saturday",
-                    updatedAvailability
-                  )}
-                </td>
-              </tr>
-            </tbody>
-          </Table>
+        {editing && !readonly ? (
+          <>
+            {JSON.stringify(updatedAvailability)}
+            <Table>
+              <thead>
+                <tr>
+                  <th>Day</th>
+                  <th>Start</th>
+                  <th>End</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Sunday</td>
+                  <td>
+                    {generateTimeInput(
+                      sundayAvailability,
+                      setUpdatedAvailability,
+                      "start",
+                      updatedAvailability
+                    )}
+                  </td>
+                  <td>
+                    {generateTimeInput(
+                      sundayAvailability,
+                      setUpdatedAvailability,
+                      "end",
+                      updatedAvailability
+                    )}
+                  </td>
+                  <td>
+                    {generateNotAvailableCheckbox(
+                      "sunday",
+                      updatedAvailability,
+                      setUpdatedAvailability
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Monday</td>
+                  <td>
+                    {generateTimeInput(
+                      mondayAvailability,
+                      setUpdatedAvailability,
+                      "start",
+                      updatedAvailability
+                    )}
+                  </td>
+                  <td>
+                    {generateTimeInput(
+                      mondayAvailability,
+                      setUpdatedAvailability,
+                      "end",
+                      updatedAvailability
+                    )}
+                  </td>
+                  <td>
+                    {generateNotAvailableCheckbox(
+                      "monday",
+                      updatedAvailability,
+                      setUpdatedAvailability
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Tuesday</td>
+                  <td>
+                    {generateTimeInput(
+                      tuesdayAvailability,
+                      setUpdatedAvailability,
+                      "start",
+                      updatedAvailability
+                    )}
+                  </td>
+                  <td>
+                    {generateTimeInput(
+                      tuesdayAvailability,
+                      setUpdatedAvailability,
+                      "end",
+                      updatedAvailability
+                    )}
+                  </td>
+                  <td>
+                    {generateNotAvailableCheckbox(
+                      "tuesday",
+                      updatedAvailability,
+                      setUpdatedAvailability
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Wednesday</td>
+                  <td>
+                    {generateTimeInput(
+                      wednesdayAvailability,
+                      setUpdatedAvailability,
+                      "start",
+                      updatedAvailability
+                    )}
+                  </td>
+                  <td>
+                    {generateTimeInput(
+                      wednesdayAvailability,
+                      setUpdatedAvailability,
+                      "end",
+                      updatedAvailability
+                    )}
+                  </td>
+                  <td>
+                    {generateNotAvailableCheckbox(
+                      "wednesday",
+                      updatedAvailability,
+                      setUpdatedAvailability
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Thursday</td>
+                  <td>
+                    {generateTimeInput(
+                      thursdayAvailability,
+                      setUpdatedAvailability,
+                      "start",
+                      updatedAvailability
+                    )}
+                  </td>
+                  <td>
+                    {generateTimeInput(
+                      thursdayAvailability,
+                      setUpdatedAvailability,
+                      "end",
+                      updatedAvailability
+                    )}
+                  </td>
+                  <td>
+                    {generateNotAvailableCheckbox(
+                      "thursday",
+                      updatedAvailability,
+                      setUpdatedAvailability
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Friday</td>
+                  <td>
+                    {generateTimeInput(
+                      fridayAvailability,
+                      setUpdatedAvailability,
+                      "start",
+                      updatedAvailability
+                    )}
+                  </td>
+                  <td>
+                    {generateTimeInput(
+                      fridayAvailability,
+                      setUpdatedAvailability,
+                      "end",
+                      updatedAvailability
+                    )}
+                  </td>
+                  <td>
+                    {generateNotAvailableCheckbox(
+                      "friday",
+                      updatedAvailability,
+                      setUpdatedAvailability
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Saturday</td>
+                  <td>
+                    {generateTimeInput(
+                      saturdayAvailability,
+                      setUpdatedAvailability,
+                      "start",
+                      updatedAvailability
+                    )}
+                  </td>
+                  <td>
+                    {generateTimeInput(
+                      saturdayAvailability,
+                      setUpdatedAvailability,
+                      "end",
+                      updatedAvailability
+                    )}
+                  </td>
+                  <td>
+                    {generateNotAvailableCheckbox(
+                      "saturday",
+                      updatedAvailability,
+                      setUpdatedAvailability
+                    )}
+                  </td>
+                </tr>
+              </tbody>
+            </Table>
+          </>
         ) : (
           <Table withBorder withColumnBorders>
             <thead>
