@@ -3,6 +3,7 @@ import axios from 'axios';
 import { PaginatedProvidersWithRelations } from './api/ApiProviderService';
 import { Availability } from '../../types/provider';
 import { Prisma, ProviderTimeOff } from '@prisma/client';
+import { notifyError } from '../../helpers/notify';
 
 
 export async function getProviders({page, recordsPerPage, sortStatus: { columnAccessor: sortAccessor, direction: sortDirection }, searchQuery}
@@ -20,10 +21,11 @@ export async function getProviders({page, recordsPerPage, sortStatus: { columnAc
     }).then(response => response.data);
 }
 
-export async function updateAvailability(providerId: string, availability: Availability[]|null): Promise<string[]>|Promise<void> {
+export async function updateAvailability(providerId: string, availability: Availability[]|null): Promise<void> {
     const validationErrors = validateAvailability(availability);
     if ( validationErrors.length > 0 ) {
-        return validationErrors;
+        validationErrors.forEach(error => notifyError(400, 'api', error));
+        return;
     }
     return await axios.put(`/api/providers/${providerId}/availability`, availability);
 }
@@ -35,17 +37,27 @@ function validateAvailability(availability: Availability[] | null): string[] {
     if(availability === null) {
         return errors;
     }
+    
     for(let i = 0; i < availability.length; i++) {
         const day = availability[i];
-        if(day.start === null) {
-            errors.push(`Start time is required for ${day.day}`);
+
+        const startEmpty = day.start === undefined || day.start === null || day.start === '00:00:00' || day.start === '00:00';
+        const endEmpty = day.end === undefined || day.end === null || day.end === '00:00:00' || day.end === '00:00';
+
+        if(startEmpty && endEmpty) {
+            errors.push(`Start and end time are required for ${day.day}`);
+        } else {
+            if(startEmpty && !endEmpty) {
+                errors.push(`Start time is required for ${day.day}`);
+            }
+            if(endEmpty && !startEmpty) {
+                errors.push(`End time is required for ${day.day}`);
+            }
+            if(!startEmpty && !endEmpty && day.start >= day.end) {
+                errors.push(`Start time must be before end time for ${day.day}`);
+            }
         }
-        if(day.end === null) {
-            errors.push(`End time is required for ${day.day}`);
-        }
-        if(day.start !== null && day.end !== null && day.start >= day.end) {
-            errors.push(`Start time must be before end time for ${day.day}`);
-        }
+        
     }
     return errors;
 }
