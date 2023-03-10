@@ -4,6 +4,7 @@ import { PaginatedProvidersWithRelations } from './api/ApiProviderService';
 import { Availability } from '../../types/provider';
 import { Prisma, ProviderTimeOff } from '@prisma/client';
 
+
 export async function getProviders({page, recordsPerPage, sortStatus: { columnAccessor: sortAccessor, direction: sortDirection }, searchQuery}
 : { searchQuery: string|null, page: number|null|undefined; recordsPerPage: number; sortStatus: DataTableSortStatus; }): Promise<PaginatedProvidersWithRelations> 
 {
@@ -17,6 +18,36 @@ export async function getProviders({page, recordsPerPage, sortStatus: { columnAc
             searchQuery: searchQuery
         }
     }).then(response => response.data);
+}
+
+export async function updateAvailability(providerId: string, availability: Availability[]|null): Promise<string[]>|Promise<void> {
+    const validationErrors = validateAvailability(availability);
+    if ( validationErrors.length > 0 ) {
+        return validationErrors;
+    }
+    return await axios.put(`/api/providers/${providerId}/availability`, availability);
+}
+
+function validateAvailability(availability: Availability[] | null): string[] {
+    let errors: string[] = [];
+
+    // Allow no availability
+    if(availability === null) {
+        return errors;
+    }
+    for(let i = 0; i < availability.length; i++) {
+        const day = availability[i];
+        if(day.start === null) {
+            errors.push(`Start time is required for ${day.day}`);
+        }
+        if(day.end === null) {
+            errors.push(`End time is required for ${day.day}`);
+        }
+        if(day.start !== null && day.end !== null && day.start >= day.end) {
+            errors.push(`Start time must be before end time for ${day.day}`);
+        }
+    }
+    return errors;
 }
 
 export const daysOfTheWeek = [

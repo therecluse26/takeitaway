@@ -100,6 +100,7 @@ export default function ProviderDetail(props: {
       )}
       <AvailabilityDetail
         availability={props.provider.availability as Availability[]}
+        provider={props.provider}
       />
     </PageContainer>
   );

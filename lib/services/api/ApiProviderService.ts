@@ -1,5 +1,6 @@
 import { PrismaClient, Address, User, Provider, ProviderTimeOff } from "@prisma/client";
 import { PaginatedResults } from "../../../types/pagination";
+import { Availability } from "../../../types/provider";
 
 const prisma = new PrismaClient()
 
@@ -15,6 +16,17 @@ export type PaginatedProvidersWithRelations = PaginatedResults & {
 
 export function formatAddress(address: Address): string {
   return address.street + ", " + address.city + ", " + address.state + " " + address.zip
+}
+
+export async function updateAvailability(id: string, availability: Availability[]): Promise<Provider|null> {
+  return await prisma.provider.update({
+    where: {
+      id: id
+    },
+    data: {
+     availability: availability
+    }
+  });
 }
 
 
