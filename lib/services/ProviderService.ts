@@ -3,8 +3,6 @@ import axios from 'axios';
 import { PaginatedProvidersWithRelations } from './api/ApiProviderService';
 import { Availability } from '../../types/provider';
 import { Prisma, ProviderTimeOff } from '@prisma/client';
-import { notifyError } from '../../helpers/notify';
-
 
 export async function getProviders({page, recordsPerPage, sortStatus: { columnAccessor: sortAccessor, direction: sortDirection }, searchQuery}
 : { searchQuery: string|null, page: number|null|undefined; recordsPerPage: number; sortStatus: DataTableSortStatus; }): Promise<PaginatedProvidersWithRelations> 
@@ -23,14 +21,13 @@ export async function getProviders({page, recordsPerPage, sortStatus: { columnAc
 
 export async function updateAvailability(providerId: string, availability: Availability[]|null): Promise<void> {
     const validationErrors = validateAvailability(availability);
-    if ( validationErrors.length > 0 ) {
-        validationErrors.forEach(error => notifyError(400, 'api', error));
-        return;
+    if (validationErrors.length > 0) {
+        throw validationErrors;
     }
     return await axios.put(`/api/providers/${providerId}/availability`, availability);
 }
 
-function validateAvailability(availability: Availability[] | null): string[] {
+export function validateAvailability(availability: Availability[] | null): string[] {
     let errors: string[] = [];
 
     // Allow no availability
@@ -41,8 +38,8 @@ function validateAvailability(availability: Availability[] | null): string[] {
     for(let i = 0; i < availability.length; i++) {
         const day = availability[i];
 
-        const startEmpty = day.start === undefined || day.start === null || day.start === '00:00:00' || day.start === '00:00';
-        const endEmpty = day.end === undefined || day.end === null || day.end === '00:00:00' || day.end === '00:00';
+        const startEmpty = day.start === undefined || day.start === null || day.start === '' || day.start === '00:00:00' || day.start === '00:00';
+        const endEmpty = day.end === undefined || day.end === null || day.end === '' || day.end === '00:00:00' || day.end === '00:00';
 
         if(startEmpty && endEmpty) {
             errors.push(`Start and end time are required for ${day.day}`);
@@ -52,9 +49,6 @@ function validateAvailability(availability: Availability[] | null): string[] {
             }
             if(endEmpty && !startEmpty) {
                 errors.push(`End time is required for ${day.day}`);
-            }
-            if(!startEmpty && !endEmpty && day.start >= day.end) {
-                errors.push(`Start time must be before end time for ${day.day}`);
             }
         }
         
@@ -100,8 +94,18 @@ export const localTimeZone = new Date()
   })
   .slice(4);
 
+export function convertISOStringToTime(dateTime: string): string {
+    console.log(dateTime);
+    return dateTime.split("T")[1].slice(0, -1);
+}
+
 // Convert 24 hour utc time to 12 hour time in the local timezone
-export function convertUtcTimeToLocalTime(utcTime: string, ): string {
+export function convertUtcTimeToLocalTime(utcTime: Date|string, ): string {
+     // Convert localtime to string if it is a date
+     if(typeof utcTime === "object") {
+        utcTime = utcTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    }
+
     const utcTimeParts = utcTime.split(":");
     const utcHour = parseInt(utcTimeParts[0]);
     const utcMinute = parseInt(utcTimeParts[1]);
@@ -111,6 +115,29 @@ export function convertUtcTimeToLocalTime(utcTime: string, ): string {
     localTime.setUTCMinutes(utcMinute);
 
     return localTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+}
+
+export function convertLocalTimeToUTCTimeString(localTime: Date|string|null|undefined): string {
+
+    if( localTime === null || localTime === undefined ) {
+        return '00:00';
+    }
+    // Convert localtime to string if it is a date
+    if(typeof localTime === "object") {
+        localTime = localTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    }
+    
+    const localTimeParts = localTime.split(":");
+    const localHour = parseInt(localTimeParts[0]);
+    const localMinute = parseInt(localTimeParts[1]);
+
+    const utcTime = new Date();
+    utcTime.setHours(localHour);
+    utcTime.setMinutes(localMinute);
+    const isoTime = utcTime.toISOString();
+
+    // Return hh:mm only from ISO string
+    return isoTime.split("T")[1].slice(0, -8);
 }
 
 // Check if the current time is within a given range

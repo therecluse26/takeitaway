@@ -3,6 +3,7 @@ import {
   Checkbox,
   Container,
   Group,
+  Loader,
   Stack,
   Table,
   Title,
@@ -11,7 +12,9 @@ import { TimeRangeInput } from "@mantine/dates";
 import { Provider } from "@prisma/client";
 import { IconClock } from "@tabler/icons";
 import { useState } from "react";
+import { notifyError } from "../../helpers/notify";
 import {
+  convertLocalTimeToUTCTimeString,
   convertUtcTimeToLocalTime,
   localTimeZone,
   updateAvailability,
@@ -26,7 +29,7 @@ const formatAvailability = (availability?: Availability | null) => {
     : "Not Available";
 };
 
-function formatDateRange(
+function formatTimeRange(
   availability?: Availability | null
 ): [Date | null, Date | null] | undefined {
   return availability
@@ -47,6 +50,7 @@ export default function AvailabilityDetail({
   readonly?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const [updatedAvailability, setUpdatedAvailability] = useState<
     Availability[] | null
@@ -78,17 +82,23 @@ export default function AvailabilityDetail({
     }
     let availabilityClone = [...availability];
     let availabilityForDay = availability.find((a) => a.day === weekday);
+
+    let utcStartTime = startTime
+      ? convertLocalTimeToUTCTimeString(startTime)
+      : "";
+    let utcEndTime = endTime ? convertLocalTimeToUTCTimeString(endTime) : "";
+
     // get the index of the availability for the day
     if (availabilityForDay) {
       const index = availability.findIndex((a) => a.day === weekday);
-      availabilityForDay.start = startTime;
-      availabilityForDay.end = endTime;
+      availabilityForDay.start = utcStartTime;
+      availabilityForDay.end = utcEndTime;
       availabilityClone[index] = availabilityForDay;
     } else {
       availabilityForDay = {
         day: weekday,
-        start: startTime,
-        end: endTime,
+        start: utcStartTime,
+        end: utcEndTime,
       } as Availability;
       availabilityClone.push(availabilityForDay);
     }
@@ -133,23 +143,37 @@ export default function AvailabilityDetail({
           <Title order={4}>Weekly Availability ({localTimeZone}) </Title>
           {editing && !readonly ? (
             <>
-              {" "}
-              <Button
-                onClick={() => setEditing(false)}
-                color="red"
-                variant="subtle"
-              >
-                Cancel
-              </Button>{" "}
-              <Button
-                onClick={() => {
-                  updateAvailability(provider?.id, updatedAvailability);
-                }}
-                color="green"
-                variant="subtle"
-              >
-                Save
-              </Button>
+              {saving ? (
+                <Loader size="sm" />
+              ) : (
+                <>
+                  {" "}
+                  <Button
+                    onClick={() => setEditing(false)}
+                    color="red"
+                    variant="subtle"
+                  >
+                    Cancel
+                  </Button>{" "}
+                  <Button
+                    onClick={() => {
+                      setSaving(true);
+                      updateAvailability(provider?.id, updatedAvailability)
+                        .then(() => setEditing(false))
+                        .catch((errors) => {
+                          errors.forEach((error: Error) =>
+                            notifyError(400, "api", error)
+                          );
+                        })
+                        .finally(() => setSaving(false));
+                    }}
+                    color="green"
+                    variant="subtle"
+                  >
+                    Save
+                  </Button>
+                </>
+              )}
             </>
           ) : (
             <>
@@ -167,7 +191,6 @@ export default function AvailabilityDetail({
         </Group>
         {editing && !readonly ? (
           <>
-            {JSON.stringify(updatedAvailability)}
             <Table>
               <thead>
                 <tr>
@@ -186,7 +209,7 @@ export default function AvailabilityDetail({
                       disabled={sundayAvailability ? false : true}
                       defaultValue={
                         sundayAvailability
-                          ? formatDateRange(sundayAvailability)
+                          ? formatTimeRange(sundayAvailability)
                           : undefined
                       }
                       onChange={(value) => {
@@ -219,7 +242,7 @@ export default function AvailabilityDetail({
                       disabled={mondayAvailability ? false : true}
                       defaultValue={
                         mondayAvailability
-                          ? formatDateRange(mondayAvailability)
+                          ? formatTimeRange(mondayAvailability)
                           : undefined
                       }
                       onChange={(value) => {
@@ -252,7 +275,7 @@ export default function AvailabilityDetail({
                       disabled={tuesdayAvailability ? false : true}
                       defaultValue={
                         tuesdayAvailability
-                          ? formatDateRange(tuesdayAvailability)
+                          ? formatTimeRange(tuesdayAvailability)
                           : undefined
                       }
                       onChange={(value) => {
@@ -285,7 +308,7 @@ export default function AvailabilityDetail({
                       disabled={wednesdayAvailability ? false : true}
                       defaultValue={
                         wednesdayAvailability
-                          ? formatDateRange(wednesdayAvailability)
+                          ? formatTimeRange(wednesdayAvailability)
                           : undefined
                       }
                       onChange={(value) => {
@@ -318,7 +341,7 @@ export default function AvailabilityDetail({
                       disabled={thursdayAvailability ? false : true}
                       defaultValue={
                         thursdayAvailability
-                          ? formatDateRange(thursdayAvailability)
+                          ? formatTimeRange(thursdayAvailability)
                           : undefined
                       }
                       onChange={(value) => {
@@ -351,7 +374,7 @@ export default function AvailabilityDetail({
                       disabled={fridayAvailability ? false : true}
                       defaultValue={
                         fridayAvailability
-                          ? formatDateRange(fridayAvailability)
+                          ? formatTimeRange(fridayAvailability)
                           : undefined
                       }
                       onChange={(value) => {
@@ -384,7 +407,7 @@ export default function AvailabilityDetail({
                       disabled={saturdayAvailability ? false : true}
                       defaultValue={
                         saturdayAvailability
-                          ? formatDateRange(saturdayAvailability)
+                          ? formatTimeRange(saturdayAvailability)
                           : undefined
                       }
                       onChange={(value) => {

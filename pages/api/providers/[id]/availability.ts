@@ -1,12 +1,11 @@
-import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Session } from 'next-auth/core/types';
 import { getSession } from "next-auth/react";
 import { errorMessages } from "../../../../data/messaging";
 import { userCan } from "../../../../lib/services/PermissionService";
 import { updateAvailability } from "../../../../lib/services/api/ApiProviderService";
-
-const prisma = new PrismaClient()
+import { validateAvailability } from "../../../../lib/services/ProviderService";
+import { Availability } from "../../../../types/provider";
 
 export default async function UpdateAvailability(req: NextApiRequest, res: NextApiResponse){
 
@@ -27,7 +26,13 @@ export default async function UpdateAvailability(req: NextApiRequest, res: NextA
         return
     }
 
+    const validationErrors = validateAvailability(req.body as Availability[]);
+    if (validationErrors.length > 0) {
+        res.status(400).json(validationErrors);
+        return    
+    }
+
     res.status(200).json(
-        await updateAvailability(id, req.body)
+        await updateAvailability(id, req.body as Availability[])
     );
 }
