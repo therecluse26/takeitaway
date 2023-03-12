@@ -1,6 +1,6 @@
 import { Address } from '@prisma/client'
 import { NextApiRequest, NextApiResponse } from 'next/types'
-import { addressIsWithinServiceArea, createOrUpdateAddress, updateBillingAddress } from '../../../lib/services/api/ApiAddressService'
+import { addressIsWithinServiceArea, createOrUpdateAddress, geocodeAddress, updateAddress, updateBillingAddress } from '../../../lib/services/api/ApiAddressService'
 
 export default async function handler(
   req: NextApiRequest,
@@ -26,15 +26,18 @@ export default async function handler(
     if(req.body.id){
       data.id = req.body.id;
     }
-    
-    if(!addressIsWithinServiceArea(data)){
-      res.status(500).json(new Error("Address is not wihin our service area"))
-      return;
-    }
+
 
     const address = await createOrUpdateAddress(
       data
     )
+
+    await geocodeAddress(address)
+
+    if(await addressIsWithinServiceArea(address)){
+      address.inServiceArea = true;
+      updateAddress(address)
+    }
 
     if(address.type === 'billing'){
       await updateBillingAddress(req.body.userId, address)

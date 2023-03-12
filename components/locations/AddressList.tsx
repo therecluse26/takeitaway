@@ -110,7 +110,14 @@ export default function AddressList({
                 <Accordion.Control>
                   <Group position="apart">
                     {formatAddress(address)}{" "}
-                    {type === "service" && showPickups && <PickupsBadge />}
+                    {type === "service" && showPickups && (
+                      <>
+                        <WithinServiceRange
+                          withinRange={address.inServiceArea}
+                        />
+                        <PickupsBadge />
+                      </>
+                    )}
                     {type === "provider" && (
                       <ServiceRadius radius={provider?.serviceRadius} />
                     )}
@@ -168,6 +175,15 @@ export default function AddressList({
     </>
   );
 }
+
+export const WithinServiceRange = ({ withinRange = false }) => {
+  // Badge that shows whether the user is within the service range of the given location
+  return (
+    <Badge color={withinRange ? "green" : "red"}>
+      {withinRange ? "Within service range" : "Outside service range"}
+    </Badge>
+  );
+};
 
 export const PickupsBadge = ({ pickups = 0 }) => {
   const badgeColor = pickups === 0 ? "gray" : "green";

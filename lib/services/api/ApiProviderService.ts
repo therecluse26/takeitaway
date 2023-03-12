@@ -4,9 +4,12 @@ import { Availability } from "../../../types/provider";
 
 const prisma = new PrismaClient()
 
-export type ProviderWithRelations = Provider & {
-  user: User;
+export type ProviderWithAddress = Provider & {
   address: Address; 
+}
+
+export type ProviderWithRelations = ProviderWithAddress & {
+  user: User;
   timeOff: ProviderTimeOff[]|null;
 }
 
@@ -29,6 +32,24 @@ export async function updateAvailability(id: string, availability: Availability[
   });
 }
 
+export async function getAllProvidersWithAddress(): Promise<ProviderWithAddress[]> {
+  return await prisma.provider.findMany({
+    include: {
+      address: true,
+    }
+  });
+}
+
+export async function getProviderWithAddress(id: string): Promise<ProviderWithAddress|null> {
+  return await prisma.provider.findUnique({
+    where: {
+      id: id
+    },
+    include: {
+      address: true,
+    }
+  });
+}
 
 export async function getProviderWithRelations(id: string): Promise<ProviderWithRelations|null> {
   return await prisma.provider.findUnique({
