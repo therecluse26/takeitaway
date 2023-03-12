@@ -10,6 +10,8 @@ import { UserWithRelations } from "./api/ApiUserService";
 
 const stripe = new Stripe(STRIPE_CONFIG.stripeApiKey, { apiVersion: "2022-11-15" });
 
+const accountDetailsRoute = "/checkout/account-details";
+
 export async function redirectToCheckout(sessionMode: "setup" | "payment" | "subscription", successUrl: URL, cancelUrl: URL, lineItems: CartItem[] | [] = []) {
 
   try {
@@ -22,11 +24,9 @@ export async function redirectToCheckout(sessionMode: "setup" | "payment" | "sub
     }
 
     if (!user.billingAddressId) {
-      window.location.assign("/checkout/account-details");
+      window.location.assign(accountDetailsRoute);
       return;
     }
-
-    // let updatedSuccessUrl = new URL(`${successUrl.toString()}?session_id={CHECKOUT_SESSION_ID}`);
 
     let updatedSuccessUrl = new URL(successUrl.toString());
     let urlParams = new URLSearchParams(updatedSuccessUrl.search);
@@ -42,14 +42,18 @@ export async function redirectToCheckout(sessionMode: "setup" | "payment" | "sub
     if (sessionMode === 'subscription' && lineItems.length > 0) {
 
       if (user.paymentMethods.length === 0) {
-        window.location.assign("/checkout/account-details");
+        window.location.assign(accountDetailsRoute);
+        return;
+      }
+
+      if (user.addresses.filter(a => a.type === 'service').length === 0) {
+        window.location.assign(accountDetailsRoute);
         return;
       }
 
       // Automatic tax calculation for subscriptions
       data.automatic_tax = {
         enabled: true,
-
       };
 
       data.line_items = lineItems.map((item) => {
@@ -68,7 +72,7 @@ export async function redirectToCheckout(sessionMode: "setup" | "payment" | "sub
       })
       .catch((err) => {
         console.error(err)
-        notifyError(err.response.status, "api");
+        notifyError(err.response.status, "api", err.response?.data?.error);
         return;
       });
 

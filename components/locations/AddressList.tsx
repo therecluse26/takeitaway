@@ -6,6 +6,8 @@ import {
   Group,
   Title,
   Text,
+  Center,
+  TitleOrder,
 } from "@mantine/core";
 import { Address, AddressType, Provider, User } from "@prisma/client";
 import dynamic from "next/dynamic";
@@ -13,6 +15,23 @@ import { useState } from "react";
 import { ProviderWithRelations } from "../../lib/services/api/ApiProviderService";
 import { UserWithRelations } from "../../lib/services/api/ApiUserService";
 import AddressForm from "./AddressForm";
+
+function getTitleSize(size: string): TitleOrder {
+  switch (size) {
+    case "xs":
+      return 5;
+    case "sm":
+      return 4;
+    case "md":
+      return 3;
+    case "lg":
+      return 2;
+    case "xl":
+      return 1;
+    default:
+      return 3;
+  }
+}
 
 const MapPreview = dynamic(
   () =>
@@ -27,9 +46,10 @@ const addressIsVisible = (address: Address, visibleAddress: string | null) => {
 export default function AddressList({
   type,
   addresses,
-  user = null,
-  provider = null,
-  title = null,
+  user,
+  provider,
+  title,
+  titleSize = "md",
   showPickups = true,
   mapHeight = "400px",
   mapWidth = "600px",
@@ -39,7 +59,8 @@ export default function AddressList({
   addresses: Address[];
   user?: User | UserWithRelations | null;
   provider?: Provider | ProviderWithRelations | null;
-  title?: string | null;
+  title?: string;
+  titleSize?: "xs" | "sm" | "md" | "lg" | "xl";
   showPickups?: boolean;
   mapHeight?: string;
   mapWidth?: string;
@@ -58,8 +79,13 @@ export default function AddressList({
 
   return (
     <>
+      {title && (
+        <Center>
+          <Title order={getTitleSize(titleSize)}>{title}</Title>
+        </Center>
+      )}
+
       <Card radius="md">
-        {title && <Title order={2}>{title}</Title>}
         {displayedAddresses.length > 0 ? (
           <Accordion
             variant="contained"
@@ -126,13 +152,15 @@ export default function AddressList({
                 />
               </>
             ) : (
-              <Button
-                onClick={() => {
-                  setAddingNewAddress(true);
-                }}
-              >
-                + Add Location
-              </Button>
+              <Center>
+                <Button
+                  onClick={() => {
+                    setAddingNewAddress(true);
+                  }}
+                >
+                  + Add Location
+                </Button>
+              </Center>
             )}
           </Card>
         </>
@@ -141,17 +169,17 @@ export default function AddressList({
   );
 }
 
-const PickupsBadge = ({ pickups = 0 }) => {
+export const PickupsBadge = ({ pickups = 0 }) => {
   const badgeColor = pickups === 0 ? "gray" : "green";
   // Badge that shows the number of pickups the user has at the given location
   return <Badge color={badgeColor}>{pickups} monthly pickups</Badge>;
 };
 
-const ServiceRadius = ({ radius = 0 }) => {
+export const ServiceRadius = ({ radius = 0 }) => {
   // Badge that shows the service radius of the user at the given location
   return <Badge color="blue">{radius} mile service radius</Badge>;
 };
 
-const formatAddress = (address: Address): string => {
+export const formatAddress = (address: Address): string => {
   return `${address.street}, ${address.city}, ${address.state} ${address.zip}`;
 };

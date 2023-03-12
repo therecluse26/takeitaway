@@ -37,7 +37,7 @@ export async function getCheckoutSession(stripeUserId: string, checkoutData: Str
         ...checkoutData,
         payment_method_types: ['card'],
         customer: stripeUserId,
-    })
+    });
 }
 
 function buildProductData(service: Service): Stripe.ProductCreateParams {

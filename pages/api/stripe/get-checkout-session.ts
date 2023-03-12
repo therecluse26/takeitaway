@@ -23,7 +23,13 @@ export default async function handler(
         return
     }
 
-    const stripeSession = await getCheckoutSession(stripeUser, req.body as Stripe.Checkout.SessionCreateParams)
+    getCheckoutSession(stripeUser, req.body as Stripe.Checkout.SessionCreateParams)
+    .then((session) => {
+        res.status(200).json(session);
+    })
+    .catch((err: any) => {
+        res.status(500).json({error: err?.message});
+        return
+    });
 
-    res.status(200).json(stripeSession);
 }
