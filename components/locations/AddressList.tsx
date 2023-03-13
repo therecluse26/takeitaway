@@ -8,10 +8,18 @@ import {
   Text,
   Center,
   TitleOrder,
+  Grid,
+  Stack,
+  Loader,
+  Divider,
+  Space,
 } from "@mantine/core";
 import { Address, AddressType, Provider, User } from "@prisma/client";
+import { IconTrash } from "@tabler/icons";
 import dynamic from "next/dynamic";
 import { useState } from "react";
+import { notifyError } from "../../helpers/notify";
+import { deleteAddress } from "../../lib/services/AddressService";
 import { ProviderWithRelations } from "../../lib/services/api/ApiProviderService";
 import { UserWithRelations } from "../../lib/services/api/ApiUserService";
 import AddressForm from "./AddressForm";
@@ -67,6 +75,8 @@ export default function AddressList({
   mapZoom?: number;
 }) {
   const [visibleAddress, setVisibleAddress] = useState<string | null>(null);
+  const [deletingAddresses, setDeletingAddresses] = useState<string[]>([]);
+
   const [loadedMaps, setLoadedMaps] = useState<string[]>([]);
   const [displayedAddresses, setDisplayedAddresses] =
     useState<Address[]>(addresses);
@@ -75,6 +85,27 @@ export default function AddressList({
   const addNewAddress = (address: Address): void => {
     setDisplayedAddresses([...displayedAddresses, address]);
     setAddingNewAddress(false);
+  };
+
+  const removeAddress = async (address: Address): Promise<void> => {
+    if (confirm("Are you sure you want to delete this address?")) {
+      setDeletingAddresses([...deletingAddresses, address.id]);
+      await deleteAddress(address.id)
+        .then((address: Address) => {
+          setDisplayedAddresses(
+            displayedAddresses.filter((a) => a.id !== address.id)
+          );
+        })
+        .catch((e) => {
+          console.error(e);
+          notifyError(e.code, "api");
+        })
+        .finally(() => {
+          setDeletingAddresses(
+            deletingAddresses.filter((id) => id !== address.id)
+          );
+        });
+    }
   };
 
   return (
@@ -108,31 +139,51 @@ export default function AddressList({
                 }}
               >
                 <Accordion.Control>
-                  <Group position="apart">
-                    {formatAddress(address)}{" "}
-                    {type === "service" && showPickups && (
-                      <>
-                        <WithinServiceRange
-                          withinRange={address.inServiceArea}
-                        />
-                        <PickupsBadge />
-                      </>
-                    )}
-                    {type === "provider" && (
-                      <ServiceRadius radius={provider?.serviceRadius} />
-                    )}
-                  </Group>
+                  <Grid>
+                    <Grid.Col span={6}>{formatAddress(address)}</Grid.Col>
+                    <Grid.Col span={6}>
+                      <Group position="right">
+                        {type === "service" && showPickups && (
+                          <>
+                            <ServiceRangeBadge
+                              withinRange={address.inServiceArea}
+                            />
+                            <PickupsBadge />
+                          </>
+                        )}
+                        {type === "provider" && (
+                          <ServiceRadius radius={provider?.serviceRadius} />
+                        )}
+                      </Group>
+                    </Grid.Col>
+                  </Grid>
                 </Accordion.Control>
                 <Accordion.Panel>
                   {loadedMaps.includes(address.id) ? (
-                    <MapPreview
-                      mapHeight={mapHeight}
-                      mapWidth={mapWidth}
-                      mapZoom={mapZoom}
-                      address={address}
-                      visible={addressIsVisible(address, visibleAddress)}
-                      serviceRadius={provider?.serviceRadius}
-                    />
+                    <>
+                      <MapPreview
+                        mapHeight={mapHeight}
+                        mapWidth={mapWidth}
+                        mapZoom={mapZoom}
+                        address={address}
+                        visible={addressIsVisible(address, visibleAddress)}
+                        serviceRadius={provider?.serviceRadius}
+                      />
+                      <>
+                        <Space h="xl" />
+                        {deletingAddresses.includes(address.id) ? (
+                          <Loader>Deleting...</Loader>
+                        ) : (
+                          <Button
+                            color={"red"}
+                            leftIcon={<IconTrash />}
+                            onClick={() => removeAddress(address)}
+                          >
+                            Delete
+                          </Button>
+                        )}
+                      </>
+                    </>
                   ) : null}
                 </Accordion.Panel>
               </Accordion.Item>
@@ -176,7 +227,7 @@ export default function AddressList({
   );
 }
 
-export const WithinServiceRange = ({ withinRange = false }) => {
+export const ServiceRangeBadge = ({ withinRange = false }) => {
   // Badge that shows whether the user is within the service range of the given location
   return (
     <Badge color={withinRange ? "green" : "red"}>

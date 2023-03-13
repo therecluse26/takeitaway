@@ -1,13 +1,29 @@
 import { Address } from '@prisma/client'
+import { Session } from 'next-auth/core/types';
+import { getSession } from 'next-auth/react';
 import { NextApiRequest, NextApiResponse } from 'next/types'
+import { errorMessages } from '../../../data/messaging';
 import { addressIsWithinServiceArea, createOrUpdateAddress, geocodeAddress, updateAddress, updateBillingAddress } from '../../../lib/services/api/ApiAddressService'
+import { userCan } from '../../../lib/services/PermissionService';
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  
+
   try {
+
+    if (req.method !== 'POST') {
+      res.status(405).json({ error: errorMessages.api.methodNotAllowed.message })
+    }
+
+    const session: Session | null = await getSession({ req });
+
+    if (!userCan(session?.user, ["users:write"])) {
+      res.status(403).json({ error: errorMessages.api.unauthorized.message });
+      return
+  }
+
     if (!req.body) {
       res.status(400).json({ message: 'Bad request' })
     }

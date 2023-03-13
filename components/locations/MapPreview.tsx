@@ -128,18 +128,6 @@ const MapPreview = ({
               <Text>No location found</Text>
             )}
           </Center>
-          <Center>
-            <Stack>
-              <Space />
-              {showAddress && <Text>{formatAddress(address)}</Text>}
-              <Space />
-              {showCoordinates && latitude && longitude && (
-                <Text>
-                  {latitude}, {longitude}
-                </Text>
-              )}
-            </Stack>
-          </Center>
         </>
       )}
     </>

@@ -1,10 +1,8 @@
 import { Button, Loader } from '@mantine/core';
-import { Address } from '@prisma/client';
 import dynamic from 'next/dynamic';
 import { GetServerSideProps } from 'next/types';
 import { JSXElementConstructor, useEffect, useState } from 'react';
 import AddressList from '../../../../components/locations/AddressList';
-import MapPreview from '../../../../components/locations/MapPreview';
 import PageContainer from '../../../../components/PageContainer';
 import AvailabilityDetail from '../../../../components/providers/AvailabilityDetail';
 import {

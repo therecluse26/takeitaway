@@ -18,3 +18,7 @@ export async function geocodeAddress(address: Address): Promise<Address>{
 export async function submitAddress(form: any): Promise<any>{
     return await axios.post(`/api/address/create-or-update`, form).then(response => response.data );
 }
+
+export async function deleteAddress(id: string): Promise<any>{
+    return await axios.delete(`/api/address/${id}`).then(response => response.data );
+}
