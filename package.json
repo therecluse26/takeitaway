@@ -59,6 +59,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-leaflet": "^4.2.0",
+    "robot3": "^0.4.0",
     "rollbar": "^2.26.0",
     "sharp": "^0.31.3",
     "stripe": "^11.5.0",

@@ -9,9 +9,7 @@ import {
   Center,
   TitleOrder,
   Grid,
-  Stack,
   Loader,
-  Divider,
   Space,
 } from "@mantine/core";
 import { Address, AddressType, Provider, User } from "@prisma/client";
