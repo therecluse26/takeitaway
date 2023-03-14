@@ -1,9 +1,19 @@
+import { BillingCycle, Subscription, SubscriptionStatus, User } from "@prisma/client";
 import { Session } from "next-auth/core/types";
 import { getSession } from "next-auth/react";
 import { NextApiRequest, NextApiResponse } from "next/types";
 import { errorMessages } from "../../../../../data/messaging";
+import { createBillingCycle } from "../../../../../lib/services/api/ApiBillingCycleService";
 import { saveSubscriptionToUser, stripeSubscriptionExists } from "../../../../../lib/services/api/ApiSubscriptionService";
 import { getSubscriptionsFromSession } from "../../../../../lib/services/StripeService";
+
+function firstDayOfMonth(year: number, month: number): Date {
+    return new Date(year, month, 1);
+}
+
+function lastdayOfMonth(year: number, month: number): Date {
+    return new Date(year, month + 1, 0);
+}
 
 export default async function handler(
     req: NextApiRequest,
@@ -37,9 +47,24 @@ export default async function handler(
             return
         }
 
-        res.status(200).json(await saveSubscriptionToUser(subscription, session.user));
-        return
+        const savedSub = await saveSubscriptionToUser(subscription, session.user)
+
+        const billingCycleData = {
+            userId: session.user.id,
+            subscriptionId: savedSub.id,
+            startDate: firstDayOfMonth(new Date().getFullYear(), new Date().getMonth()),
+            endDate: lastdayOfMonth(new Date().getFullYear(), new Date().getMonth()),
+            amount: savedSub.amount ?? 0,
+            active: savedSub.status === SubscriptionStatus.active ?? false,
+            pickupsRemaining: savedSub.pickupsPerCycle ?? 0,
+
+        } as BillingCycle
+
+        await createBillingCycle(billingCycleData)
+
+        res.status(200).json(savedSub);
+            return
     }
 
-    res.status(errorMessages.stripe.subscriptionNotFound.code).json({ error: errorMessages.stripe.subscriptionNotFound.message });
-}
+        res.status(errorMessages.stripe.subscriptionNotFound.code).json({ error: errorMessages.stripe.subscriptionNotFound.message });
+    }

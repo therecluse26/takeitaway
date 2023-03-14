@@ -30,41 +30,73 @@ model Account {
 }
 
 model Address {
-  id              String           @id @default(cuid())
-  type            AddressType      @default(service)
-  userId          String
-  street          String           @db.VarChar(100)
-  street2         String?          @db.VarChar(100)
-  city            String           @db.VarChar(100)
-  state           String           @db.VarChar(100)
-  zip             String           @db.VarChar(10)
-  country         String           @db.VarChar(100)
-  latitude        Float?
-  longitude       Float?
-  inServiceArea   Boolean          @default(false)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  user            User             @relation("addressUser", fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  billingUser     User?            @relation("billingAddress")
-  serviceRequests ServiceRequest[]
-  serviceLogs     ServiceLog[]
-  Provider        Provider[]
+  id               String             @id @default(cuid())
+  type             AddressType        @default(service)
+  userId           String
+  street           String             @db.VarChar(100)
+  street2          String?            @db.VarChar(100)
+  city             String             @db.VarChar(100)
+  state            String             @db.VarChar(100)
+  zip              String             @db.VarChar(10)
+  country          String             @db.VarChar(100)
+  latitude         Float?
+  longitude        Float?
+  inServiceArea    Boolean            @default(false)
+  instructions     String?            @db.VarChar(2000)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  user             User               @relation("addressUser", fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  billingUser      User?              @relation("billingAddress")
+  serviceRequests  ServiceRequest[]
+  serviceLogs      ServiceLog[]
+  Provider         Provider[]
+  PickupPreference PickupPreference[]
+  PickupSchedule   PickupSchedule[]
 
   @@index([userId])
 }
 
+model PickupPreference {
+  id        String   @id @default(cuid())
+  userId    String
+  addressId String
+  weekday   Weekdays
+  address   Address  @relation(fields: [addressId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([addressId, weekday, userId])
+  @@index([addressId])
+  @@index([userId])
+}
+
+model PickupSchedule {
+  id         String   @id @default(cuid())
+  userId     String
+  addressId  String
+  providerId String
+  dateTime   DateTime
+  address    Address  @relation(fields: [addressId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([addressId])
+  @@index([userId])
+  @@index([providerId])
+}
+
 model BillingCycle {
-  id              String           @id @default(cuid())
-  userId          String
-  subscriptionId  String
-  startDate       DateTime
-  endDate         DateTime
-  amount          Float
-  paid            Boolean          @default(false)
-  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  payments        Payment[]
-  serviceRequests ServiceRequest[]
-  serviceLogs     ServiceLog[]
+  id               String           @id @default(cuid())
+  userId           String
+  subscriptionId   String
+  startDate        DateTime
+  endDate          DateTime
+  amount           Float
+  active           Boolean          @default(true)
+  pickupsRemaining Int              @default(0)
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payments         Payment[]
+  serviceRequests  ServiceRequest[]
+  serviceLogs      ServiceLog[]
 
   @@index([userId])
   @@index([subscriptionId])
@@ -109,17 +141,20 @@ model Payment {
 }
 
 model Provider {
-  id            String            @id @default(cuid())
-  userId        String
-  addressId     String
-  serviceRadius Int
-  availability  Json?
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  deleted       Boolean           @default(false)
-  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  address       Address           @relation(fields: [addressId], references: [id], onDelete: Cascade)
-  timeOff       ProviderTimeOff[]
+  id             String            @id @default(cuid())
+  userId         String
+  addressId      String
+  serviceRadius  Int
+  availability   Json?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  deleted        Boolean           @default(false)
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  address        Address           @relation(fields: [addressId], references: [id], onDelete: Cascade)
+  timeOff        ProviderTimeOff[]
+  PickupSchedule PickupSchedule[]
+  ServiceRequest ServiceRequest[]
+  ServiceLog     ServiceLog[]
 
   @@index([userId])
   @@index([addressId])
@@ -153,7 +188,6 @@ model Service {
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
   deleted              Boolean                @default(false)
-  serviceRequests      ServiceRequest[]
   serviceLogs          ServiceLog[]
   subscriptionServices SubscriptionServices[]
 
@@ -161,23 +195,26 @@ model Service {
 }
 
 model ServiceRequest {
-  id             String       @id @default(cuid())
-  serviceId      String
-  billingCycleId String
-  addressId      String
-  requestDate    DateTime
-  instructions   String?      @db.VarChar(2000)
-  completed      Boolean      @default(false)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  deleted        Boolean      @default(false)
-  service        Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  billingCycle   BillingCycle @relation(fields: [billingCycleId], references: [id], onDelete: Cascade)
-  address        Address      @relation(fields: [addressId], references: [id], onDelete: Cascade)
+  id                String       @id @default(cuid())
+  type              ServiceType
+  billingCycleId    String
+  addressId         String
+  requestDate       DateTime
+  providerId        String?
+  providersNotified Boolean      @default(false)
+  claimed           Boolean      @default(false)
+  completed         Boolean      @default(false)
+  instructions      String?      @db.VarChar(2000)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  deleted           Boolean      @default(false)
+  billingCycle      BillingCycle @relation(fields: [billingCycleId], references: [id], onDelete: Cascade)
+  address           Address      @relation(fields: [addressId], references: [id], onDelete: Cascade)
+  provider          Provider?    @relation(fields: [providerId], references: [id], onDelete: Cascade)
 
-  @@index([serviceId])
   @@index([billingCycleId])
   @@index([addressId])
+  @@index([providerId])
 }
 
 model ServiceLog {
@@ -185,6 +222,7 @@ model ServiceLog {
   serviceId      String
   billingCycleId String
   addressId      String
+  providerId     String
   notes          String?      @db.VarChar(2000)
   photo          String?
   completed      Boolean      @default(false)
@@ -195,10 +233,12 @@ model ServiceLog {
   service        Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   billingCycle   BillingCycle @relation(fields: [billingCycleId], references: [id], onDelete: Cascade)
   address        Address      @relation(fields: [addressId], references: [id], onDelete: Cascade)
+  provider       Provider     @relation(fields: [providerId], references: [id], onDelete: Cascade)
 
   @@index([serviceId])
   @@index([billingCycleId])
   @@index([addressId])
+  @@index([providerId])
 }
 
 model Session {
@@ -213,7 +253,7 @@ model Session {
 
 model Subscription {
   id              String                 @id @default(cuid())
-  active          Boolean                @default(true)
+  status          SubscriptionStatus
   userId          String
   stripeId        String                 @unique @db.VarChar(40)
   amount          Float?
@@ -244,27 +284,29 @@ model SubscriptionServices {
 }
 
 model User {
-  id               String          @id @default(cuid())
-  name             String?
-  email            String?         @unique
-  emailVerified    DateTime?
-  phone            String?
-  image            String?
-  role             RoleEnum        @default(subscriber)
-  billingAddressId String?         @unique @db.VarChar(30)
-  stripeId         String?         @db.VarChar(30)
-  deleted          Boolean         @default(false)
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @default(now()) @updatedAt
-  accounts         Account[]
-  addresses        Address[]       @relation("addressUser")
-  billingCycles    BillingCycle[]
-  payments         Payment[]
-  sessions         Session[]
-  subscriptions    Subscription[]
-  paymentMethods   PaymentMethod[]
-  billingAddress   Address?        @relation("billingAddress", fields: [billingAddressId], references: [id])
-  Provider         Provider[]
+  id                String             @id @default(cuid())
+  name              String?
+  email             String?            @unique
+  emailVerified     DateTime?
+  phone             String?
+  image             String?
+  role              RoleEnum           @default(subscriber)
+  billingAddressId  String?            @unique @db.VarChar(30)
+  stripeId          String?            @db.VarChar(30)
+  deleted           Boolean            @default(false)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @default(now()) @updatedAt
+  accounts          Account[]
+  addresses         Address[]          @relation("addressUser")
+  billingCycles     BillingCycle[]
+  payments          Payment[]
+  sessions          Session[]
+  subscriptions     Subscription[]
+  paymentMethods    PaymentMethod[]
+  billingAddress    Address?           @relation("billingAddress", fields: [billingAddressId], references: [id])
+  Provider          Provider[]
+  PickupPreferences PickupPreference[]
+  PickupSchedule    PickupSchedule[]
 
   @@index([id, name, email])
   @@index([stripeId])
@@ -331,4 +373,14 @@ enum Weekdays {
   friday
   saturday
   sunday
+}
+
+enum SubscriptionStatus {
+  active
+  canceled
+  incomplete
+  incomplete_expired
+  past_due
+  trialing
+  unpaid
 }

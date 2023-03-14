@@ -13,6 +13,7 @@ export async function stripeSubscriptionExists(subscriptionStripeId: string): Pr
   }) > 0;
 }
 
+
 export async function getSubscriptionByStripeId(subscriptionStripeId: string): Promise<Subscription | null> {    
   return await prisma.subscription.findUnique({
     where: {

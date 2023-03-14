@@ -40,6 +40,7 @@ export async function getCheckoutSession(stripeUserId: string, checkoutData: Str
     });
 }
 
+
 function buildProductData(service: Service): Stripe.ProductCreateParams {
 
     let metadata: { serviceId: string, pickupsPerCycle?: number } = {

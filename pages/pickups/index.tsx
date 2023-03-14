@@ -16,6 +16,8 @@ export default function Pickups(props: { user: UserWithRelations }) {
     <PageContainer title="Assign Pickups To Locations">
       <Container>
         <AddressList
+          showMap={false}
+          assignPickups={true}
           mapHeight="500px"
           mapWidth="100%"
           mapZoom={12}

@@ -21,6 +21,7 @@ import { deleteAddress } from "../../lib/services/AddressService";
 import { ProviderWithRelations } from "../../lib/services/api/ApiProviderService";
 import { UserWithRelations } from "../../lib/services/api/ApiUserService";
 import AddressForm from "./AddressForm";
+import AssignPickups from "./AssignPickups";
 
 function getTitleSize(size: string): TitleOrder {
   switch (size) {
@@ -55,8 +56,10 @@ export default function AddressList({
   user,
   provider,
   title,
+  showMap = true,
   titleSize = "md",
-  showPickups = true,
+  assignPickups = false,
+  showPickupCount = true,
   mapHeight = "400px",
   mapWidth = "600px",
   mapZoom = 13,
@@ -66,8 +69,10 @@ export default function AddressList({
   user?: User | UserWithRelations | null;
   provider?: Provider | ProviderWithRelations | null;
   title?: string;
+  showMap?: boolean;
   titleSize?: "xs" | "sm" | "md" | "lg" | "xl";
-  showPickups?: boolean;
+  assignPickups?: boolean;
+  showPickupCount?: boolean;
   mapHeight?: string;
   mapWidth?: string;
   mapZoom?: number;
@@ -129,11 +134,13 @@ export default function AddressList({
                 key={address.id}
                 value={address.id}
                 onClick={() => {
-                  // Load Memoized MapPreview to prevent slow initial load
-                  setLoadedMaps([
-                    ...loadedMaps.filter((v) => v !== address.id),
-                    address.id,
-                  ]);
+                  if (showMap) {
+                    // Load Memoized MapPreview to prevent slow initial load
+                    setLoadedMaps([
+                      ...loadedMaps.filter((v) => v !== address.id),
+                      address.id,
+                    ]);
+                  }
                 }}
               >
                 <Accordion.Control>
@@ -141,7 +148,7 @@ export default function AddressList({
                     <Grid.Col span={6}>{formatAddress(address)}</Grid.Col>
                     <Grid.Col span={6}>
                       <Group position="right">
-                        {type === "service" && showPickups && (
+                        {type === "service" && showPickupCount && (
                           <>
                             <ServiceRangeBadge
                               withinRange={address.inServiceArea}
@@ -157,32 +164,43 @@ export default function AddressList({
                   </Grid>
                 </Accordion.Control>
                 <Accordion.Panel>
-                  {loadedMaps.includes(address.id) ? (
+                  {showMap && (
                     <>
-                      <MapPreview
-                        mapHeight={mapHeight}
-                        mapWidth={mapWidth}
-                        mapZoom={mapZoom}
-                        address={address}
-                        visible={addressIsVisible(address, visibleAddress)}
-                        serviceRadius={provider?.serviceRadius}
-                      />
-                      <>
-                        <Space h="xl" />
-                        {deletingAddresses.includes(address.id) ? (
-                          <Loader>Deleting...</Loader>
-                        ) : (
-                          <Button
-                            color={"red"}
-                            leftIcon={<IconTrash />}
-                            onClick={() => removeAddress(address)}
-                          >
-                            Delete
-                          </Button>
-                        )}
-                      </>
+                      {loadedMaps.includes(address.id) ? (
+                        <>
+                          <MapPreview
+                            mapHeight={mapHeight}
+                            mapWidth={mapWidth}
+                            mapZoom={mapZoom}
+                            address={address}
+                            visible={addressIsVisible(address, visibleAddress)}
+                            serviceRadius={provider?.serviceRadius}
+                          />
+                          <>
+                            <Space h="xl" />
+                            {deletingAddresses.includes(address.id) ? (
+                              <Loader>Deleting...</Loader>
+                            ) : (
+                              <Button
+                                color={"red"}
+                                leftIcon={<IconTrash />}
+                                onClick={() => removeAddress(address)}
+                              >
+                                Delete
+                              </Button>
+                            )}
+                          </>
+                        </>
+                      ) : null}
                     </>
-                  ) : null}
+                  )}
+                  {assignPickups && (
+                    <AssignPickups
+                    // address={address}
+                    // provider={provider}
+                    // user={user}
+                    />
+                  )}
                 </Accordion.Panel>
               </Accordion.Item>
             ))}
