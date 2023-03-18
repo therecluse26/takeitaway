@@ -3,9 +3,11 @@ generator client {
   previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
-generator erd {
-  provider = "prisma-erd-generator"
-}
+//// Uncomment in development to generate erd document
+//// This breaks deployments for some reason
+// generator erd {
+//   provider = "prisma-erd-generator"
+// }
 
 datasource db {
   provider     = "mysql"
