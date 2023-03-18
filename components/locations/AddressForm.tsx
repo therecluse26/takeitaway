@@ -14,6 +14,7 @@ export default function AddressForm({
   address = null,
 }: {
   type: AddressType;
+  // eslint-disable-next-line unused-imports/no-unused-vars
   onSubmitted: (address: Address) => void;
   onCanceled: () => void;
   user: User | UserWithRelations | null;

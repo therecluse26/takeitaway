@@ -6,7 +6,6 @@ import {
   IconUser,
   IconLogin,
   IconTruck,
-  IconMapPin,
   IconMap,
 } from "@tabler/icons";
 import { userCan } from "../lib/services/PermissionService";

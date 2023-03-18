@@ -3,10 +3,7 @@ import React, { JSXElementConstructor, useEffect } from "react";
 import { useState } from "react";
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Marker, useMap, Circle } from "react-leaflet";
-import {
-  formatAddress,
-  geocodeAddress,
-} from "../../lib/services/AddressService";
+import { geocodeAddress } from "../../lib/services/AddressService";
 import dynamic from "next/dynamic";
 import { icon } from "leaflet";
 
@@ -29,18 +26,10 @@ const Loader = dynamic(() =>
     (mod) => mod.Loader as JSXElementConstructor<any>
   )
 );
-const Stack = dynamic(() =>
-  import("@mantine/core").then((mod) => mod.Stack as JSXElementConstructor<any>)
-);
-const Space = dynamic(() =>
-  import("@mantine/core").then((mod) => mod.Space as JSXElementConstructor<any>)
-);
 
 const MapPreview = ({
   address,
   visible,
-  showAddress = true,
-  showCoordinates = false,
   serviceRadius = null,
   mapHeight = "400px",
   mapWidth = "600px",
@@ -48,8 +37,6 @@ const MapPreview = ({
 }: {
   address: Address;
   visible: boolean;
-  showAddress?: boolean;
-  showCoordinates?: boolean;
   serviceRadius?: number | null;
   mapHeight?: string;
   mapWidth?: string;

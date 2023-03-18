@@ -12,6 +12,7 @@ export default function BillingAddress({
   center = false,
 }: {
   billingaddress: Address | null;
+  // eslint-disable-next-line unused-imports/no-unused-vars
   setBillingAddress: (address: Address) => void;
   user: User | UserWithRelations | null;
   center?: boolean;

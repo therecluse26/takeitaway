@@ -1,6 +1,5 @@
 import {
   ActionIcon,
-  Badge,
   Button,
   Center,
   Group,
@@ -20,7 +19,6 @@ import { signIn } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 import {
   CartItem,
-  getCart,
   getCartItems,
   removeServiceFromCart,
   updateServiceQuantity,

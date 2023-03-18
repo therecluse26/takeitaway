@@ -15,10 +15,6 @@ import { redirectToCheckout } from '../../lib/services/StripeService';
 export default function AccountDetails(props: { user: UserWithRelations }) {
   const [loadingCheckout, setLoadingCheckout] = useState(false);
   const [paymentMethods] = useState<any[]>(props.user.paymentMethods);
-  const [serviceAddresses, setServiceAddresses] = useState<Address[] | null>(
-    props.user.addresses.filter((address) => address.type === 'service')
-  );
-
   const [billingaddress, setBillingAddress] = useState<Address | null>(
     props.user.billingAddress
   );

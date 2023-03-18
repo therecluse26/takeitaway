@@ -11,9 +11,6 @@ import {
 } from '../../../../lib/services/api/ApiProviderService';
 import { Availability } from '../../../../types/provider';
 
-const Badge = dynamic(() =>
-  import('@mantine/core').then((mod) => mod.Badge as JSXElementConstructor<any>)
-);
 const Center = dynamic(() =>
   import('@mantine/core').then(
     (mod) => mod.Center as JSXElementConstructor<any>
@@ -37,9 +34,6 @@ const Container = dynamic(() =>
 );
 const Title = dynamic(() =>
   import('@mantine/core').then((mod) => mod.Title as JSXElementConstructor<any>)
-);
-const Text = dynamic(() =>
-  import('@mantine/core').then((mod) => mod.Text as JSXElementConstructor<any>)
 );
 
 const isBrowser = () => typeof window !== 'undefined'; //The approach recommended by Next.js
