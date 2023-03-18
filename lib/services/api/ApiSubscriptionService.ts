@@ -52,7 +52,7 @@ export async function saveSubscriptionToUser(stripeSubscription: Stripe.Subscrip
       userId: user.id,
       cycleRecurrence: Recurrence.monthly,
       pickupsPerCycle: itemTotalPickupCount,
-      active: stripeSubscription.status === "active",
+      status: stripeSubscription.status,
       amount: getStripeIntegerAsDecimal(amount),
       updatedAt: new Date()
     },
@@ -61,7 +61,7 @@ export async function saveSubscriptionToUser(stripeSubscription: Stripe.Subscrip
       stripeId: stripeSubscription.id,
       cycleRecurrence: Recurrence.monthly,
       pickupsPerCycle: itemTotalPickupCount,
-      active: stripeSubscription.status === "active",
+      status: stripeSubscription.status,
       amount: getStripeIntegerAsDecimal(amount),
       createdAt: new Date(),
       updatedAt: new Date()

@@ -1,4 +1,4 @@
-import { BillingCycle, Subscription, SubscriptionStatus, User } from "@prisma/client";
+import { BillingCycle, SubscriptionStatus } from "@prisma/client";
 import { Session } from "next-auth/core/types";
 import { getSession } from "next-auth/react";
 import { NextApiRequest, NextApiResponse } from "next/types";

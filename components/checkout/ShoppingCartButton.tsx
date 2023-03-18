@@ -1,8 +1,10 @@
 import {
   ActionIcon,
+  Badge,
   Button,
   Center,
   Group,
+  Indicator,
   Loader,
   Menu,
   Modal,
@@ -18,6 +20,7 @@ import { signIn } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 import {
   CartItem,
+  getCart,
   getCartItems,
   removeServiceFromCart,
   updateServiceQuantity,
@@ -94,6 +97,10 @@ function buildCartItems() {
   ));
 }
 
+function sumCartItemQuantity() {
+  return getCartItems().reduce((acc, item) => acc + item.quantity, 0);
+}
+
 export default function ShoppingCartButton({
   session = null,
 }: {
@@ -168,10 +175,24 @@ export default function ShoppingCartButton({
             }}
           >
             <Menu.Target>
-              <Button variant="subtle">
-                <IconShoppingCart /> <Space mr="sm" />{" "}
-                {formatAmountForDisplay(cartTotal)}
-              </Button>
+              {sumCartItemQuantity() > 0 ? (
+                <Indicator
+                  inline
+                  size={20}
+                  color={"red"}
+                  label={sumCartItemQuantity()}
+                >
+                  <Button variant="subtle">
+                    <IconShoppingCart /> <Space mr="sm" />{" "}
+                    {formatAmountForDisplay(cartTotal)}
+                  </Button>
+                </Indicator>
+              ) : (
+                <Button variant="subtle">
+                  <IconShoppingCart /> <Space mr="sm" />{" "}
+                  {formatAmountForDisplay(cartTotal)}
+                </Button>
+              )}
             </Menu.Target>
             <Menu.Dropdown>
               {getCartItems().length > 0 ? (

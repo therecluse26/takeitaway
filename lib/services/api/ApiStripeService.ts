@@ -64,11 +64,14 @@ function buildProductData(service: Service): Stripe.ProductCreateParams {
 }
 
 export async function updateCustomerBillingAddress(user: User, address: Address) {
+    
     if (!user.stripeId) {
-        throw new Error("User does not have a Stripe ID, cannot update");
+        // Create Stripe Customer
+        return getUserStripeId(user);
+        // throw new Error("User does not have a Stripe ID, cannot update");
     }
 
-    await stripe.customers.update(
+    return await stripe.customers.update(
         user.stripeId,
         {
             address: {
