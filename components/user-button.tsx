@@ -6,6 +6,8 @@ import {
   IconUser,
   IconLogin,
   IconTruck,
+  IconMapPin,
+  IconMap,
 } from "@tabler/icons";
 import { userCan } from "../lib/services/PermissionService";
 import {
@@ -80,6 +82,17 @@ export default function UserButton({
             </Menu.Item>
           </>
         )}
+
+        <Menu.Divider />
+
+        <Menu.Item
+          component={Link}
+          href={"/pickups"}
+          icon={<IconMap size={14} stroke={1.5} />}
+          onClick={onClick}
+        >
+          Manage Service Locations
+        </Menu.Item>
 
         <Menu.Divider />
 
