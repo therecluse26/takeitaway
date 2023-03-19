@@ -2,7 +2,15 @@
 import { User } from "next-auth/core/types";
 import { userCan } from "../lib/services/PermissionService";
 
-const defaultNavBarLinks: Array<any> = [
+export type NavbarLink = {
+    key: string;
+    link: string;
+    label: string;
+    links?: NavbarLink[];
+    permissions?: string[];
+}
+
+const defaultNavBarLinks: Array<NavbarLink> = [
     {
         "key": "services",
         "link": "/products",
@@ -14,7 +22,7 @@ const defaultNavBarLinks: Array<any> = [
         "label": "About"
     },
     {
-    "key": "service_area",
+        "key": "service_area",
         "link": "/#service_area",
         "label": "Service Area"
     },

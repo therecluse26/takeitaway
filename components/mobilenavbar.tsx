@@ -9,8 +9,9 @@ import {
 import UserButton from "./user-button";
 
 import React from "react";
-import { navigationLinks } from "../helpers/navigationLinks";
+import NavigationLinks from "../helpers/navigationLinks";
 import { Session } from "next-auth";
+import { NavbarLink } from "../data/navbar-links";
 
 const useStyles = createStyles((theme) => ({
   navbar: {
@@ -82,14 +83,14 @@ const useStyles = createStyles((theme) => ({
 }));
 
 interface MobileNavbarProps {
-  links: any[];
+  links: NavbarLink[];
   opened: boolean;
   mounted?: boolean;
   closeNavbarCallback: () => void;
   session: Session | null;
 }
 
-const MobileNavbar = function ({
+export default function MobileNavbar({
   links,
   opened,
   closeNavbarCallback,
@@ -119,11 +120,15 @@ const MobileNavbar = function ({
             )}
             <Divider />
           </Center>
-          {navigationLinks(links, classes, closeNavbarCallback)}
+          <NavigationLinks
+            key="mobile_navlinks"
+            links={links}
+            classes={classes}
+            onClick={closeNavbarCallback}
+            type="mobile"
+          />
         </Stack>
       </Center>
     </Navbar>
   );
-};
-
-export default MobileNavbar;
+}

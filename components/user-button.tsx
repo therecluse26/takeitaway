@@ -86,11 +86,11 @@ export default function UserButton({
 
         <Menu.Item
           component={Link}
-          href={"/pickups"}
+          href={"/service-locations"}
           icon={<IconMap size={14} stroke={1.5} />}
           onClick={onClick}
         >
-          Manage Service Locations
+          Assign Services to Locations
         </Menu.Item>
 
         <Menu.Divider />

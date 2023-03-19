@@ -1,6 +1,6 @@
 import { Container } from '@mantine/core';
 import { GetServerSidePropsContext } from 'next';
-import AddressList from '../../components/locations/AddressList';
+import AddressServiceAssignmentList from '../../components/locations/AddressServiceAssignmentList';
 import PageContainer from '../../components/PageContainer';
 import getSessionUserProps from '../../lib/props/sessionUser';
 import { UserWithRelations } from '../../lib/services/api/ApiUserService';
@@ -13,17 +13,12 @@ export const getServerSideProps = async (
 
 export default function Pickups(props: { user: UserWithRelations }) {
   return (
-    <PageContainer title="Assign Pickups To Locations">
+    <PageContainer title="Assign Service To Locations">
       <Container>
-        <AddressList
-          showMap={false}
-          assignPickups={true}
-          mapHeight="500px"
-          mapWidth="100%"
-          mapZoom={12}
-          type="service"
+        <AddressServiceAssignmentList
           addresses={props.user.addresses}
           user={props.user}
+          maxPickups={props.user.billingCycle?.pickupsRemaining ?? 0}
         />
       </Container>
     </PageContainer>

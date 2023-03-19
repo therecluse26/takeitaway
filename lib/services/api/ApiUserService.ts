@@ -1,4 +1,4 @@
-import { PrismaClient, PaymentMethod as UserPaymentMethod, Address, Subscription } from "@prisma/client";
+import { PrismaClient, PaymentMethod as UserPaymentMethod, Address, Subscription, BillingCycle } from "@prisma/client";
 import { PaymentMethod } from "@stripe/stripe-js";
 import { User } from "next-auth/core/types";
 
@@ -6,6 +6,7 @@ const prisma = new PrismaClient()
 
 export type UserWithRelations = User & {
   billingAddress: Address|null;
+  billingCycle: BillingCycle|null;
   addresses: Address[];
   subscriptions: Subscription[];
   paymentMethods: UserPaymentMethod[];
@@ -17,6 +18,7 @@ export async function getUserWithRelations(id: string): Promise<UserWithRelation
       id: id
     },
     include: {
+      billingCycle: true,
       billingAddress: true,
       addresses: {
         where: {

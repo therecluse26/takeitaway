@@ -14,7 +14,7 @@ import UserButton from "./user-button";
 import Link from "next/link";
 import Image from "next/image";
 import React from "react";
-import { navigationLinks } from "../helpers/navigationLinks";
+import NavigationLinks from "../helpers/navigationLinks";
 import ShoppingCartButton from "./checkout/ShoppingCartButton";
 import { Session } from "next-auth";
 import SubscribeButton from "./header/SubscribeButton";
@@ -117,7 +117,7 @@ interface HeaderTabsProps {
   session: Session | null;
 }
 
-const HeaderTabs = function ({
+export default function HeaderTabs({
   links,
   burgerOpened,
   toggleBurgerOpened,
@@ -146,16 +146,17 @@ const HeaderTabs = function ({
               >
                 <Group spacing="xs">
                   <IconPhoneCall />
-
                   <Text weight={700} color="white">
                     {companyInfo.phoneNumber}
                   </Text>
                 </Group>
               </UnstyledButton>
             </Grid.Col>
+
             <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
               <Grid.Col span={6}></Grid.Col>
             </MediaQuery>
+
             <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
               <Grid.Col span="auto" offset={-2}>
                 {mounted ? (
@@ -172,6 +173,7 @@ const HeaderTabs = function ({
             </MediaQuery>
           </Grid>
         </Container>
+
         <Container className={classes.mainSection} size="xl">
           <MediaQuery smallerThan="sm" styles={{ paddingTop: "8px" }}>
             <Group position="apart">
@@ -197,7 +199,13 @@ const HeaderTabs = function ({
                 />
               </MediaQuery>
               <Group spacing={5} className={classes.links}>
-                {navigationLinks(links, classes, closeNavbarCallback)}
+                <NavigationLinks
+                  key="header_navlinks"
+                  links={links}
+                  classes={classes}
+                  onClick={closeNavbarCallback}
+                  type="main"
+                />
               </Group>
               <Group>
                 <SubscribeButton />
@@ -209,6 +217,4 @@ const HeaderTabs = function ({
       </Header>
     </>
   );
-};
-
-export default HeaderTabs;
+}

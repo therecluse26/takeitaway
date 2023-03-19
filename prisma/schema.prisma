@@ -92,7 +92,7 @@ model PickupSchedule {
 
 model BillingCycle {
   id               String           @id @default(cuid())
-  userId           String
+  userId           String           @unique
   subscriptionId   String
   startDate        DateTime
   endDate          DateTime
@@ -304,7 +304,7 @@ model User {
   updatedAt         DateTime           @default(now()) @updatedAt
   accounts          Account[]
   addresses         Address[]          @relation("addressUser")
-  billingCycles     BillingCycle[]
+  billingCycle      BillingCycle?
   payments          Payment[]
   sessions          Session[]
   subscriptions     Subscription[]
