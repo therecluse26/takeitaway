@@ -4,6 +4,7 @@ import { PaymentMethod } from '@prisma/client';
 import { useSession } from 'next-auth/react';
 import { User } from 'next-auth';
 import { UserWithRelations } from './api/ApiUserService';
+import { PickupPreference } from '../../types/schedule';
 
 export function useSessionUser(): User 
 {
@@ -60,3 +61,6 @@ export async function deleteAccount(user: User): Promise<boolean>{
     return await axios.delete(`/api/users/${user.id}/delete`);
 }
 
+export async function setUserPickupPreferences(user: User, pickupPreferences: PickupPreference[]): Promise<boolean>{
+    return await axios.post(`/api/users/${user.id}/pickup-preferences`, {pickupPreferences: pickupPreferences});
+}

@@ -1,4 +1,4 @@
-import { PrismaClient, PaymentMethod as UserPaymentMethod, Address, Subscription, BillingCycle } from "@prisma/client";
+import { PrismaClient, PaymentMethod as UserPaymentMethod, Address, Subscription, BillingCycle, PickupPreference } from "@prisma/client";
 import { PaymentMethod } from "@stripe/stripe-js";
 import { User } from "next-auth/core/types";
 
@@ -146,4 +146,51 @@ export async function deleteAccount(user: User): Promise<boolean> {
     }
 
   }).then(() => true);
+}
+
+export async function saveUserPickupPreferences(userId: string, preferences: PickupPreference[]): Promise<void> {
+  await prisma.pickupPreference.deleteMany({
+      where: {
+          userId: userId,
+      }
+  })
+      
+  await prisma.pickupPreference.createMany({
+        data: preferences.map(preference => {
+            return {
+                userId: userId,
+                addressId: preference.addressId,
+                weekday: preference.weekday,
+                weekNumber: preference.weekNumber
+            }
+        })
+    });
+}
+
+// async function updateBillingCyclePickupsRemainingCount(userId: string, billingCycleId: string, pickupsRemaining: number): Promise<BillingCycle> {
+//   return await prisma.billingCycle.update({
+//       where: {
+//           id: billingCycleId
+//       },
+//       data: {
+//           pickupsRemaining: pickupsRemaining
+//       }
+//   });
+
+
+export async function getUserPickupPreferences(userId: string): Promise<PickupPreference[]> {
+  return await prisma.pickupPreference.findMany({
+      where: {
+          userId: userId
+      }
+  });
+}
+
+export async function getAddressPickupPreferences(userId: string, addressId: string): Promise<PickupPreference[]> {
+  return await prisma.pickupPreference.findMany({
+      where: {
+          userId: userId,
+          addressId: addressId
+      }
+  });
 }
