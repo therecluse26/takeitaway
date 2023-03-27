@@ -10,10 +10,9 @@ import {
   Group,
   Button,
 } from "@mantine/core";
-import { Address, Provider, User, Weekday } from "@prisma/client";
-import { useState } from "react";
+import { Address, User, Weekday } from "@prisma/client";
+import { useEffect, useState } from "react";
 import { formatAddress } from "../../lib/services/AddressService";
-import { ProviderWithRelations } from "../../lib/services/api/ApiProviderService";
 import { UserWithRelations } from "../../lib/services/api/ApiUserService";
 import { setUserPickupPreferences } from "../../lib/services/UserService";
 import { PickupPreference } from "../../types/schedule";
@@ -40,7 +39,6 @@ function getTitleSize(size: string): TitleOrder {
 export default function AddressServiceAssignmentList({
   addresses,
   user,
-  provider,
   title,
   titleSize = "md",
   maxPickups = 0,
@@ -49,7 +47,6 @@ export default function AddressServiceAssignmentList({
 }: {
   addresses: Address[];
   user?: User | UserWithRelations | null;
-  provider?: Provider | ProviderWithRelations | null;
   title?: string;
   titleSize?: "xs" | "sm" | "md" | "lg" | "xl";
   maxPickups?: number;
@@ -70,18 +67,24 @@ export default function AddressServiceAssignmentList({
       (pickup) =>
         pickup.addressId !== addressId || pickup.weekNumber !== weekNumber
     );
-
     newPickups.push(
-      ...weekdays.map((weekday) => ({
-        addressId,
-        weekNumber,
-        weekday,
-      }))
+      ...weekdays
+        .filter((weekday) => {
+          return weekday !== undefined && weekday !== null;
+        })
+        .map((weekday) => ({
+          addressId,
+          weekNumber,
+          weekday,
+        }))
     );
 
     setPickups(newPickups);
-    setPickupsRemaining(maxPickups - newPickups.length);
   }
+
+  useEffect(() => {
+    setPickupsRemaining(maxPickups - pickups.length);
+  }, [pickups]);
 
   function updateUserPickupPreferences() {
     if (user) {
@@ -140,6 +143,7 @@ export default function AddressServiceAssignmentList({
                     addressId={address.id}
                     onChange={updatePickups}
                     pickupsRemaining={pickupsRemaining}
+                    initialPickupPreferences={initialPickupPreferences}
                     center
                   />
                 </Stack>

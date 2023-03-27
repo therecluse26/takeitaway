@@ -1,16 +1,14 @@
 import { Container } from '@mantine/core';
 import { PickupPreference } from '@prisma/client';
-import { GetServerSideProps, GetServerSidePropsContext } from 'next';
+import { GetServerSideProps } from 'next';
 import { getServerSession } from 'next-auth';
 import AddressServiceAssignmentList from '../../components/locations/AddressServiceAssignmentList';
 import PageContainer from '../../components/PageContainer';
-import getSessionUserProps from '../../lib/props/sessionUser';
 import {
   getUserPickupPreferences,
   getUserWithRelations,
   UserWithRelations,
 } from '../../lib/services/api/ApiUserService';
-import { getSessionUser } from '../../lib/services/UserService';
 import { authOptions } from '../api/auth/[...nextauth]';
 
 export default function Pickups(props: {

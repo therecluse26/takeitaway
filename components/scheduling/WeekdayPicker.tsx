@@ -1,6 +1,10 @@
 import { Center, Checkbox, Flex, Group } from "@mantine/core";
 import { Weekday } from "@prisma/client";
-import { useState } from "react";
+import { memo, useState } from "react";
+import { PickupPreference } from "../../types/schedule";
+import { PickupPreference as PrismaPickupPreference } from "@prisma/client";
+
+type AnyPickupPreference = PickupPreference | PrismaPickupPreference;
 
 const monthWeeks = [
   { label: "1st week of the month", value: 1 },
@@ -19,22 +23,35 @@ const weekdays = [
   { label: "Sunday", value: Weekday.sunday },
 ];
 
-export function WeekdayPicker({
+const WeekdayPicker = ({
   addressId,
   showWeekNumber = true,
   weekNumber = 1,
   disabledWeekdays = [],
   onChange,
   pickupsRemaining = 0,
+  initialPickupPreferences = [],
 }: {
   addressId: string;
   showWeekNumber?: boolean;
   weekNumber?: number;
-disabledWeekdays?: Weekday[];
+  disabledWeekdays?: Weekday[];
   onChange?: (addressId: string, weekNumber: number, value: Weekday[]) => void;
   pickupsRemaining?: number;
-}) {
-  const [selectedWeekdays, setSelectedWeekdays] = useState<string[]>([]);
+  initialPickupPreferences?: AnyPickupPreference[];
+}) => {
+  const [selectedWeekdays, setSelectedWeekdays] = useState<
+    (string | undefined | any)[]
+  >(
+    initialPickupPreferences.map((preference) => {
+      if (
+        addressId === preference.addressId &&
+        preference.weekNumber === weekNumber
+      ) {
+        return preference.weekday as string;
+      }
+    })
+  );
 
   return (
     <Flex>
@@ -42,6 +59,7 @@ disabledWeekdays?: Weekday[];
         defaultValue={[]}
         value={selectedWeekdays}
         onChange={(value) => {
+          console.log(value);
           setSelectedWeekdays(value);
           onChange && onChange(addressId, weekNumber, value as Weekday[]);
         }}
@@ -53,6 +71,7 @@ disabledWeekdays?: Weekday[];
               key={weekday.label}
               value={weekday.value}
               label={weekday.label}
+              checked={selectedWeekdays.includes(weekday.value)}
               disabled={
                 disabledWeekdays.includes(weekday.value) ||
                 (pickupsRemaining < 1 &&
@@ -64,20 +83,24 @@ disabledWeekdays?: Weekday[];
       </Checkbox.Group>{" "}
     </Flex>
   );
-}
+};
 
 export function MonthWeekdayPicker({
   addressId,
   center = false,
   onChange,
   pickupsRemaining = 0,
+  initialPickupPreferences = [],
 }: {
   addressId: string;
   center?: boolean;
   onChange?: (addressId: string, weekNumber: number, value: Weekday[]) => void;
   pickupsRemaining?: number;
+  initialPickupPreferences?: AnyPickupPreference[];
 }) {
-  const [selectedWeekdays, setSelectedWeekdays] = useState<string[]>([]);
+  const [selectedWeekdays, setSelectedWeekdays] = useState<
+    AnyPickupPreference[]
+  >(initialPickupPreferences);
 
   return (
     <>
@@ -90,6 +113,7 @@ export function MonthWeekdayPicker({
                 onChange={onChange}
                 key={monthWeek.label}
                 weekNumber={monthWeek.value}
+                initialPickupPreferences={initialPickupPreferences}
                 pickupsRemaining={pickupsRemaining}
               />
             </Center>
@@ -99,6 +123,7 @@ export function MonthWeekdayPicker({
               onChange={onChange}
               key={monthWeek.label}
               weekNumber={monthWeek.value}
+              initialPickupPreferences={initialPickupPreferences}
               pickupsRemaining={pickupsRemaining}
             />
           )}
@@ -107,3 +132,5 @@ export function MonthWeekdayPicker({
     </>
   );
 }
+
+export default memo(WeekdayPicker);
