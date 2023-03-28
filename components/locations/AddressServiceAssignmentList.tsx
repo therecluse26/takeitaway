@@ -19,6 +19,7 @@ import { setUserPickupPreferences } from "../../lib/services/UserService";
 import { PickupPreference } from "../../types/schedule";
 import { MonthWeekdayPicker } from "../scheduling/WeekdayPicker";
 import { PickupsBadge, ServiceRangeBadge } from "./AddressList";
+const Hash = require("object-hash");
 
 function getTitleSize(size: string): TitleOrder {
   switch (size) {
@@ -55,13 +56,17 @@ export default function AddressServiceAssignmentList({
   initialPickupPreferences?: PickupPreference[];
 }) {
   const [loading, setLoading] = useState(false);
+  const [initialHash, setInitialHash] = useState(
+    Hash.MD5(initialPickupPreferences)
+  );
+  const [stateHash, setStateHash] = useState(initialHash);
   const [loadedAddresses, setLoadedAddresses] = useState<Address[]>(addresses);
   const [pickupsRemaining, setPickupsRemaining] = useState(maxPickups);
   const [pickups, setPickups] = useState<PickupPreference[]>(
     initialPickupPreferences
   );
 
-  function updatePickups(
+  function choosePickups(
     addressId: string,
     weekNumber: number,
     weekdays: Weekday[]
@@ -83,6 +88,7 @@ export default function AddressServiceAssignmentList({
     );
 
     setPickups(newPickups);
+    setStateHash(Hash.MD5(newPickups));
   }
 
   useEffect(() => {
@@ -95,8 +101,10 @@ export default function AddressServiceAssignmentList({
       const updatedUser = await (
         await setUserPickupPreferences(user, pickups)
       )?.data;
-      console.log(updatedUser);
+
       setLoadedAddresses(updatedUser?.addresses ?? []);
+      setInitialHash(Hash.MD5(pickups));
+      setStateHash(Hash.MD5(pickups));
       setLoading(false);
     }
   }
@@ -129,7 +137,12 @@ export default function AddressServiceAssignmentList({
                 <Loader size="md" />
               </Center>
             ) : (
-              <Button onClick={updateUserPickupPreferences}>Save</Button>
+              <Button
+                onClick={updateUserPickupPreferences}
+                disabled={initialHash === stateHash}
+              >
+                Save
+              </Button>
             )}
           </Stack>
         </Center>
@@ -156,7 +169,7 @@ export default function AddressServiceAssignmentList({
                   {/* <WeekdayPicker /> */}
                   <MonthWeekdayPicker
                     addressId={address.id}
-                    onChange={updatePickups}
+                    onChange={choosePickups}
                     pickupsRemaining={pickupsRemaining}
                     initialPickupPreferences={initialPickupPreferences}
                     center

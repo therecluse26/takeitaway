@@ -90,7 +90,7 @@ export default function UserButton({
           icon={<IconMap size={14} stroke={1.5} />}
           onClick={onClick}
         >
-          Assign Services to Locations
+          Manage Service Locations
         </Menu.Item>
 
         <Menu.Divider />

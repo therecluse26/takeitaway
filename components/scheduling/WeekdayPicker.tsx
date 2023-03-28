@@ -60,7 +60,6 @@ const WeekdayPicker = ({
         defaultValue={[]}
         value={selectedWeekdays}
         onChange={(value) => {
-          console.log(value);
           setSelectedWeekdays(value);
           onChange && onChange(addressId, weekNumber, value as Weekday[]);
         }}
