@@ -1,5 +1,5 @@
 import { DataTableSortStatus } from 'mantine-datatable/dist/types/DataTableSortStatus';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { PaymentMethod } from '@prisma/client';
 import { useSession } from 'next-auth/react';
 import { User } from 'next-auth';
@@ -61,6 +61,6 @@ export async function deleteAccount(user: User): Promise<boolean>{
     return await axios.delete(`/api/users/${user.id}/delete`);
 }
 
-export async function setUserPickupPreferences(user: User, pickupPreferences: PickupPreference[]): Promise<boolean>{
+export async function setUserPickupPreferences(user: User, pickupPreferences: PickupPreference[]): Promise<AxiosResponse<UserWithRelations|null>>{
     return await axios.post(`/api/users/${user.id}/pickup-preferences`, {pickupPreferences: pickupPreferences});
 }

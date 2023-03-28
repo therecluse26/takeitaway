@@ -9,6 +9,7 @@ import {
   Grid,
   Group,
   Button,
+  Loader,
 } from "@mantine/core";
 import { Address, User, Weekday } from "@prisma/client";
 import { useEffect, useState } from "react";
@@ -53,6 +54,8 @@ export default function AddressServiceAssignmentList({
   showPickupCount?: boolean;
   initialPickupPreferences?: PickupPreference[];
 }) {
+  const [loading, setLoading] = useState(false);
+  const [loadedAddresses, setLoadedAddresses] = useState<Address[]>(addresses);
   const [pickupsRemaining, setPickupsRemaining] = useState(maxPickups);
   const [pickups, setPickups] = useState<PickupPreference[]>(
     initialPickupPreferences
@@ -86,14 +89,20 @@ export default function AddressServiceAssignmentList({
     setPickupsRemaining(maxPickups - pickups.length);
   }, [pickups]);
 
-  function updateUserPickupPreferences() {
+  async function updateUserPickupPreferences() {
     if (user) {
-      setUserPickupPreferences(user, pickups);
+      setLoading(true);
+      const updatedUser = await (
+        await setUserPickupPreferences(user, pickups)
+      )?.data;
+      console.log(updatedUser);
+      setLoadedAddresses(updatedUser?.addresses ?? []);
+      setLoading(false);
     }
   }
 
   function addressesInServiceArea(): Address[] {
-    return addresses.filter((address) => {
+    return loadedAddresses.filter((address) => {
       return address.inServiceArea === true;
     });
   }
@@ -115,7 +124,13 @@ export default function AddressServiceAssignmentList({
             {showPickupCount && (
               <Text size="lg">{pickupsRemaining} Pickups Remaining</Text>
             )}
-            <Button onClick={updateUserPickupPreferences}>Save</Button>
+            {loading ? (
+              <Center>
+                <Loader size="md" />
+              </Center>
+            ) : (
+              <Button onClick={updateUserPickupPreferences}>Save</Button>
+            )}
           </Stack>
         </Center>
         <Accordion variant="contained">
@@ -127,7 +142,7 @@ export default function AddressServiceAssignmentList({
                   <Grid.Col span={6}>
                     <Group position="right">
                       <ServiceRangeBadge withinRange={address.inServiceArea} />
-                      <PickupsBadge />
+                      <PickupsBadge pickups={address.pickupsAllocated} />
                     </Group>
                   </Grid.Col>
                 </Grid>

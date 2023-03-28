@@ -23,12 +23,10 @@ export default async function handler(
 
     try {
         const pickupPreferences = req.body?.pickupPreferences;
-
-        await saveUserPickupPreferences(session.user.id, pickupPreferences);
-
-        
     
-        res.status(200).json({ success: true });
+        res.status(200).json(
+            await saveUserPickupPreferences(session.user.id, pickupPreferences)
+            );
     } catch (error) {
         res.status(400).json({ error: error });
     }
