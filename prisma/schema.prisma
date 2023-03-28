@@ -48,6 +48,7 @@ model Address {
   latitude         Float?
   longitude        Float?
   inServiceArea    Boolean            @default(false)
+  pickupsAllocated Int                @default(0)
   instructions     String?            @db.VarChar(2000)
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
@@ -63,14 +64,15 @@ model Address {
 }
 
 model PickupPreference {
-  id        String   @id @default(cuid())
-  userId    String
-  addressId String
-  weekday   Weekdays
-  address   Address  @relation(fields: [addressId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String  @id @default(cuid())
+  userId     String
+  addressId  String
+  weekNumber Int
+  weekday    Weekday
+  address    Address @relation(fields: [addressId], references: [id], onDelete: Cascade)
+  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([addressId, weekday, userId])
+  @@unique([addressId, weekNumber, weekday, userId])
   @@index([addressId])
   @@index([userId])
 }
@@ -91,18 +93,18 @@ model PickupSchedule {
 }
 
 model BillingCycle {
-  id               String           @id @default(cuid())
-  userId           String           @unique
-  subscriptionId   String
-  startDate        DateTime
-  endDate          DateTime
-  amount           Float
-  active           Boolean          @default(true)
-  pickupsRemaining Int              @default(0)
-  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  payments         Payment[]
-  serviceRequests  ServiceRequest[]
-  serviceLogs      ServiceLog[]
+  id              String           @id @default(cuid())
+  userId          String           @unique
+  subscriptionId  String
+  startDate       DateTime
+  endDate         DateTime
+  amount          Float
+  active          Boolean          @default(true)
+  pickups         Int              @default(0)
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payments        Payment[]
+  serviceRequests ServiceRequest[]
+  serviceLogs     ServiceLog[]
 
   @@index([userId])
   @@index([subscriptionId])
@@ -371,7 +373,7 @@ enum AddressType {
   provider
 }
 
-enum Weekdays {
+enum Weekday {
   monday
   tuesday
   wednesday

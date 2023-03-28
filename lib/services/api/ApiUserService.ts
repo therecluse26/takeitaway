@@ -1,18 +1,18 @@
-import { PrismaClient, PaymentMethod as UserPaymentMethod, Address, Subscription, BillingCycle } from "@prisma/client";
+import { PrismaClient, PaymentMethod as UserPaymentMethod, Address, Subscription, BillingCycle, PickupPreference } from "@prisma/client";
 import { PaymentMethod } from "@stripe/stripe-js";
 import { User } from "next-auth/core/types";
 
 const prisma = new PrismaClient()
 
 export type UserWithRelations = User & {
-  billingAddress: Address|null;
-  billingCycle: BillingCycle|null;
+  billingAddress: Address | null;
+  billingCycle: BillingCycle | null;
   addresses: Address[];
   subscriptions: Subscription[];
   paymentMethods: UserPaymentMethod[];
 }
 
-export async function getUserWithRelations(id: string): Promise<UserWithRelations|null> {
+export async function getUserWithRelations(id: string): Promise<UserWithRelations | null> {
   return await prisma.user.findUnique({
     where: {
       id: id
@@ -146,4 +146,81 @@ export async function deleteAccount(user: User): Promise<boolean> {
     }
 
   }).then(() => true);
+}
+
+export async function saveUserPickupPreferences(userId: string, preferences: PickupPreference[]): Promise<UserWithRelations|null> {
+
+  const updatePickupCountQueries = preferences.map(preference => {
+    return updateAddressPickupsAllocatedCount(preference.addressId,
+      preferences.reduce((acc, cur) => {
+        if (cur.addressId === preference.addressId) {
+          return acc + 1;
+        } else {
+          return acc;
+        }
+      }, 0)
+    );
+  });
+
+  await prisma.$transaction([
+    prisma.pickupPreference.deleteMany({
+      where: {
+        userId: userId,
+      }
+    }),
+    prisma.pickupPreference.createMany({
+      data: preferences.map(preference => {
+        return {
+          userId: userId,
+          addressId: preference.addressId,
+          weekday: preference.weekday,
+          weekNumber: preference.weekNumber
+        }
+
+      })
+    }),
+    ...updatePickupCountQueries
+  ]);
+
+  return await getUserWithRelations(userId);
+}
+
+// Async logic will be handled within the transaction
+function updateAddressPickupsAllocatedCount(addressId: string, pickupsAllocated: number) {
+  return prisma.address.update({
+    where: {
+      id: addressId
+    },
+    data: {
+      pickupsAllocated: pickupsAllocated
+    }
+  });
+}
+
+// async function updateBillingCyclePickupsRemainingCount(userId: string, billingCycleId: string, pickupsRemaining: number): Promise<BillingCycle> {
+//   return await prisma.billingCycle.update({
+//       where: {
+//           id: billingCycleId
+//       },
+//       data: {
+//           pickupsRemaining: pickupsRemaining
+//       }
+//   });
+
+
+export async function getUserPickupPreferences(userId: string): Promise<PickupPreference[]> {
+  return await prisma.pickupPreference.findMany({
+    where: {
+      userId: userId
+    }
+  });
+}
+
+export async function getAddressPickupPreferences(userId: string, addressId: string): Promise<PickupPreference[]> {
+  return await prisma.pickupPreference.findMany({
+    where: {
+      userId: userId,
+      addressId: addressId
+    }
+  });
 }

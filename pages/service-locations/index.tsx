@@ -1,26 +1,71 @@
 import { Container } from '@mantine/core';
-import { GetServerSidePropsContext } from 'next';
+import { PickupPreference } from '@prisma/client';
+import { GetServerSideProps } from 'next';
+import { getServerSession } from 'next-auth';
 import AddressServiceAssignmentList from '../../components/locations/AddressServiceAssignmentList';
 import PageContainer from '../../components/PageContainer';
-import getSessionUserProps from '../../lib/props/sessionUser';
-import { UserWithRelations } from '../../lib/services/api/ApiUserService';
+import {
+  getUserPickupPreferences,
+  getUserWithRelations,
+  UserWithRelations,
+} from '../../lib/services/api/ApiUserService';
+import { authOptions } from '../api/auth/[...nextauth]';
 
-export const getServerSideProps = async (
-  context: GetServerSidePropsContext
-) => {
-  return await getSessionUserProps(context);
-};
-
-export default function Pickups(props: { user: UserWithRelations }) {
+export default function Pickups(props: {
+  user: UserWithRelations;
+  pickupPreferences: PickupPreference[];
+}) {
   return (
-    <PageContainer title="Assign Service To Locations">
+    <PageContainer title="Manage Service Addresses">
       <Container>
         <AddressServiceAssignmentList
           addresses={props.user.addresses}
           user={props.user}
-          maxPickups={props.user.billingCycle?.pickupsRemaining ?? 0}
+          initialPickupPreferences={props.pickupPreferences}
+          maxPickups={props.user.billingCycle?.pickups ?? 0}
         />
       </Container>
     </PageContainer>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await getServerSession(context.req, context.res, authOptions);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/api/auth/signin',
+        permanent: false,
+      },
+    };
+  }
+  const user: UserWithRelations | false = await getUserWithRelations(
+    session?.user?.id as string
+  )
+    .then((res) => JSON.parse(JSON.stringify(res)))
+    .catch((err) => {
+      console.error(err);
+      return false;
+    });
+
+  if (user === false) {
+    return {
+      notFound: true,
+    };
+  }
+
+  const pickupPreferences: PickupPreference[] = await getUserPickupPreferences(
+    user.id
+  );
+
+  return {
+    props: {
+      user: user,
+      pickupPreferences: pickupPreferences,
+      authorization: {
+        requiresSession: true,
+      },
+    },
+  };
+};

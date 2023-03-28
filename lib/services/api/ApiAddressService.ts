@@ -84,7 +84,6 @@ export async function updateBillingAddress(userId: string, address: Address): Pr
 
 export async function addressIsWithinServiceArea(address: Address): Promise<boolean> {
 
-  console.log(address.latitude, address.longitude);
   if(!address.latitude || !address.longitude) {
     return false;
   }

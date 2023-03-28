@@ -1,9 +1,9 @@
-import { BillingCycle, SubscriptionStatus } from "@prisma/client";
+import { SubscriptionStatus } from "@prisma/client";
 import { Session } from "next-auth/core/types";
 import { getSession } from "next-auth/react";
 import { NextApiRequest, NextApiResponse } from "next/types";
 import { errorMessages } from "../../../../../data/messaging";
-import { createBillingCycle } from "../../../../../lib/services/api/ApiBillingCycleService";
+import { BillingCycleData, createBillingCycle } from "../../../../../lib/services/api/ApiBillingCycleService";
 import { saveSubscriptionToUser, stripeSubscriptionExists } from "../../../../../lib/services/api/ApiSubscriptionService";
 import { getSubscriptionsFromSession } from "../../../../../lib/services/StripeService";
 
@@ -57,8 +57,7 @@ export default async function handler(
             amount: savedSub.amount ?? 0,
             active: savedSub.status === SubscriptionStatus.active ?? false,
             pickupsRemaining: savedSub.pickupsPerCycle ?? 0,
-
-        } as BillingCycle
+        } as BillingCycleData
 
         await createBillingCycle(billingCycleData)
 

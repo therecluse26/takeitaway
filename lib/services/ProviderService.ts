@@ -95,7 +95,6 @@ export const localTimeZone = new Date()
   .slice(4);
 
 export function convertISOStringToTime(dateTime: string): string {
-    console.log(dateTime);
     return dateTime.split("T")[1].slice(0, -1);
 }
 
