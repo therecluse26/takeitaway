@@ -87,7 +87,7 @@ export default function AddressServiceAssignmentList({
 
   useEffect(() => {
     setPickupsRemaining(maxPickups - pickups.length);
-  }, [pickups]);
+  }, [maxPickups, pickups]);
 
   async function updateUserPickupPreferences() {
     if (user) {

@@ -65,7 +65,7 @@ function buildNavbarLinks(user?: User) {
             "link": "#",
             "label": "Admin",
             "links": permissionLinks
-        })
+        } as NavbarLink)
     }
     
     return links;

@@ -36,6 +36,7 @@ const WeekdayPicker = ({
   showWeekNumber?: boolean;
   weekNumber?: number;
   disabledWeekdays?: Weekday[];
+  // eslint-disable-next-line unused-imports/no-unused-vars
   onChange?: (addressId: string, weekNumber: number, value: Weekday[]) => void;
   pickupsRemaining?: number;
   initialPickupPreferences?: AnyPickupPreference[];
@@ -94,14 +95,11 @@ export function MonthWeekdayPicker({
 }: {
   addressId: string;
   center?: boolean;
+  // eslint-disable-next-line unused-imports/no-unused-vars
   onChange?: (addressId: string, weekNumber: number, value: Weekday[]) => void;
   pickupsRemaining?: number;
   initialPickupPreferences?: AnyPickupPreference[];
 }) {
-  const [selectedWeekdays, setSelectedWeekdays] = useState<
-    AnyPickupPreference[]
-  >(initialPickupPreferences);
-
   return (
     <>
       {monthWeeks.map((monthWeek) => (

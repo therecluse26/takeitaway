@@ -2,7 +2,17 @@ import { PrismaClient, BillingCycle } from "@prisma/client";
 
 const prisma = new PrismaClient()
 
-export async function createBillingCycle(billingCycle: BillingCycle): Promise<BillingCycle> {
+export type BillingCycleData = {
+    userId: string;
+    subscriptionId: string;
+    startDate: Date;
+    endDate: Date;
+    amount: number;
+    active: boolean;
+    pickupsRemaining: number;
+}
+
+export async function createBillingCycle(billingCycle: BillingCycleData): Promise<BillingCycle> {
     return await prisma.billingCycle.create({
         data: billingCycle
     });
