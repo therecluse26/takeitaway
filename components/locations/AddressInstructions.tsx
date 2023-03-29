@@ -1,10 +1,13 @@
 import {
+  ActionIcon,
   Button,
   Center,
+  Group,
   Loader,
   Stack,
   Text,
   Textarea,
+  ThemeIcon,
   Title,
 } from "@mantine/core";
 import { Address } from "@prisma/client";
@@ -34,20 +37,30 @@ export default function AddressInstructions({
         <>
           <Center>
             <Title order={4}>
-              {title}
-              {editing ? (
-                <Button
-                  variant="subtle"
-                  onClick={() => setEditing(false)}
-                  style={{ marginLeft: "1rem" }}
-                >
-                  <IconX />
-                </Button>
-              ) : (
-                <Button variant="subtle" onClick={() => setEditing(true)}>
-                  <IconEdit />
-                </Button>
-              )}
+              <Group>
+                {title}
+                {editing ? (
+                  <ActionIcon
+                    variant="subtle"
+                    size="xs"
+                    onClick={() => setEditing(false)}
+                  >
+                    <ThemeIcon variant="light">
+                      <IconX />
+                    </ThemeIcon>
+                  </ActionIcon>
+                ) : (
+                  <ActionIcon
+                    variant="subtle"
+                    size="xs"
+                    onClick={() => setEditing(true)}
+                  >
+                    <ThemeIcon variant="light">
+                      <IconEdit />
+                    </ThemeIcon>
+                  </ActionIcon>
+                )}
+              </Group>
             </Title>
           </Center>
 
