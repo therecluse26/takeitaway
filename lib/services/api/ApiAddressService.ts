@@ -82,6 +82,13 @@ export async function updateBillingAddress(userId: string, address: Address): Pr
   return user;
 }
 
+export async function saveAddressInstructions(id: string, instructions?: string|null): Promise<Address> {
+  return await prisma.address.update({
+    where: { id },
+    data: { instructions },
+  });
+}
+
 export async function addressIsWithinServiceArea(address: Address): Promise<boolean> {
 
   if(!address.latitude || !address.longitude) {

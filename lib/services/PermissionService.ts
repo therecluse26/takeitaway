@@ -45,4 +45,14 @@ function userCan(user: User|null|undefined, permissions: string|string[]): boole
     return true
 }
 
-export { can, getRoleByName, getRolePermissions, userCan }
+function resourceBelongsToUser(resource: any, user: User|null|undefined): boolean {
+    if(!user){
+        return false;
+    }
+    if(!resource.userId) {
+        return false;
+    }
+    return resource.userId === user.id;
+}
+
+export { can, getRoleByName, getRolePermissions, userCan, resourceBelongsToUser }
