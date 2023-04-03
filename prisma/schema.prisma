@@ -150,14 +150,14 @@ model Payment {
 
 model Provider {
   id             String            @id @default(cuid())
-  userId         String
+  userId         String           @unique
   addressId      String
   serviceRadius  Int
   availability   Json?
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
   deleted        Boolean           @default(false)
-  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   address        Address           @relation(fields: [addressId], references: [id], onDelete: Cascade)
   timeOff        ProviderTimeOff[]
   PickupSchedule PickupSchedule[]
@@ -312,7 +312,7 @@ model User {
   subscriptions     Subscription[]
   paymentMethods    PaymentMethod[]
   billingAddress    Address?           @relation("billingAddress", fields: [billingAddressId], references: [id])
-  Provider          Provider[]
+  provider          Provider?      
   PickupPreferences PickupPreference[]
   PickupSchedule    PickupSchedule[]
 

@@ -1,6 +1,7 @@
 import { PrismaClient, Address, User, Provider, ProviderTimeOff } from "@prisma/client";
 import { PaginatedResults } from "../../../types/pagination";
 import { Availability } from "../../../types/provider";
+import { type Prisma } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -31,6 +32,11 @@ export async function updateAvailability(id: string, availability: Availability[
     }
   });
 }
+
+export async function getAllProviders(): Promise<Provider[]> {
+  return await prisma.provider.findMany();
+}
+
 
 export async function getAllProvidersWithAddress(): Promise<ProviderWithAddress[]> {
   return await prisma.provider.findMany({
@@ -84,4 +90,19 @@ export async function getPaginatedProviders(paginatedQuery: any) {
 
 export async function getUnpaginatedProvidersCount(unpaginatedQuery: any) {
   return await prisma.provider.count(unpaginatedQuery);
+}
+
+export async function createProviderFromUser(user: User): Promise<Provider> {
+  const providerData =  {
+    userId: user.id,
+    addressId: user.billingAddressId ?? undefined,
+    serviceRadius: 10,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deleted: false,
+  }  as Prisma.ProviderCreateManyInput
+
+  return await prisma.provider.create({
+    data: providerData,
+  });
 }

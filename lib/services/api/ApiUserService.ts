@@ -1,6 +1,7 @@
-import { PrismaClient, PaymentMethod as UserPaymentMethod, Address, Subscription, BillingCycle, PickupPreference } from "@prisma/client";
+import { PrismaClient, PaymentMethod as UserPaymentMethod, Address, Subscription, BillingCycle, PickupPreference, Provider } from "@prisma/client";
 import { PaymentMethod } from "@stripe/stripe-js";
 import { User } from "next-auth/core/types";
+import {User as PrismaUser} from "@prisma/client"
 
 const prisma = new PrismaClient()
 
@@ -12,21 +13,53 @@ export type UserWithRelations = User & {
   paymentMethods: UserPaymentMethod[];
 }
 
+export type UserProvider = UserWithRelations & {
+  provider: Provider | null;
+}
+
+export async function getUserWithProvider(id: string): Promise<UserProvider | null> {
+  return await prisma.user.findUnique({
+    where: {
+      id: id
+    },
+    include: {
+      addresses: {
+        where: {
+          type: "service"
+        }
+      },
+      billingAddress: true,
+      billingCycle: true,
+      paymentMethods: true,
+      subscriptions: true,
+      provider: true,
+    }
+  }) as UserProvider;
+}
+
+export async function getUser(id: string): Promise<User | PrismaUser | null> {
+  return await prisma.user.findUnique({
+    where: {
+      id: id
+    }
+  });
+}
+
 export async function getUserWithRelations(id: string): Promise<UserWithRelations | null> {
   return await prisma.user.findUnique({
     where: {
       id: id
     },
     include: {
-      billingCycle: true,
-      billingAddress: true,
       addresses: {
         where: {
           type: "service"
         }
       },
+      billingAddress: true,
+      billingCycle: true,
       paymentMethods: true,
-      subscriptions: true
+      subscriptions: true,
     }
   });
 }
@@ -132,7 +165,6 @@ export async function getPaymentMethodById(id: string): Promise<UserPaymentMetho
       id: id
     }
   });
-
 }
 
 export async function deleteAccount(user: User): Promise<boolean> {

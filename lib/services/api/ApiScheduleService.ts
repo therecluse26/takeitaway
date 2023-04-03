@@ -1,36 +1,35 @@
-import { PickupSchedule } from "@prisma/client";
-import { getAllProvidersWithAddress, ProviderWithAddress } from "./ApiProviderService";
+import { PickupSchedule, Provider } from "@prisma/client";
+import { Availability } from "../../../types/provider";
+import { getAllProviders } from "./ApiProviderService";
 
-export async function generatePickupScheduleForDate(date: Date): Promise<PickupSchedule[]> {
-  const schedules: PickupSchedule[] = [];
-  const providers = await getAllProvidersWithAddress();
-
-  for (const provider of providers) {
-    const pickups = await getPickupsForProvider(provider, date);
-
-    if (pickups.length === 0) {
-      continue;
-    }
-
-    const schedule: PickupSchedule = {
-      provider: provider,
-      pickups: pickups,
-    };
-
-    schedules.push(schedule);
-  }
-
-  return schedules;
-}
-
-function getPickupsForProvider(provider: ProviderWithAddress, date: Date) {
+// Generate pickup schedule for a given date based on provider availability and user address pickup preferences
+export async function getPickupSchedule(date: Date) {
+    const providers = await getAllProviders();
     const pickups: PickupSchedule[] = [];
-    
-    for (const pickup of provider.pickups) {
-        if (pickup.dayOfWeek === date.getDay()) {
-        pickups.push(pickup);
-        }
+
+    for (const provider of providers) {
+        const providerPickups = getPickupsForProvider(provider, date);
+        pickups.push(...providerPickups);
     }
-    
+
     return pickups;
 }
+
+// Generate pickup schedule for a given provider and date based on provider availability and user address pickup preferences  
+function getPickupsForProvider(provider: Provider, date: Date) {
+    const pickups: PickupSchedule[] = [];
+    const providerAvailability = provider.availability as Availability[];
+      for (const availability of providerAvailability) {
+          if (availability.day === date.getDay()) {
+              const pickup = {
+                  providerId: provider.id,
+                  day: date,
+                  pickupTime: availability.startTime,
+                  dropoffTime: availability.endTime,
+              };
+              pickups.push(pickup);
+          }
+      }
+  
+      return pickups;
+  }

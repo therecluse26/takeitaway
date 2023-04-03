@@ -1,12 +1,15 @@
+import { Button } from '@mantine/core';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { GetServerSideProps } from 'next/types';
 import { JSXElementConstructor } from 'react';
 import AddressList from '../../../../components/locations/AddressList';
 import PageContainer from '../../../../components/PageContainer';
 import {
-  getUserWithRelations,
-  UserWithRelations,
+  getUserWithProvider,
+  UserProvider,
 } from '../../../../lib/services/api/ApiUserService';
+import { createProviderFromUser } from '../../../../lib/services/ProviderService';
 
 const Badge = dynamic(() =>
   import('@mantine/core').then((mod) => mod.Badge as JSXElementConstructor<any>)
@@ -39,7 +42,7 @@ const Text = dynamic(() =>
   import('@mantine/core').then((mod) => mod.Text as JSXElementConstructor<any>)
 );
 
-export default function UserDetail(props: { user: UserWithRelations }) {
+export default function UserDetail(props: { user: UserProvider }) {
   const RoleBadge = () => {
     const role =
       props.user.role.charAt(0).toUpperCase() + props.user.role.slice(1);
@@ -62,6 +65,28 @@ export default function UserDetail(props: { user: UserWithRelations }) {
               <Text>{props.user.email}</Text>
             </div>
             <RoleBadge />
+            {props.user?.provider ? (
+              <>
+                <Badge color="green">Provider</Badge>{' '}
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="subtle"
+                  onClick={() => {
+                    if (
+                      confirm(
+                        'Are you sure you want to convert this user to a provider?'
+                      )
+                    ) {
+                      createProviderFromUser(props.user.id);
+                    }
+                  }}
+                >
+                  Convert to Provider
+                </Button>
+              </>
+            )}
           </Group>
 
           <AddressList
@@ -89,7 +114,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
   }
 
-  const user: UserWithRelations | false = await getUserWithRelations(
+  const user: UserProvider | false = await getUserWithProvider(
     context?.params?.id as string
   )
     .then((res) => JSON.parse(JSON.stringify(res)))

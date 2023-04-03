@@ -127,8 +127,8 @@ export default function AvailabilityDetail({
             setAvailabilityForDay(
               updatedAvailability,
               weekday,
-              availability.find((a) => a.day === weekday)?.start ?? "00:00:00",
-              availability.find((a) => a.day === weekday)?.end ?? "00:00:00"
+              availability?.find((a) => a.day === weekday)?.start ?? "00:00:00",
+              availability?.find((a) => a.day === weekday)?.end ?? "00:00:00"
             );
           }
         }}

@@ -114,6 +114,34 @@ export async function addressIsWithinServiceArea(address: Address): Promise<bool
   return true;
 }
 
+export async function getProviderNearestAddress(address: Address): Promise<Address|null> {
+
+  if(!address.latitude || !address.longitude) {
+    return null;
+  }
+
+  let nearestProvider: Address|null = null;
+  let nearestDistance = 0;
+
+  for (const provider of await getAllProvidersWithAddress()) {
+
+    if(!provider.address.latitude || !provider.address.longitude) {
+      continue;
+    }
+
+    const miles = getMilesBetweenCoordinates(address.latitude, address.longitude, provider.address.latitude, provider.address.longitude);
+    if (miles <= provider.serviceRadius) {
+      if (!nearestProvider || miles < nearestDistance) {
+        nearestProvider = provider.address;
+        nearestDistance = miles;
+
+      }
+    }
+  }
+
+  return nearestProvider;
+}
+
 
 function deg2rad(deg: number) {
   return deg * (Math.PI / 180);

@@ -4,6 +4,7 @@ import { PaginatedProvidersWithRelations } from './api/ApiProviderService';
 import { Availability } from '../../types/provider';
 import { Prisma, ProviderTimeOff } from '@prisma/client';
 
+
 export async function getProviders({page, recordsPerPage, sortStatus: { columnAccessor: sortAccessor, direction: sortDirection }, searchQuery}
 : { searchQuery: string|null, page: number|null|undefined; recordsPerPage: number; sortStatus: DataTableSortStatus; }): Promise<PaginatedProvidersWithRelations> 
 {
@@ -25,6 +26,10 @@ export async function updateAvailability(providerId: string, availability: Avail
         throw validationErrors;
     }
     return await axios.put(`/api/providers/${providerId}/availability`, availability);
+}
+
+export async function createProviderFromUser(userId: string){
+    return await axios.post("/api/users/" + userId + "/create-provider");
 }
 
 export function validateAvailability(availability: Availability[] | null): string[] {
@@ -281,6 +286,43 @@ export function isAvailable(availability: Prisma.JsonArray|Prisma.JsonValue|null
         if(dayNameToDayOfWeek(parsedAvailability.day) === dayOfWeek)
         {
             return currentTimeWithinRange(parsedAvailability.start, parsedAvailability.end);
+        }
+    });
+
+    if(available) {
+
+        if(timeOff && timeOff.find(t => t.day.getTime() === dateToCheck.getTime())) {
+            return false;
+        }
+        
+        return true;
+    }
+
+    return false;
+}
+
+export function providerIsAvailableOnDate(availability: Prisma.JsonArray|Prisma.JsonValue|null, dateToCheck: Date, timeOff: ProviderTimeOff[]|null): boolean 
+{
+    if (!availability) {
+        return false;
+    }
+
+    const dayOfWeek = dateToCheck.getDay();
+
+    let availabilityArray = Array.isArray(availability) ? availability : [availability];
+
+    availabilityArray = availabilityArray as Array<Availability>;
+
+    const available = availabilityArray.find(a => {
+        if (typeof a === 'undefined' || a === null){
+            return false;
+        }
+       
+        const parsedAvailability = a as Availability;
+        
+        if(dayNameToDayOfWeek(parsedAvailability.day) === dayOfWeek)
+        {
+            return true;
         }
     });
 
