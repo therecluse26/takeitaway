@@ -172,7 +172,7 @@ export function getMonthSchedule(availability: Prisma.JsonArray|Prisma.JsonValue
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
 
-    const parsedAvailability = availability as Availability[];
+    const parsedAvailabilities = availability as Availability[];
 
     // Loop through each day of the month
     for(let i = 1; i <= 31; i++) {
@@ -183,7 +183,7 @@ export function getMonthSchedule(availability: Prisma.JsonArray|Prisma.JsonValue
         const dayNumber = day.getUTCDay();
         
         const dayName = daysOfTheWeek?.find(weekDay => weekDay?.number === dayNumber)?.value;
-        const availabilityForDay = parsedAvailability.find(a => a.day === dayName) as Availability;
+        const availabilityForDay = parsedAvailabilities.find(a => a.day === dayName) as Availability;
 
         // If the day is available, check if the current time is within the availability range
         if(availabilityForDay) {

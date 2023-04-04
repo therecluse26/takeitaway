@@ -1,7 +1,7 @@
 import { PrismaClient, Address, User, Provider, ProviderTimeOff } from "@prisma/client";
 import { PaginatedResults } from "../../../types/pagination";
 import { Availability } from "../../../types/provider";
-import { type Prisma } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -99,10 +99,22 @@ export async function createProviderFromUser(user: User): Promise<Provider> {
     serviceRadius: 10,
     createdAt: new Date(),
     updatedAt: new Date(),
+    availability: Prisma.DbNull,
     deleted: false,
   }  as Prisma.ProviderCreateManyInput
 
   return await prisma.provider.create({
     data: providerData,
   });
+}
+
+export async function deleteProvider(id: string): Promise<boolean> {
+  return await prisma.provider.update({
+    where: {
+      id: id
+    },
+    data: {
+      deleted: true
+    }
+  }).then(() => true);
 }

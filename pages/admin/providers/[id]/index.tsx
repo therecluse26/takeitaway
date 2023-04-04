@@ -113,7 +113,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         return false;
       });
 
-  if (provider === false) {
+  if (!provider) {
     return {
       notFound: true,
     };
