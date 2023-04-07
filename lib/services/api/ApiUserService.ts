@@ -2,14 +2,22 @@ import { PrismaClient, PaymentMethod as UserPaymentMethod, Address, Subscription
 import { PaymentMethod } from "@stripe/stripe-js";
 import { User } from "next-auth/core/types";
 import {User as PrismaUser} from "@prisma/client"
+import { AddressWithPickupPreferences } from "./ApiAddressService";
 
 const prisma = new PrismaClient()
 
-export type UserWithRelations = User & {
-  billingAddress: Address | null;
-  billingCycle: BillingCycle | null;
-  addresses: Address[];
+export type UserWithAddresses = User & {
+  addresses: AddressWithPickupPreferences[];
+}
+
+export type UserWithBillingCycles = User & {
+  billingCycles: BillingCycle[];
   subscriptions: Subscription[];
+  addresses: AddressWithPickupPreferences[];
+}
+
+export type UserWithRelations = UserWithBillingCycles & {
+  billingAddress: Address | null;
   paymentMethods: UserPaymentMethod[];
 }
 
@@ -29,13 +37,52 @@ export async function getUserWithProvider(id: string): Promise<UserProvider | nu
         }
       },
       billingAddress: true,
-      billingCycle: true,
+      billingCycles: true,
       paymentMethods: true,
       subscriptions: true,
       provider: true,
     }
   }) as UserProvider;
 }
+
+export async function getUserWithAddresses(id: string): Promise<UserWithAddresses | null> {
+  return await prisma.user.findUnique({
+    where: {
+      id: id
+    },
+    include: {
+      addresses: {
+        where: {
+          type: "service"
+        },
+        include: {
+          pickupPreferences: true
+        }
+      }
+    }
+  });
+}
+
+export async function getUserWithBillingCycles(id: string): Promise<UserWithBillingCycles | null> {
+  return await prisma.user.findUnique({
+    where: {
+      id: id
+    },
+    include: {
+      addresses: {
+        where: {
+          type: "service"
+        },
+        include: {
+          pickupPreferences: true
+        }
+      },
+      billingCycles: true,
+      subscriptions: true,
+    }
+  });
+}
+
 
 export async function getUser(id: string): Promise<User | PrismaUser | null> {
   return await prisma.user.findUnique({
@@ -44,6 +91,8 @@ export async function getUser(id: string): Promise<User | PrismaUser | null> {
     }
   });
 }
+
+
 
 export async function getUserWithRelations(id: string): Promise<UserWithRelations | null> {
   return await prisma.user.findUnique({
@@ -57,11 +106,11 @@ export async function getUserWithRelations(id: string): Promise<UserWithRelation
         }
       },
       billingAddress: true,
-      billingCycle: true,
+      billingCycles: true,
       paymentMethods: true,
       subscriptions: true,
     }
-  });
+  }) as UserWithRelations
 }
 
 export async function getPaginatedUsers(paginatedQuery: any) {

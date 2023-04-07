@@ -57,8 +57,8 @@ model Address {
   serviceRequests  ServiceRequest[]
   serviceLogs      ServiceLog[]
   Provider         Provider[]
-  PickupPreference PickupPreference[]
-  PickupSchedule   PickupSchedule[]
+  pickupPreferences PickupPreference[]
+  pickupSchedule   PickupSchedule[]
 
   @@index([userId])
 }
@@ -94,7 +94,7 @@ model PickupSchedule {
 
 model BillingCycle {
   id              String           @id @default(cuid())
-  userId          String           @unique
+  userId          String
   subscriptionId  String
   startDate       DateTime
   endDate         DateTime
@@ -102,6 +102,7 @@ model BillingCycle {
   active          Boolean          @default(true)
   pickups         Int              @default(0)
   user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscription    Subscription     @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
   payments        Payment[]
   serviceRequests ServiceRequest[]
   serviceLogs     ServiceLog[]
@@ -150,14 +151,14 @@ model Payment {
 
 model Provider {
   id             String            @id @default(cuid())
-  userId         String           @unique
+  userId         String            @unique
   addressId      String
   serviceRadius  Int
   availability   Json?
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
   deleted        Boolean           @default(false)
-  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   address        Address           @relation(fields: [addressId], references: [id], onDelete: Cascade)
   timeOff        ProviderTimeOff[]
   PickupSchedule PickupSchedule[]
@@ -272,6 +273,7 @@ model Subscription {
   deleted         Boolean                @default(false)
   user            User                   @relation(fields: [userId], references: [id], onDelete: NoAction)
   services        SubscriptionServices[]
+  billingCycles   BillingCycle[]
 
   @@index([userId])
   @@index([stripeId])
@@ -306,15 +308,15 @@ model User {
   updatedAt         DateTime           @default(now()) @updatedAt
   accounts          Account[]
   addresses         Address[]          @relation("addressUser")
-  billingCycle      BillingCycle?
+  billingCycles     BillingCycle[]
   payments          Payment[]
   sessions          Session[]
   subscriptions     Subscription[]
   paymentMethods    PaymentMethod[]
   billingAddress    Address?           @relation("billingAddress", fields: [billingAddressId], references: [id])
-  provider          Provider?      
-  PickupPreferences PickupPreference[]
-  PickupSchedule    PickupSchedule[]
+  provider          Provider?
+  pickupPreferences PickupPreference[]
+  pickupSchedule    PickupSchedule[]
 
   @@index([id, name, email])
   @@index([stripeId])

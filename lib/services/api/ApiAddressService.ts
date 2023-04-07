@@ -1,4 +1,4 @@
-import { Address, PrismaClient, User } from "@prisma/client";
+import { Address, PickupPreference, PrismaClient, User } from "@prisma/client";
 import NodeGeocoder, { Options } from 'node-geocoder';
 import { GEOCODER_CONFIG } from "../../../data/configuration";
 import { formatAddress } from "../AddressService";
@@ -6,6 +6,10 @@ import { getAllProvidersWithAddress } from "./ApiProviderService";
 import { updateCustomerBillingAddress } from "./ApiStripeService";
 
 const prisma = new PrismaClient()
+
+export type AddressWithPickupPreferences = Address & {
+  pickupPreferences: PickupPreference[]
+}
 
 export async function getAddress(id: string): Promise<Address> {
   const address = await prisma.address.findUnique({

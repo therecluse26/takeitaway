@@ -161,9 +161,13 @@ export default function AvailabilityDetail({
                       updateAvailability(provider?.id, updatedAvailability)
                         .then(() => setEditing(false))
                         .catch((errors) => {
-                          errors.forEach((error: Error) =>
-                            notifyError(400, "api", error)
-                          );
+                          if (errors instanceof Error)
+                            notifyError(400, "api", errors);
+                          else if (errors instanceof Array) {
+                            errors.forEach((error: Error) =>
+                              notifyError(400, "api", error)
+                            );
+                          }
                         })
                         .finally(() => setSaving(false));
                     }}

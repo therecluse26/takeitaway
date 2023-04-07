@@ -2,6 +2,7 @@ import { Session } from "next-auth/core/types";
 import { getSession } from "next-auth/react";
 import { NextApiRequest, NextApiResponse } from "next/types";
 import { errorMessages } from "../../../../data/messaging";
+import { getScheduleForDate } from "../../../../lib/services/api/ApiScheduleService";
 import { userCan } from "../../../../lib/services/PermissionService";
 
 export default async function handler(
@@ -26,9 +27,23 @@ export default async function handler(
         return
     }
 
-    const date = req.query.date as string;
+    const dateString = req.query.date as string;
 
-    res.status(200).json({});
+    if (!dateString) {
+        res.status(400).json({ error: "Date is required" });
+        return
+    }
+
+    const date = new Date(dateString);
+
+    if (isNaN(date.getTime())) {
+        res.status(400).json({ error: "Date is invalid" });
+        return
+    }
+
+    const schedule = await getScheduleForDate(date);
+
+    res.status(200).json(schedule);
         return
   
     }
