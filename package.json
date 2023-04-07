@@ -50,7 +50,7 @@
     "leaflet": "^1.9.3",
     "mantine-datatable": "^1.7.25",
     "next": "^13.0.6",
-    "next-auth": "^4.18.0",
+    "next-auth": "4.20.1",
     "next-hcaptcha": "^1.4.3",
     "node-cache": "^5.1.2",
     "node-geocoder": "^4.2.0",

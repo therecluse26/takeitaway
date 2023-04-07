@@ -9,7 +9,7 @@ export type BillingCycleData = {
     endDate: Date;
     amount: number;
     active: boolean;
-    pickupsRemaining: number;
+    pickups: number;
 }
 
 export async function createBillingCycle(billingCycle: BillingCycleData): Promise<BillingCycle> {

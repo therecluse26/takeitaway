@@ -33,16 +33,28 @@ function can(role: string | undefined, permissions: string|string[]): boolean {
 
 
 // Checks if user can perform a given action by permission list
-function userCan(user: User|null|undefined, permissions: string|string[]): boolean {
+function userCan(user: User|null|undefined, permissions: string|string[], userId: string|null = null): boolean {
 
     if(!user){
         return false;
+    }
+
+    // User is self
+    if(userId && user.id === userId){
+        return true;
     }
 
     if( !can(getUserRole(user), permissions )){
         return false
     }
     return true
+}
+
+function userIsSelf(user: User|null|undefined, userId: string): boolean {
+    if(!user){
+        return false;
+    }
+    return user.id === userId;
 }
 
 function resourceBelongsToUser(resource: any, user: User|null|undefined): boolean {
@@ -55,4 +67,4 @@ function resourceBelongsToUser(resource: any, user: User|null|undefined): boolea
     return resource.userId === user.id;
 }
 
-export { can, getRoleByName, getRolePermissions, userCan, resourceBelongsToUser }
+export { can, getRoleByName, getRolePermissions, userCan, resourceBelongsToUser, userIsSelf }

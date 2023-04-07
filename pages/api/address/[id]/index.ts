@@ -34,7 +34,13 @@ export default async function GetAddress(req: NextApiRequest, res: NextApiRespon
 
     } else if (req.method === 'DELETE') {
         
-        if (!userCan(session?.user, ["users:write"])) {
+        const address = await prisma.address.findUnique({
+            where: {
+                id: id
+            },
+        });
+        
+        if ( !userCan(session?.user, ["users:write"], address?.userId)) {
             res.status(403).json({ error: errorMessages.api.unauthorized.message });
             return
         }

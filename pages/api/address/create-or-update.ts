@@ -4,7 +4,7 @@ import { getSession } from 'next-auth/react';
 import { NextApiRequest, NextApiResponse } from 'next/types'
 import { errorMessages } from '../../../data/messaging';
 import { addressIsWithinServiceArea, createOrUpdateAddress, geocodeAddress, updateAddress, updateBillingAddress } from '../../../lib/services/api/ApiAddressService'
-import { userCan } from '../../../lib/services/PermissionService';
+import { userCan, userIsSelf } from '../../../lib/services/PermissionService';
 
 export default async function handler(
   req: NextApiRequest,
@@ -19,7 +19,7 @@ export default async function handler(
 
     const session: Session | null = await getSession({ req });
 
-    if (!userCan(session?.user, ["users:write"])) {
+    if (!userIsSelf(session?.user, req.body?.userId) && !userCan(session?.user, ["users:write"])) {
       res.status(403).json({ error: errorMessages.api.unauthorized.message });
       return
   }
@@ -42,7 +42,6 @@ export default async function handler(
     if(req.body.id){
       data.id = req.body.id;
     }
-
 
     const address = await createOrUpdateAddress(
       data
