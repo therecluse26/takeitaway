@@ -10,9 +10,12 @@ export type UserWithAddresses = User & {
   addresses: AddressWithPickupPreferences[];
 }
 
-export type UserWithBillingCycles = User & {
+export interface SubscriptionWithBillingCycles extends Subscription {
   billingCycles: BillingCycle[];
-  subscriptions: Subscription[];
+}
+
+export type UserWithBillingCycles = User & {
+  subscription: SubscriptionWithBillingCycles | null;
   addresses: AddressWithPickupPreferences[];
 }
 
@@ -37,9 +40,8 @@ export async function getUserWithProvider(id: string): Promise<UserProvider | nu
         }
       },
       billingAddress: true,
-      billingCycles: true,
       paymentMethods: true,
-      subscriptions: true,
+      subscription: true,
       provider: true,
     }
   }) as UserProvider;
@@ -77,8 +79,16 @@ export async function getUserWithBillingCycles(id: string): Promise<UserWithBill
           pickupPreferences: true
         }
       },
-      billingCycles: true,
-      subscriptions: true,
+      subscription: {
+        include: {
+          billingCycles: {
+            orderBy: {
+              startDate: "asc"
+            },
+            take: 1
+          }
+        }
+      },
     }
   });
 }
@@ -106,9 +116,12 @@ export async function getUserWithRelations(id: string): Promise<UserWithRelation
         }
       },
       billingAddress: true,
-      billingCycles: true,
       paymentMethods: true,
-      subscriptions: true,
+      subscription: {
+        include: {
+          billingCycles: true
+        }
+      },
     }
   }) as UserWithRelations
 }

@@ -36,29 +36,29 @@ model Account {
 }
 
 model Address {
-  id               String             @id @default(cuid())
-  type             AddressType        @default(service)
-  userId           String
-  street           String             @db.VarChar(100)
-  street2          String?            @db.VarChar(100)
-  city             String             @db.VarChar(100)
-  state            String             @db.VarChar(100)
-  zip              String             @db.VarChar(10)
-  country          String             @db.VarChar(100)
-  latitude         Float?
-  longitude        Float?
-  inServiceArea    Boolean            @default(false)
-  pickupsAllocated Int                @default(0)
-  instructions     String?            @db.VarChar(2000)
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  user             User               @relation("addressUser", fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  billingUser      User?              @relation("billingAddress")
-  serviceRequests  ServiceRequest[]
-  serviceLogs      ServiceLog[]
-  Provider         Provider[]
+  id                String             @id @default(cuid())
+  type              AddressType        @default(service)
+  userId            String
+  street            String             @db.VarChar(100)
+  street2           String?            @db.VarChar(100)
+  city              String             @db.VarChar(100)
+  state             String             @db.VarChar(100)
+  zip               String             @db.VarChar(10)
+  country           String             @db.VarChar(100)
+  latitude          Float?
+  longitude         Float?
+  inServiceArea     Boolean            @default(false)
+  pickupsAllocated  Int                @default(0)
+  instructions      String?            @db.VarChar(2000)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  user              User               @relation("addressUser", fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  billingUser       User?              @relation("billingAddress")
+  serviceRequests   ServiceRequest[]
+  serviceLogs       ServiceLog[]
+  Provider          Provider[]
   pickupPreferences PickupPreference[]
-  pickupSchedule   PickupSchedule[]
+  pickupSchedule    PickupSchedule[]
 
   @@index([userId])
 }
@@ -102,7 +102,7 @@ model BillingCycle {
   active          Boolean          @default(true)
   pickups         Int              @default(0)
   user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  subscription    Subscription     @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  subscription    Subscription     @relation("billingCycleSubscription", fields: [subscriptionId], references: [id], onDelete: Cascade)
   payments        Payment[]
   serviceRequests ServiceRequest[]
   serviceLogs     ServiceLog[]
@@ -263,7 +263,7 @@ model Session {
 model Subscription {
   id              String                 @id @default(cuid())
   status          SubscriptionStatus
-  userId          String
+  userId          String                 @unique
   stripeId        String                 @unique @db.VarChar(40)
   amount          Float?
   pickupsPerCycle Int                    @default(1)
@@ -271,9 +271,9 @@ model Subscription {
   createdAt       DateTime               @default(now())
   updatedAt       DateTime               @updatedAt
   deleted         Boolean                @default(false)
-  user            User                   @relation(fields: [userId], references: [id], onDelete: NoAction)
+  billingCycles   BillingCycle[]         @relation("billingCycleSubscription")
+  user            User                   @relation("userSubscription", fields: [userId], references: [id], onDelete: Cascade)
   services        SubscriptionServices[]
-  billingCycles   BillingCycle[]
 
   @@index([userId])
   @@index([stripeId])
@@ -302,6 +302,7 @@ model User {
   image             String?
   role              RoleEnum           @default(subscriber)
   billingAddressId  String?            @unique @db.VarChar(30)
+  subscriptionId    String?            @unique @db.VarChar(30)
   stripeId          String?            @db.VarChar(30)
   deleted           Boolean            @default(false)
   createdAt         DateTime           @default(now())
@@ -311,7 +312,7 @@ model User {
   billingCycles     BillingCycle[]
   payments          Payment[]
   sessions          Session[]
-  subscriptions     Subscription[]
+  subscription      Subscription?      @relation("userSubscription")
   paymentMethods    PaymentMethod[]
   billingAddress    Address?           @relation("billingAddress", fields: [billingAddressId], references: [id])
   provider          Provider?
