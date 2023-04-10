@@ -4,7 +4,7 @@ import { Availability } from "../../../types/provider";
 import { daysOfTheWeek } from "../ProviderService";
 import { AddressWithPickupPreferences } from "./ApiAddressService";
 import { getNextBillingCyclesForActiveSubscriptions } from "./ApiSubscriptionService";
-import { getUserWithAddresses, getUserWithBillingCycles, UserWithAddresses, UserWithBillingCycles } from "./ApiUserService";
+import { getUserWithAddresses, UserWithAddresses } from "./ApiUserService";
 
 // Generate pickup schedule for a given date based on provider availability and user address pickup preferences
 export async function getScheduleForDate(date: Date) {
@@ -50,7 +50,7 @@ function getWeekNumberInMonth(date: Date) {
 
 export async function getUserPickupsForDate(userId: string, date: Date) {
 
-    const user: UserWithBillingCycles | null = await getUserWithBillingCycles(userId);
+    const user: UserWithAddresses | null = await getUserWithAddresses(userId);
 
     return user?.addresses.filter((address: AddressWithPickupPreferences) => {
         const preferences = address.pickupPreferences.filter((pickupPreference) => {
@@ -72,13 +72,13 @@ export async function getUserPickupsForDate(userId: string, date: Date) {
     });
 }
 
-function addressScheduleResponse(address: Address | AddressWithPickupPreferences, user: UserWithBillingCycles | null) {
+function addressScheduleResponse(address: Address | AddressWithPickupPreferences, user: UserWithAddresses | null) {
     return {
         id: address.id,
-        subscriptionId: user?.subscriptionId,
-        billingCycleId: user?.subscription?.billingCycles.sort((a, b) => {
-            return a.startDate.getUTCDate() - b.startDate.getUTCDate();
-        })[0]?.id,
+        // subscriptionId: user?.subscriptionId,
+        // billingCycleId: user?.subscription?.billingCycles.sort((a, b) => {
+        //     return a.startDate.getUTCDate() - b.startDate.getUTCDate();
+        // })[0]?.id,
         userId: user?.id,
         userName: user?.name,
         street: address.street,
@@ -89,5 +89,6 @@ function addressScheduleResponse(address: Address | AddressWithPickupPreferences
         latitude: address.latitude,
         longitude: address.longitude,
         inServiceArea: address.inServiceArea,
+        instructions: address.instructions,
     }
 }
