@@ -1,4 +1,4 @@
-import { Loader, Stack } from '@mantine/core';
+import { Button, Loader, Stack } from '@mantine/core';
 import { DatePicker } from '@mantine/dates';
 import { Address } from '@prisma/client';
 import dynamic from 'next/dynamic';
@@ -28,6 +28,19 @@ export default function PickupScheduleIndex() {
   const [date, setDate] = useState<Date | null>(null);
   const [pickupsForDate, setPickupsForDate] = useState<Address[]>([]);
 
+  const getPickupsForDate = async (date: Date, regenerate: boolean = false) => {
+    getScheduleForDate(date, regenerate)
+      .then((pickups: Address[]) => {
+        setPickupsForDate(pickups);
+      })
+      .catch((error) => {
+        notifyError(500, 'api', error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
   useEffect(() => {
     if (isBrowser()) {
       setLoading(false);
@@ -37,16 +50,7 @@ export default function PickupScheduleIndex() {
   useEffect(() => {
     setLoading(true);
     if (date) {
-      getScheduleForDate(date)
-        .then((pickups: Address[]) => {
-          setPickupsForDate(pickups);
-        })
-        .catch((error) => {
-          notifyError(500, 'api', error);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
+      getPickupsForDate(date);
     } else {
       setPickupsForDate([]);
       setLoading(false);
@@ -69,6 +73,16 @@ export default function PickupScheduleIndex() {
                   minDate={new Date(new Date().getDate() - 1)}
                   onChange={(newDate) => setDate(newDate)}
                 />
+                {date && (
+                  <Button
+                    onClick={() => {
+                      setLoading(true);
+                      getPickupsForDate(date, true);
+                    }}
+                  >
+                    Regenerate Schedule
+                  </Button>
+                )}
               </Group>
             </Center>
             <AddressList type="service" addresses={pickupsForDate} />

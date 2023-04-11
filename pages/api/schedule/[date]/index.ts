@@ -1,9 +1,9 @@
 import { Session } from "next-auth/core/types";
 import { getSession } from "next-auth/react";
 import { NextApiRequest, NextApiResponse } from "next/types";
-import { errorMessages } from "../../../../../data/messaging";
-import { getScheduleForDate } from "../../../../../lib/services/api/ApiScheduleService";
-import { userCan } from "../../../../../lib/services/PermissionService";
+import { errorMessages } from "../../../../data/messaging";
+import { getScheduleForDate } from "../../../../lib/services/api/ApiScheduleService";
+import { userCan } from "../../../../lib/services/PermissionService";
 
 export default async function handler(
     req: NextApiRequest,
@@ -41,10 +41,8 @@ export default async function handler(
         return
     }
 
-    const schedule = await getScheduleForDate(date);
+    const schedule = await getScheduleForDate(date, req.query.regenerate === "true");
     
-    
-
     res.status(200).json(schedule);
         return
     }

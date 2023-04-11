@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export async function getScheduleForDate(date: Date) : Promise<any>
+export async function getScheduleForDate(date: Date, regenerate: boolean = false) : Promise<any>
 {
-    return await axios.get(`/api/schedule/generate/${date.toISOString()}`).then(response => response.data);
+    return await axios.get(`/api/schedule/${date.toISOString()}?regenerate=${regenerate}`).then(response => response.data);
 }
