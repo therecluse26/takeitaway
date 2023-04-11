@@ -1,4 +1,4 @@
-import { Address, Provider } from "@prisma/client";
+import { Address, PrismaClient, Provider } from "@prisma/client";
 // import { User } from "next-auth";
 import { Availability } from "../../../types/provider";
 import { daysOfTheWeek } from "../ProviderService";
@@ -6,18 +6,20 @@ import { AddressWithPickupPreferences } from "./ApiAddressService";
 import { getNextBillingCyclesForActiveSubscriptions } from "./ApiSubscriptionService";
 import { getUserWithAddresses, UserWithAddresses } from "./ApiUserService";
 
+const prisma = new PrismaClient();
+
 // Generate pickup schedule for a given date based on provider availability and user address pickup preferences
 export async function getScheduleForDate(date: Date) {
 
     const billingCycles = await getNextBillingCyclesForActiveSubscriptions();
-    let pickupPreferences = [];
+    let scheduledPickups: Address[] = [];
 
     for (const billingCycle of billingCycles) {
         // Get pickups for date from user pickup preferences
-        pickupPreferences.push(await getUserPickupsForDate(billingCycle.userId, date))
+        scheduledPickups.push(...(await getUserPickupsForDate(billingCycle.userId, date)))
     }
 
-    return pickupPreferences.filter((pickupPreference) => {
+    return scheduledPickups.filter((pickupPreference) => {
         return pickupPreference !== undefined && pickupPreference !== null;
     }).flat();
 }
@@ -48,7 +50,7 @@ function getWeekNumberInMonth(date: Date) {
     return w - w1 + 1;
 }
 
-export async function getUserPickupsForDate(userId: string, date: Date) {
+export async function getUserPickupsForDate(userId: string, date: Date): Promise<Address[]> {
 
     const user: UserWithAddresses | null = await getUserWithAddresses(userId);
 
@@ -68,27 +70,45 @@ export async function getUserPickupsForDate(userId: string, date: Date) {
             return true;
         }
     }).map((address: AddressWithPickupPreferences) => {
-        return addressScheduleResponse(address, user);
-    });
+        return addressScheduleResponse(address);
+    }) as Address[];
 }
 
-function addressScheduleResponse(address: Address | AddressWithPickupPreferences, user: UserWithAddresses | null) {
+function addressScheduleResponse(address: Address | AddressWithPickupPreferences) {
     return {
         id: address.id,
-        // subscriptionId: user?.subscriptionId,
-        // billingCycleId: user?.subscription?.billingCycles.sort((a, b) => {
-        //     return a.startDate.getUTCDate() - b.startDate.getUTCDate();
-        // })[0]?.id,
-        userId: user?.id,
-        userName: user?.name,
+        type: address.type,
+        userId: address.userId,
         street: address.street,
         street2: address.street2,
         city: address.city,
         state: address.state,
         zip: address.zip,
+        country: address.country,
         latitude: address.latitude,
         longitude: address.longitude,
         inServiceArea: address.inServiceArea,
+        pickupsAllocated: address.pickupsAllocated,
         instructions: address.instructions,
-    }
+    } as Address;
+    // return {
+    //     id: address.id,
+    //     addressId: address.id,
+    //     providerId: providerId,
+    //     // subscriptionId: user?.subscriptionId,
+    //     // billingCycleId: user?.subscription?.billingCycles.sort((a, b) => {
+    //     //     return a.startDate.getUTCDate() - b.startDate.getUTCDate();
+    //     // })[0]?.id,
+    //     userId: user?.id,
+    //     userName: user?.name,
+    //     street: address.street,
+    //     street2: address.street2,
+    //     city: address.city,
+    //     state: address.state,
+    //     zip: address.zip,
+    //     latitude: address.latitude,
+    //     longitude: address.longitude,
+    //     inServiceArea: address.inServiceArea,
+    //     instructions: address.instructions,
+    // }
 }
