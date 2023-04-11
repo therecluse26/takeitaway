@@ -134,7 +134,6 @@ export async function getPaginatedUsers(paginatedQuery: any) {
         _count: {
           select: {
             addresses: true,
-            subscriptions: true,
           }
         }
       }

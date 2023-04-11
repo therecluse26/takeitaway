@@ -68,23 +68,26 @@ export default function PickupScheduleIndex() {
 
   return (
     <PageContainer title="Pickup Schedule">
-      {loading ? (
-        <Loader />
-      ) : (
-        <Center>
+      <Space h="xl" />
+      <Center>
+        {loading ? (
+          <Loader />
+        ) : (
           <Stack>
-            <Group>
-              {' '}
-              Date:{' '}
-              <DatePicker
-                minDate={new Date(new Date().getDate() - 1)}
-                onChange={(newDate) => setDate(newDate)}
-              />
-            </Group>
+            <Center>
+              <Group>
+                Date:{' '}
+                <DatePicker
+                  value={date}
+                  minDate={new Date(new Date().getDate() - 1)}
+                  onChange={(newDate) => setDate(newDate)}
+                />
+              </Group>
+            </Center>
             <AddressList type="service" addresses={pickupsForDate} />
           </Stack>
-        </Center>
-      )}
+        )}
+      </Center>
     </PageContainer>
   );
 }

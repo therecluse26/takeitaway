@@ -75,6 +75,12 @@ export async function createOrUpdateAddress(address: Address): Promise<Address> 
   });
 }
 
+export async function deleteAddress(address: Address): Promise<any> {
+  return await prisma.address.delete({
+    where: { id: address.id },
+  });
+}
+
 export async function updateBillingAddress(userId: string, address: Address): Promise<User> {
   const user = await prisma.user.update({
     where: { id: userId },

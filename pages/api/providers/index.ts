@@ -22,6 +22,8 @@ export default async function getProviders(req: NextApiRequest, res: NextApiResp
 
     const [paginatedQuery, unpaginatedQuery] = buildFindManyParams(req)
 
+    console.log(paginatedQuery, unpaginatedQuery);
+
     res.status(200).json(
         buildPaginatedData(
             req,
