@@ -20,19 +20,6 @@ const Group = dynamic(() =>
 const Space = dynamic(() =>
   import('@mantine/core').then((mod) => mod.Space as JSXElementConstructor<any>)
 );
-const Avatar = dynamic(() =>
-  import('@mantine/core').then(
-    (mod) => mod.Avatar as JSXElementConstructor<any>
-  )
-);
-const Container = dynamic(() =>
-  import('@mantine/core').then(
-    (mod) => mod.Container as JSXElementConstructor<any>
-  )
-);
-const Title = dynamic(() =>
-  import('@mantine/core').then((mod) => mod.Title as JSXElementConstructor<any>)
-);
 
 const isBrowser = () => typeof window !== 'undefined'; //The approach recommended by Next.js
 

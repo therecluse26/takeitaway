@@ -20,6 +20,10 @@ export async function getProviders({page, recordsPerPage, sortStatus: { columnAc
     }).then(response => response.data);
 }
 
+export async function getAvailableProviders(date: Date) {
+    return await axios.get(`/api/providers/available/${date.toISOString()}`).then(response => response.data);
+}
+
 export async function updateAvailability(providerId: string, availability: Availability[]|null): Promise<void> {
     const validationErrors = validateAvailability(availability);
     if (validationErrors.length > 0) {

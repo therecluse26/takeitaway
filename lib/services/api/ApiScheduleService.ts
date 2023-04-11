@@ -1,12 +1,12 @@
-import { Address, PrismaClient, Provider } from "@prisma/client";
+import { Address } from "@prisma/client";
 // import { User } from "next-auth";
 import { Availability } from "../../../types/provider";
 import { daysOfTheWeek } from "../ProviderService";
 import { AddressWithPickupPreferences } from "./ApiAddressService";
+import { getNearestProviderByAddress, getProvidersWithAvailability, ProviderWithRelations, ProviderWithTimeOff } from "./ApiProviderService";
 import { getNextBillingCyclesForActiveSubscriptions } from "./ApiSubscriptionService";
 import { getUserWithAddresses, UserWithAddresses } from "./ApiUserService";
 
-const prisma = new PrismaClient();
 
 // Generate pickup schedule for a given date based on provider availability and user address pickup preferences
 export async function getScheduleForDate(date: Date) {
@@ -14,9 +14,14 @@ export async function getScheduleForDate(date: Date) {
     const billingCycles = await getNextBillingCyclesForActiveSubscriptions();
     let scheduledPickups: Address[] = [];
 
+    const providers = (await getProvidersWithAvailability(date)).filter((provider) => {
+        return providerIsAvailableOnDate(provider, date);
+    }) as ProviderWithRelations[];
+
     for (const billingCycle of billingCycles) {
         // Get pickups for date from user pickup preferences
-        scheduledPickups.push(...(await getUserPickupsForDate(billingCycle.userId, date)))
+        const pickupsForDate = await getUserPickupsForDate(billingCycle.userId, date, providers);
+        scheduledPickups.push(...pickupsForDate)
     }
 
     return scheduledPickups.filter((pickupPreference) => {
@@ -25,16 +30,26 @@ export async function getScheduleForDate(date: Date) {
 }
 
 // Check if a provider is available on a given date
-function providerIsAvailableOnDate(provider: Provider, date: Date): boolean {
+function providerIsAvailableOnDate(provider: ProviderWithTimeOff|ProviderWithRelations, date: Date): boolean {
     const providerAvailability = provider.availability as Availability[];
     for (const availability of providerAvailability) {
         if (availability.day === daysOfTheWeek.find((dow) => dow.number === date.getDay())?.value) {
+            // Check time off
+            if (provider.timeOff) {
+                for (const timeOff of provider.timeOff) {
+                    if (timeOff.day === date) {
+                        return false;
+                    }
+                }
+            }
+
             return true
         }
     }
 
     return false;
 }
+
 
 function getWeekNumber(date: Date) {
     const d = new Date(+date);
@@ -50,11 +65,15 @@ function getWeekNumberInMonth(date: Date) {
     return w - w1 + 1;
 }
 
-export async function getUserPickupsForDate(userId: string, date: Date): Promise<Address[]> {
+export async function getUserPickupsForDate(userId: string, date: Date, providers: ProviderWithRelations[] = []): Promise<any[]> {
 
     const user: UserWithAddresses | null = await getUserWithAddresses(userId);
 
-    return user?.addresses.filter((address: AddressWithPickupPreferences) => {
+    if (!user) {
+        return [];
+    }
+
+    return await Promise.all(user.addresses.filter((address: AddressWithPickupPreferences) => {
         const preferences = address.pickupPreferences.filter((pickupPreference) => {
             if (pickupPreference.weekNumber !== getWeekNumberInMonth(date)) {
                 return false;
@@ -69,16 +88,21 @@ export async function getUserPickupsForDate(userId: string, date: Date): Promise
         if (preferences.length > 0) {
             return true;
         }
-    }).map((address: AddressWithPickupPreferences) => {
-        return addressScheduleResponse(address);
-    }) as Address[];
+        return false;
+    }).map(async (address: AddressWithPickupPreferences) => {
+        // Get nearest provider by address lat/long and provider service radius
+        const provider = await getNearestProviderByAddress(address, providers); 
+
+        return addressScheduleResponse(address, provider?.id);
+    }));
 }
 
-function addressScheduleResponse(address: Address | AddressWithPickupPreferences) {
+function addressScheduleResponse(address: Address | AddressWithPickupPreferences, providerId: string) {
     return {
         id: address.id,
         type: address.type,
         userId: address.userId,
+        providerId: providerId,
         street: address.street,
         street2: address.street2,
         city: address.city,
@@ -90,7 +114,8 @@ function addressScheduleResponse(address: Address | AddressWithPickupPreferences
         inServiceArea: address.inServiceArea,
         pickupsAllocated: address.pickupsAllocated,
         instructions: address.instructions,
-    } as Address;
+    } as Address & { providerId: string };
+
     // return {
     //     id: address.id,
     //     addressId: address.id,
@@ -111,4 +136,5 @@ function addressScheduleResponse(address: Address | AddressWithPickupPreferences
     //     inServiceArea: address.inServiceArea,
     //     instructions: address.instructions,
     // }
+
 }

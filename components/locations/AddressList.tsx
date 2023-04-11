@@ -14,7 +14,7 @@ import {
   Divider,
 } from "@mantine/core";
 import { Address, AddressType, Provider, User } from "@prisma/client";
-import { IconAlertCircle, IconTrash } from "@tabler/icons";
+import { IconTrash } from "@tabler/icons";
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { notifyError } from "../../helpers/notify";
