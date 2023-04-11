@@ -26,7 +26,7 @@ export async function getAddress(id: string): Promise<Address> {
 export async function updateAddress(address: Address): Promise<Address> {
   return await prisma.address.update({
     where: { id: address.id },
-    data: address,
+    data: formatUpdateAddressData(address),
   });
 }
 
@@ -42,6 +42,12 @@ export async function geocodeAddress(address: Address | string): Promise<Address
   if (geocodeResult.length > 0) {
 
     const { latitude, longitude, city, countryCode, state, zipcode } = geocodeResult[0];
+
+    if(await addressIsWithinServiceArea(address)){
+      address.inServiceArea = true;
+    } else {
+      address.inServiceArea = false;
+    }
 
     address.city = city ? city : address.city;
     address.country = countryCode ? countryCode : address.country;
@@ -174,4 +180,25 @@ export function getMilesBetweenCoordinates(lat1: number,lon1: number,lat2: numbe
   var d = R * c; // Distance in km
 
   return d * 0.621371; // Convert to miles
+}
+
+function formatUpdateAddressData(address: Address): Address {
+  return {
+    id: address.id,
+    type: address.type,
+    userId: address.userId,
+    street: address.street,
+    street2: address.street2,
+    city: address.city,
+    state: address.state,
+    zip: address.zip,
+    country: address.country,
+    latitude: address.latitude,
+    longitude: address.longitude,
+    instructions: address.instructions,
+    inServiceArea: address.inServiceArea,
+    pickupsAllocated: address.pickupsAllocated,
+    createdAt: address.createdAt,
+    updatedAt: address.updatedAt,
+  }
 }
