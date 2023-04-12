@@ -78,12 +78,12 @@ model PickupPreference {
 }
 
 model ServiceSchedule {
-  id            String                 @id @default(cuid())
-  providerId    String
-  date          DateTime
-  count         Int
-  provider      Provider               @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  scheduleRoute ServiceScheduleRoute[]
+  id             String                 @id @default(cuid())
+  providerId     String
+  date           DateTime
+  count          Int
+  provider       Provider               @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  scheduleRoutes ServiceScheduleRoute[]
 
   @@index([providerId])
 }

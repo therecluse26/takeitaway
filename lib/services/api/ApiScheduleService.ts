@@ -3,14 +3,23 @@ import { Address, PrismaClient, Provider, ServiceSchedule, ServiceScheduleRoute 
 import { Availability } from "../../../types/provider";
 import { daysOfTheWeek } from "../ProviderService";
 import { AddressWithPickupPreferences } from "./ApiAddressService";
-import { getNearestProviderByAddress, getProvidersWithAvailability, ProviderWithRelations, ProviderWithTimeOff } from "./ApiProviderService";
+import { getNearestProviderByAddress, getProvidersWithAvailability, ProviderWithAddress, ProviderWithRelations, ProviderWithTimeOff } from "./ApiProviderService";
 import { getNextBillingCyclesForActiveSubscriptions } from "./ApiSubscriptionService";
 import { getUserWithAddresses, UserWithAddresses } from "./ApiUserService";
 
 const prisma = new PrismaClient();
 
+export type ServiceScheduleWithRoute = ServiceSchedule & {
+    provider: ProviderWithAddress;
+    scheduleRoutes: ServiceScheduleRouteWithAddress[];
+}
+
+export type ServiceScheduleRouteWithAddress = ServiceScheduleRoute & {
+    address: Address;
+}
+
 // Generate pickup schedule for a given date based on provider availability and user address pickup preferences
-export async function getScheduleForDate(date: Date, regenerate: boolean = false): Promise<Address[]> {
+export async function getScheduleForDate(date: Date, regenerate: boolean = false): Promise<ServiceScheduleWithRoute> {
 
     const existingSchedule = await checkForExistingServiceSchedule(date);
 
@@ -18,12 +27,9 @@ export async function getScheduleForDate(date: Date, regenerate: boolean = false
         if(regenerate) {
             await deleteServiceSchedule(existingSchedule?.id);
         } else {
-            return existingSchedule.scheduleRoute.map((route) => {
-                return route.address;
-            });
+            return existingSchedule;
         }
     } 
-
 
     const billingCycles = await getNextBillingCyclesForActiveSubscriptions();
     let scheduledPickups: Address[] = [];
@@ -44,9 +50,9 @@ export async function getScheduleForDate(date: Date, regenerate: boolean = false
 
     // Create service schedule
     // TODO: separate by provider for multiple provider support
-    await createServiceSchedule(date, providers[0], pickups);
+    const schedule = await createServiceSchedule(date, providers[0], pickups);
 
-    return pickups;
+    return schedule;
 }
 
 export async function deleteServiceSchedule(scheduleId: string){
@@ -57,7 +63,7 @@ export async function deleteServiceSchedule(scheduleId: string){
     });
 }
 
-export async function checkForExistingServiceSchedule(date: Date): Promise<ServiceSchedule & {scheduleRoute: Array<ServiceScheduleRoute & {address: Address}>}|null> {
+export async function checkForExistingServiceSchedule(date: Date): Promise<ServiceScheduleWithRoute|null> {
     return await prisma.serviceSchedule.findFirst({
         where: {
             date: {
@@ -65,7 +71,12 @@ export async function checkForExistingServiceSchedule(date: Date): Promise<Servi
             }            
         },
         include: {
-            scheduleRoute: {
+            scheduleRoutes: {
+                include: {
+                    address: true
+                }
+            },
+            provider: {
                 include: {
                     address: true
                 }
@@ -74,14 +85,14 @@ export async function checkForExistingServiceSchedule(date: Date): Promise<Servi
     });
 }
 
-export async function createServiceSchedule(date: Date, provider: Provider, addresses: Address[]) {
+export async function createServiceSchedule(date: Date, provider: Provider, addresses: Address[]): Promise<ServiceScheduleWithRoute> {
     let routeOrder = 0;
     return await prisma.serviceSchedule.create({
         data: {
             providerId: provider.id,
             date: date.toISOString(),
             count: addresses.length,
-            scheduleRoute: {
+            scheduleRoutes: {
                 create: addresses.map((address) => {
                     return {
                         addressId: address.id,
@@ -91,7 +102,7 @@ export async function createServiceSchedule(date: Date, provider: Provider, addr
                 })
             }
         }
-    });
+    }) as ServiceScheduleWithRoute;
 }
 
 // Check if a provider is available on a given date

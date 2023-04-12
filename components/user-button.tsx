@@ -7,6 +7,7 @@ import {
   IconLogin,
   IconTruck,
   IconMap,
+  IconCalendar,
 } from "@tabler/icons";
 import { userCan } from "../lib/services/PermissionService";
 import {
@@ -78,6 +79,19 @@ export default function UserButton({
               onClick={onClick}
             >
               Manage Providers
+            </Menu.Item>
+          </>
+        )}
+
+        {userCan(user, ["schedule:read"]) && (
+          <>
+            <Menu.Item
+              component={Link}
+              href={"/admin/schedule"}
+              icon={<IconCalendar size={14} stroke={1.5} />}
+              onClick={onClick}
+            >
+              Pickup Schedule
             </Menu.Item>
           </>
         )}

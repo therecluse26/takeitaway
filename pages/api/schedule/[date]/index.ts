@@ -42,7 +42,7 @@ export default async function handler(
     }
 
     const schedule = await getScheduleForDate(date, req.query.regenerate === "true");
-    
+
     res.status(200).json(schedule);
-        return
-    }
+    return
+}

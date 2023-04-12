@@ -1,12 +1,16 @@
 import { Button, Loader, Stack } from '@mantine/core';
 import { DatePicker } from '@mantine/dates';
-import { Address } from '@prisma/client';
+import { Provider } from '@prisma/client';
 import dynamic from 'next/dynamic';
 import { GetServerSideProps } from 'next/types';
 import { JSXElementConstructor, useEffect, useState } from 'react';
-import AddressList from '../../../components/locations/AddressList';
+import { ServiceScheduleRoutes } from '../../../components/locations/ServiceScheduleRoutes';
 import PageContainer from '../../../components/PageContainer';
 import { notifyError } from '../../../helpers/notify';
+import {
+  ServiceScheduleRouteWithAddress,
+  ServiceScheduleWithRoute,
+} from '../../../lib/services/api/ApiScheduleService';
 import { getScheduleForDate } from '../../../lib/services/ScheduleService';
 
 const Center = dynamic(() =>
@@ -21,17 +25,27 @@ const Space = dynamic(() =>
   import('@mantine/core').then((mod) => mod.Space as JSXElementConstructor<any>)
 );
 
+const RouteMap = dynamic(
+  () => import('../../../components/locations/RouteMap'),
+  { ssr: false }
+);
+
 const isBrowser = () => typeof window !== 'undefined'; //The approach recommended by Next.js
 
 export default function PickupScheduleIndex() {
   const [loading, setLoading] = useState(true);
+  const [provider, setProvider] = useState<Provider | null>(null);
   const [date, setDate] = useState<Date | null>(null);
-  const [pickupsForDate, setPickupsForDate] = useState<Address[]>([]);
+  const [pickupsForDate, setPickupsForDate] = useState<
+    ServiceScheduleRouteWithAddress[]
+  >([]);
 
   const getPickupsForDate = async (date: Date, regenerate: boolean = false) => {
-    getScheduleForDate(date, regenerate)
-      .then((pickups: Address[]) => {
-        setPickupsForDate(pickups);
+    setLoading(true);
+    await getScheduleForDate(date, regenerate)
+      .then((serviceSchedule: ServiceScheduleWithRoute) => {
+        setPickupsForDate(serviceSchedule.scheduleRoutes ?? []);
+        setProvider(serviceSchedule.provider);
       })
       .catch((error) => {
         notifyError(500, 'api', error);
@@ -41,6 +55,14 @@ export default function PickupScheduleIndex() {
       });
   };
 
+  const optimizeRoute = async () => {
+    setLoading(true);
+    if (pickupsForDate.length > 0) {
+      // Optimize Route
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
     if (isBrowser()) {
       setLoading(false);
@@ -48,12 +70,10 @@ export default function PickupScheduleIndex() {
   }, []);
 
   useEffect(() => {
-    setLoading(true);
     if (date) {
       getPickupsForDate(date);
     } else {
       setPickupsForDate([]);
-      setLoading(false);
     }
   }, [date]);
 
@@ -74,18 +94,26 @@ export default function PickupScheduleIndex() {
                   onChange={(newDate) => setDate(newDate)}
                 />
                 {date && (
-                  <Button
-                    onClick={() => {
-                      setLoading(true);
-                      getPickupsForDate(date, true);
-                    }}
-                  >
-                    Regenerate Schedule
-                  </Button>
+                  <>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        getPickupsForDate(date, true);
+                      }}
+                    >
+                      Regenerate Schedule For Day
+                    </Button>
+                    {pickupsForDate.length > 0 && (
+                      <Button onClick={optimizeRoute}>Optimize Route</Button>
+                    )}
+                  </>
                 )}
               </Group>
             </Center>
-            <AddressList type="service" addresses={pickupsForDate} />
+            {date && <ServiceScheduleRoutes data={pickupsForDate} />}
+            {pickupsForDate.length > 0 && provider && (
+              <RouteMap routes={pickupsForDate} provider={provider} />
+            )}
           </Stack>
         )}
       </Center>
