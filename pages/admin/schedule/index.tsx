@@ -1,12 +1,12 @@
 import { Button, Loader, Stack } from '@mantine/core';
 import { DatePicker } from '@mantine/dates';
-import { Provider } from '@prisma/client';
 import dynamic from 'next/dynamic';
 import { GetServerSideProps } from 'next/types';
 import { JSXElementConstructor, useEffect, useState } from 'react';
 import { ServiceScheduleRoutes } from '../../../components/locations/ServiceScheduleRoutes';
 import PageContainer from '../../../components/PageContainer';
 import { notifyError } from '../../../helpers/notify';
+import { ProviderWithAddress } from '../../../lib/services/api/ApiProviderService';
 import {
   ServiceScheduleRouteWithAddress,
   ServiceScheduleWithRoute,
@@ -34,7 +34,7 @@ const isBrowser = () => typeof window !== 'undefined'; //The approach recommende
 
 export default function PickupScheduleIndex() {
   const [loading, setLoading] = useState(true);
-  const [provider, setProvider] = useState<Provider | null>(null);
+  const [provider, setProvider] = useState<ProviderWithAddress | null>(null);
   const [date, setDate] = useState<Date | null>(null);
   const [pickupsForDate, setPickupsForDate] = useState<
     ServiceScheduleRouteWithAddress[]

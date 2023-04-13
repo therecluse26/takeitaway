@@ -16,7 +16,7 @@ export default function Pickups(props: {
   pickupPreferences: PickupPreference[];
 }) {
   return (
-    <PageContainer title="Manage Service Addresses">
+    <PageContainer title="Manage Pickup Preferences">
       <Container>
         <AddressServiceAssignmentList
           addresses={props.user.addresses}

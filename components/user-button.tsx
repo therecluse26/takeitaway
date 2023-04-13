@@ -104,7 +104,7 @@ export default function UserButton({
           icon={<IconMap size={14} stroke={1.5} />}
           onClick={onClick}
         >
-          Manage Service Locations
+          Manage Pickup Preferences
         </Menu.Item>
 
         <Menu.Divider />

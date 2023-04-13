@@ -1,13 +1,23 @@
-import { Center, createStyles, Stack, Text, Title } from "@mantine/core";
+import {
+  Button,
+  Center,
+  createStyles,
+  Flex,
+  Grid,
+  Group,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
 import { useListState } from "@mantine/hooks";
 import { IconChevronDown, IconGripVertical } from "@tabler/icons";
+import Link from "next/link";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { formatAddress } from "../../lib/services/AddressService";
 import { ServiceScheduleRouteWithAddress } from "../../lib/services/api/ApiScheduleService";
 
 const useStyles = createStyles((theme) => ({
   item: {
-    display: "flex",
     alignItems: "center",
     borderRadius: theme.radius.md,
     boxShadow: theme.shadows.sm,
@@ -56,40 +66,57 @@ export function ServiceScheduleRoutes({ data }: ServiceScheduleRoutesProps) {
   const items =
     state.length > 0
       ? state?.map((item, index) => (
-          <Draggable key={item.id} index={index} draggableId={item.id}>
-            {(provided, snapshot) => (
-              <>
-                <div
-                  className={cx(classes.item, {
-                    [classes.itemDragging]: snapshot.isDragging,
-                  })}
-                  ref={provided.innerRef}
-                  {...provided.draggableProps}
-                >
+          <>
+            <Draggable key={item.id} index={index} draggableId={item.id}>
+              {(provided, snapshot) => (
+                <>
                   <div
-                    {...provided.dragHandleProps}
-                    className={classes.dragHandle}
+                    className={cx(classes.item, {
+                      [classes.itemDragging]: snapshot.isDragging,
+                    })}
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
                   >
-                    <IconGripVertical size="1.05rem" stroke={1.5} />
+                    <Grid align={"center"}>
+                      <Grid.Col span={2}>
+                        <div
+                          {...provided.dragHandleProps}
+                          className={classes.dragHandle}
+                        >
+                          <IconGripVertical size="1.05rem" stroke={1.5} />
+                        </div>
+                      </Grid.Col>
+                      <Grid.Col span={7}>
+                        <Group spacing={"xl"}>
+                          <Stack>
+                            <Text size="sm">{formatAddress(item.address)}</Text>
+                            {item.address?.instructions && (
+                              <Text color="dimmed" size="sm">
+                                {item.address.instructions}
+                              </Text>
+                            )}
+                          </Stack>
+                        </Group>
+                      </Grid.Col>
+
+                      <Grid.Col span={3}>
+                        <Button
+                          variant="subtle"
+                          component={Link}
+                          href={`/admin/users/${item.user.id}`}
+                        >
+                          {item.user.name}
+                        </Button>
+                      </Grid.Col>
+                    </Grid>
                   </div>
-                  <div>
-                    {/* <Text>{item.order}</Text> */}
-                    <Text color="dimmed" size="sm">
-                      {formatAddress(item.address)}
-                    </Text>
-                    {item.address?.instructions && (
-                      <Text color="dimmed" size="sm">
-                        {item.address.instructions}
-                      </Text>
-                    )}
-                  </div>
-                </div>
-                <Center mb="sm" mt="xs">
-                  <IconChevronDown size="1.5rem" className={classes.chevron} />
-                </Center>
-              </>
-            )}
-          </Draggable>
+                </>
+              )}
+            </Draggable>
+            <Center mb="sm" mt="xs">
+              <IconChevronDown size="1.5rem" className={classes.chevron} />
+            </Center>
+          </>
         ))
       : null;
 

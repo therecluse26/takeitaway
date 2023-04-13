@@ -1,4 +1,4 @@
-import { Address, PrismaClient, Provider, ServiceSchedule, ServiceScheduleRoute } from "@prisma/client";
+import { Address, PrismaClient, Provider, ServiceSchedule, ServiceScheduleRoute, User } from "@prisma/client";
 // import { User } from "next-auth";
 import { Availability } from "../../../types/provider";
 import { daysOfTheWeek } from "../ProviderService";
@@ -15,6 +15,7 @@ export type ServiceScheduleWithRoute = ServiceSchedule & {
 }
 
 export type ServiceScheduleRouteWithAddress = ServiceScheduleRoute & {
+    user: User;
     address: Address;
 }
 
@@ -73,6 +74,7 @@ export async function checkForExistingServiceSchedule(date: Date): Promise<Servi
         include: {
             scheduleRoutes: {
                 include: {
+                    user: true,
                     address: true
                 }
             },
