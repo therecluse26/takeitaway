@@ -43,11 +43,12 @@ export default function Routing({
         extendToWaypoints: true,
         missingRouteTolerance: 100,
       },
-      routeWhileDragging: true,
+      routeWhileDragging: false,
       show: true,
       addWaypoints: false,
       fitSelectedRoutes: true,
       showAlternatives: true,
+      draggableWaypoints: false,
     };
 
     L.Routing.control(routingOptions).addTo(map);

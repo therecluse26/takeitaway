@@ -94,6 +94,7 @@ model ServiceScheduleRoute {
   userId          String
   addressId       String
   order           Int
+  completed       Boolean         @default(false)
   serviceSchedule ServiceSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
   address         Address         @relation(fields: [addressId], references: [id], onDelete: Cascade)
   user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)

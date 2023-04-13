@@ -1,4 +1,4 @@
-import { Button, Loader, Stack } from '@mantine/core';
+import { Button, Flex, Loader, Stack } from '@mantine/core';
 import { DatePicker } from '@mantine/dates';
 import dynamic from 'next/dynamic';
 import { GetServerSideProps } from 'next/types';
@@ -78,7 +78,7 @@ export default function PickupScheduleIndex() {
   }, [date]);
 
   return (
-    <PageContainer title="Pickup Schedule">
+    <PageContainer title="Pickup Schedule" size="xl">
       <Space h="xl" />
       <Center>
         {loading ? (
@@ -86,13 +86,19 @@ export default function PickupScheduleIndex() {
         ) : (
           <Stack>
             <Center>
-              <Group>
-                Date:{' '}
-                <DatePicker
-                  value={date}
-                  minDate={new Date(new Date().getDate() - 1)}
-                  onChange={(newDate) => setDate(newDate)}
-                />
+              <Flex
+                direction={{ base: 'column', sm: 'row' }}
+                gap={{ base: 'sm', sm: 'lg' }}
+                justify={{ sm: 'center' }}
+              >
+                <Group>
+                  Date:{' '}
+                  <DatePicker
+                    value={date}
+                    minDate={new Date(new Date().getDate() - 1)}
+                    onChange={(newDate) => setDate(newDate)}
+                  />
+                </Group>
                 {date && (
                   <>
                     <Button
@@ -103,12 +109,12 @@ export default function PickupScheduleIndex() {
                     >
                       Regenerate Schedule For Day
                     </Button>
-                    {pickupsForDate.length > 0 && (
+                    {/* {pickupsForDate.length > 0 && (
                       <Button onClick={optimizeRoute}>Optimize Route</Button>
-                    )}
+                    )} */}
                   </>
                 )}
-              </Group>
+              </Flex>
             </Center>
             {date && <ServiceScheduleRoutes data={pickupsForDate} />}
             {pickupsForDate.length > 0 && provider && (

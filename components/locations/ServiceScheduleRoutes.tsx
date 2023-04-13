@@ -5,16 +5,23 @@ import {
   Flex,
   Grid,
   Group,
+  Space,
   Stack,
   Text,
   Title,
 } from "@mantine/core";
 import { useListState } from "@mantine/hooks";
-import { IconChevronDown, IconGripVertical } from "@tabler/icons";
+import {
+  IconCheck,
+  IconCheckbox,
+  IconChevronDown,
+  IconGripVertical,
+} from "@tabler/icons";
 import Link from "next/link";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { formatAddress } from "../../lib/services/AddressService";
 import { ServiceScheduleRouteWithAddress } from "../../lib/services/api/ApiScheduleService";
+import DraggableScheduledService from "./DraggableScheduledService";
 
 const useStyles = createStyles((theme) => ({
   item: {
@@ -60,59 +67,14 @@ interface ServiceScheduleRoutesProps {
 }
 
 export function ServiceScheduleRoutes({ data }: ServiceScheduleRoutesProps) {
-  const { classes, cx } = useStyles();
+  const { classes } = useStyles();
   const [state, handlers] = useListState(data);
 
   const items =
     state.length > 0
       ? state?.map((item, index) => (
           <>
-            <Draggable key={item.id} index={index} draggableId={item.id}>
-              {(provided, snapshot) => (
-                <>
-                  <div
-                    className={cx(classes.item, {
-                      [classes.itemDragging]: snapshot.isDragging,
-                    })}
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                  >
-                    <Grid align={"center"}>
-                      <Grid.Col span={2}>
-                        <div
-                          {...provided.dragHandleProps}
-                          className={classes.dragHandle}
-                        >
-                          <IconGripVertical size="1.05rem" stroke={1.5} />
-                        </div>
-                      </Grid.Col>
-                      <Grid.Col span={7}>
-                        <Group spacing={"xl"}>
-                          <Stack>
-                            <Text size="sm">{formatAddress(item.address)}</Text>
-                            {item.address?.instructions && (
-                              <Text color="dimmed" size="sm">
-                                {item.address.instructions}
-                              </Text>
-                            )}
-                          </Stack>
-                        </Group>
-                      </Grid.Col>
-
-                      <Grid.Col span={3}>
-                        <Button
-                          variant="subtle"
-                          component={Link}
-                          href={`/admin/users/${item.user.id}`}
-                        >
-                          {item.user.name}
-                        </Button>
-                      </Grid.Col>
-                    </Grid>
-                  </div>
-                </>
-              )}
-            </Draggable>
+            <DraggableScheduledService item={item} index={index} />
             <Center mb="sm" mt="xs">
               <IconChevronDown size="1.5rem" className={classes.chevron} />
             </Center>

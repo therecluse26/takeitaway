@@ -107,6 +107,21 @@ export async function createServiceSchedule(date: Date, provider: Provider, addr
     }) as ServiceScheduleWithRoute;
 }
 
+// export async function createServiceLog(scheduleId: string, userId: string, addressId: string, providerId: string, date: Date, notes: string|null = null) {
+//     return await prisma.serviceLog.create({
+//         data: {
+//             serviceId: serviceId,
+//             billingCycleId: null,
+//             addressId: addressId,
+//             providerId: providerId,
+//             notes: notes,
+//             completed: true,
+//             date: date.toISOString()
+//         }
+//     });
+// }
+
+
 // Check if a provider is available on a given date
 function providerIsAvailableOnDate(provider: ProviderWithTimeOff|ProviderWithRelations, date: Date): boolean {
     const providerAvailability = provider.availability as Availability[];
