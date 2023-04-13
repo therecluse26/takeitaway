@@ -38,3 +38,18 @@ export async function updateBillingCycle(id: string, billingCycle: BillingCycle)
         data: billingCycle
     });
 }
+
+export async function getUserCurrentBillingCycle(userId: string): Promise<BillingCycle | null> {
+    return await prisma.billingCycle.findFirst({
+        where: {
+            userId: userId,
+            active: true,
+            startDate: {
+                lte: new Date()
+            },
+            endDate: {
+                gte: new Date()
+            }
+        }
+    });
+}

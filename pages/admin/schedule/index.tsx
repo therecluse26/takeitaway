@@ -1,4 +1,4 @@
-import { Button, Flex, Loader, Stack } from '@mantine/core';
+import { Button, Container, Flex, Loader, Stack } from '@mantine/core';
 import { DatePicker } from '@mantine/dates';
 import dynamic from 'next/dynamic';
 import { GetServerSideProps } from 'next/types';
@@ -80,47 +80,48 @@ export default function PickupScheduleIndex() {
   return (
     <PageContainer title="Pickup Schedule" size="xl">
       <Space h="xl" />
-      <Center>
+      <Center size="xl">
         {loading ? (
           <Loader />
         ) : (
-          <Stack>
-            <Center>
-              <Flex
-                direction={{ base: 'column', sm: 'row' }}
-                gap={{ base: 'sm', sm: 'lg' }}
-                justify={{ sm: 'center' }}
-              >
-                <Group>
-                  Date:{' '}
-                  <DatePicker
-                    value={date}
-                    minDate={new Date(new Date().getDate() - 1)}
-                    onChange={(newDate) => setDate(newDate)}
-                  />
-                </Group>
-                {date && (
-                  <>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        getPickupsForDate(date, true);
-                      }}
-                    >
-                      Regenerate Schedule For Day
-                    </Button>
-                    {/* {pickupsForDate.length > 0 && (
-                      <Button onClick={optimizeRoute}>Optimize Route</Button>
-                    )} */}
-                  </>
-                )}
-              </Flex>
-            </Center>
-            {date && <ServiceScheduleRoutes data={pickupsForDate} />}
-            {pickupsForDate.length > 0 && provider && (
-              <RouteMap routes={pickupsForDate} provider={provider} />
-            )}
-          </Stack>
+          <Container
+            style={{ maxWidth: '1000px', width: '1000px', minWidth: '300px' }}
+          >
+            <Stack>
+              <Center size="xl">
+                <Flex
+                  direction={{ base: 'column', sm: 'row' }}
+                  gap={{ base: 'sm', sm: 'lg' }}
+                  justify={{ sm: 'center' }}
+                >
+                  <Group>
+                    Date:{' '}
+                    <DatePicker
+                      value={date}
+                      minDate={new Date(new Date().getDate() - 1)}
+                      onChange={(newDate) => setDate(newDate)}
+                    />
+                  </Group>
+                  {date && (
+                    <>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          getPickupsForDate(date, true);
+                        }}
+                      >
+                        Regenerate Schedule For Day
+                      </Button>
+                    </>
+                  )}
+                </Flex>
+              </Center>
+              {date && <ServiceScheduleRoutes data={pickupsForDate} />}
+              {pickupsForDate.length > 0 && provider && (
+                <RouteMap routes={pickupsForDate} provider={provider} />
+              )}
+            </Stack>
+          </Container>
         )}
       </Center>
     </PageContainer>

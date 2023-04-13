@@ -98,6 +98,7 @@ model ServiceScheduleRoute {
   serviceSchedule ServiceSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
   address         Address         @relation(fields: [addressId], references: [id], onDelete: Cascade)
   user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  serviceLogs     ServiceLog[]
 
   @@index([scheduleId])
   @@index([userId])
@@ -209,7 +210,6 @@ model Service {
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
   deleted              Boolean                @default(false)
-  serviceLogs          ServiceLog[]
   subscriptionServices SubscriptionServices[]
 
   @@index([stripeId])
@@ -239,24 +239,25 @@ model ServiceRequest {
 }
 
 model ServiceLog {
-  id             String       @id @default(cuid())
-  serviceId      String
-  billingCycleId String
-  addressId      String
-  providerId     String
-  notes          String?      @db.VarChar(2000)
-  photo          String?
-  completed      Boolean      @default(false)
-  notified       Boolean      @default(false)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  deleted        Boolean      @default(false)
-  service        Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  billingCycle   BillingCycle @relation(fields: [billingCycleId], references: [id], onDelete: Cascade)
-  address        Address      @relation(fields: [addressId], references: [id], onDelete: Cascade)
-  provider       Provider     @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  id                     String                @id @default(cuid())
+  type                   ServiceType
+  serviceScheduleRouteId String?
+  billingCycleId         String?
+  addressId              String
+  providerId             String
+  notes                  String?               @db.VarChar(2000)
+  photo                  String?
+  completed              Boolean               @default(false)
+  notified               Boolean               @default(false)
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  deleted                Boolean               @default(false)
+  billingCycle           BillingCycle?         @relation(fields: [billingCycleId], references: [id], onDelete: Cascade)
+  address                Address               @relation(fields: [addressId], references: [id], onDelete: Cascade)
+  provider               Provider              @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  serviceScheduleRoute   ServiceScheduleRoute? @relation(fields: [serviceScheduleRouteId], references: [id], onDelete: Cascade)
 
-  @@index([serviceId])
+  @@index([serviceScheduleRouteId])
   @@index([billingCycleId])
   @@index([addressId])
   @@index([providerId])

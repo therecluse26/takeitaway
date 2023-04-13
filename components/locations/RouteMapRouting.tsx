@@ -49,6 +49,7 @@ export default function Routing({
       fitSelectedRoutes: true,
       showAlternatives: true,
       draggableWaypoints: false,
+      units: "imperial",
     };
 
     L.Routing.control(routingOptions).addTo(map);

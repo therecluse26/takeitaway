@@ -2,6 +2,7 @@ import { Session } from "next-auth/core/types";
 import { getSession } from "next-auth/react";
 import { NextApiRequest, NextApiResponse } from "next/types";
 import { errorMessages } from "../../../data/messaging";
+import { completePickup } from "../../../lib/services/api/ApiScheduleService";
 import { userCan } from "../../../lib/services/PermissionService";
 
 export default async function handler(
@@ -26,16 +27,17 @@ export default async function handler(
         return
     }
 
-    const serviceScheduleRouteId = req.query.id as string;
+    const serviceScheduleRouteId = req.body?.id as string;
     const notes = req.body.notes as string | null | undefined;
 
     if (!serviceScheduleRouteId) {
-        res.status(400).json({ error: "Id is required" });
+        res.status(400).json({ error: "ID is required" });
         return
     }
 
     // create service log here and mark pickup as completed
+    const serviceLog = await completePickup(serviceScheduleRouteId, notes, new Date(), "pickup_recurring");
     
-    res.status(200).json({});
+    res.status(200).json(serviceLog);
     return
 }

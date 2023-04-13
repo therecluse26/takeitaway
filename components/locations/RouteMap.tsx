@@ -23,7 +23,7 @@ const RouteMap = ({
   routes,
   provider,
   mapHeight = "600px",
-  mapWidth = "800px",
+  mapWidth = "1000px",
   mapZoom = 13,
 }: {
   routes: ServiceScheduleRouteWithAddress[];

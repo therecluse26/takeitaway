@@ -9,15 +9,13 @@ import {
   Textarea,
 } from "@mantine/core";
 import {
-  IconAppWindow,
+  IconCheck,
   IconCheckbox,
-  IconDeviceMobile,
   IconExternalLink,
   IconGripVertical,
-  IconShare,
   IconUser,
-  IconWindow,
 } from "@tabler/icons";
+import axios from "axios";
 import Link from "next/link";
 import { useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
@@ -38,6 +36,10 @@ const useStyles = createStyles((theme) => ({
     backgroundColor:
       theme.colorScheme === "dark" ? theme.colors.dark[5] : theme.white,
     marginBottom: theme.spacing.sm,
+  },
+
+  completedItem: {
+    backgroundColor: theme.colors.green[0],
   },
 
   chevron: {
@@ -63,13 +65,6 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-async function logServiceCompletion(
-  service: ServiceScheduleRouteWithAddress,
-  notes: string
-) {
-  alert("Log service completion for " + service.id + " with notes: " + notes);
-}
-
 export default function DraggableScheduledService({
   item,
   index,
@@ -78,8 +73,20 @@ export default function DraggableScheduledService({
   index: number;
 }) {
   const { classes, cx } = useStyles();
+  const [scheduledService, setScheduledService] = useState(item);
   const [completing, setCompleting] = useState(false);
   const [completedNotes, setCompletedNotes] = useState<string | null>(null);
+
+  async function logServiceCompletion(
+    service: ServiceScheduleRouteWithAddress,
+    notes: string
+  ) {
+    const updatedRouteData = await axios.post("/api/service-logs/create", {
+      id: service.id,
+      notes,
+    });
+    setScheduledService(updatedRouteData.data);
+  }
 
   return (
     <>
@@ -110,7 +117,11 @@ export default function DraggableScheduledService({
           </Button>
         </Stack>
       </Modal>
-      <Draggable key={item.id} index={index} draggableId={item.id}>
+      <Draggable
+        key={scheduledService.id}
+        index={index}
+        draggableId={scheduledService.id}
+      >
         {(provided, snapshot) => (
           <>
             <div
@@ -138,16 +149,16 @@ export default function DraggableScheduledService({
                             <Text
                               color="blue"
                               component={"a"}
-                              href={`geo:${item.address.latitude},${item.address.longitude}`}
+                              href={`geo:${scheduledService.address.latitude},${scheduledService.address.longitude}`}
                               target={"_blank"}
                             >
-                              {formatAddress(item.address)}{" "}
+                              {formatAddress(scheduledService.address)}{" "}
                               <IconExternalLink size="1rem" />
                             </Text>
                           </Text>
-                          {item.address?.instructions && (
+                          {scheduledService.address?.instructions && (
                             <Text color="dimmed" size="sm">
-                              {item.address.instructions}
+                              {scheduledService.address.instructions}
                             </Text>
                           )}
                         </Stack>
@@ -157,28 +168,37 @@ export default function DraggableScheduledService({
                     <Grid.Col sm={5} span={12}>
                       <Stack>
                         <Button
-                          variant="subtle"
+                          variant="light"
                           component={Link}
                           target="_blank"
-                          href={`/admin/users/${item.user.id}`}
+                          href={`/admin/users/${scheduledService.user.id}`}
                         >
                           <Group>
-                            <IconUser size="1.5rem" /> {item.user.name}
+                            <IconUser size="1.5rem" />{" "}
+                            {scheduledService.user.name}
                           </Group>
                         </Button>
-
-                        <Button
-                          variant="subtle"
-                          color={"green"}
-                          onClick={() => {
-                            setCompleting(true);
-                          }}
-                        >
-                          <Group>
-                            <IconCheckbox size="1.5rem" />
-                            <Text>Complete</Text>
-                          </Group>
-                        </Button>
+                        {scheduledService.completed ? (
+                          <Button variant="subtle" color={"green"} disabled>
+                            <Group>
+                              <IconCheck />
+                              <Text>Completed</Text>
+                            </Group>
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="light"
+                            color={"green"}
+                            onClick={() => {
+                              setCompleting(true);
+                            }}
+                          >
+                            <Group>
+                              <IconCheckbox size="1.5rem" />
+                              <Text>Mark Complete</Text>
+                            </Group>
+                          </Button>
+                        )}
                       </Stack>
                     </Grid.Col>
                   </Grid>

@@ -6,11 +6,13 @@ export default function PageContainer({
   children,
   highlightedTitle = null,
   title = null,
+  fluid = false,
   size = "md",
 }: {
   children: ReactNode;
   highlightedTitle?: string | null;
   title?: string | null;
+  fluid?: boolean;
   size?: MantineSize;
 }) {
   return (
@@ -19,7 +21,7 @@ export default function PageContainer({
 
       <div style={{ paddingTop: highlightedTitle ? 0 : 40, paddingBottom: 40 }}>
         {title && (
-          <Container size={size}>
+          <Container fluid={fluid} size={size}>
             <Center>
               <Title>{title}</Title>
             </Center>

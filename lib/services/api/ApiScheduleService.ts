@@ -1,13 +1,17 @@
-import { Address, PrismaClient, Provider, ServiceSchedule, ServiceScheduleRoute, User } from "@prisma/client";
-// import { User } from "next-auth";
+import { Address, PrismaClient, Provider, ServiceLog, ServiceSchedule, ServiceScheduleRoute, ServiceType, User } from "@prisma/client";
 import { Availability } from "../../../types/provider";
 import { daysOfTheWeek } from "../ProviderService";
 import { AddressWithPickupPreferences } from "./ApiAddressService";
+import { getUserCurrentBillingCycle } from "./ApiBillingCycleService";
 import { getNearestProviderByAddress, getProvidersWithAvailability, ProviderWithAddress, ProviderWithRelations, ProviderWithTimeOff } from "./ApiProviderService";
 import { getNextBillingCyclesForActiveSubscriptions } from "./ApiSubscriptionService";
 import { getUserWithAddresses, UserWithAddresses } from "./ApiUserService";
 
 const prisma = new PrismaClient();
+
+export type ServiceScheduleWithProvider = ServiceSchedule & {
+    provider: Provider;
+}
 
 export type ServiceScheduleWithRoute = ServiceSchedule & {
     provider: ProviderWithAddress;
@@ -19,18 +23,43 @@ export type ServiceScheduleRouteWithAddress = ServiceScheduleRoute & {
     address: Address;
 }
 
+export type ServiceScheduleRouteWithRelations = ServiceScheduleRoute & {
+    user: User;
+    address: Address;
+    serviceSchedule: ServiceScheduleWithProvider;
+}
+
+export async function getServiceScheduleRouteWithRelations(routeId: string): Promise<ServiceScheduleRouteWithRelations> {
+
+    return await prisma.serviceScheduleRoute.findFirstOrThrow({
+        where: {
+            id: routeId
+        },
+        include: {
+            serviceSchedule: {
+                include: {
+                    provider: true
+                }
+            },
+            user: true,
+            address: true,
+        }
+    });
+
+}
+
 // Generate pickup schedule for a given date based on provider availability and user address pickup preferences
 export async function getScheduleForDate(date: Date, regenerate: boolean = false): Promise<ServiceScheduleWithRoute> {
 
     const existingSchedule = await checkForExistingServiceSchedule(date);
 
-    if(existingSchedule) {
-        if(regenerate) {
+    if (existingSchedule) {
+        if (regenerate) {
             await deleteServiceSchedule(existingSchedule?.id);
         } else {
             return existingSchedule;
         }
-    } 
+    }
 
     const billingCycles = await getNextBillingCyclesForActiveSubscriptions();
     let scheduledPickups: Address[] = [];
@@ -56,7 +85,7 @@ export async function getScheduleForDate(date: Date, regenerate: boolean = false
     return schedule;
 }
 
-export async function deleteServiceSchedule(scheduleId: string){
+export async function deleteServiceSchedule(scheduleId: string) {
     return await prisma.serviceSchedule.delete({
         where: {
             id: scheduleId
@@ -64,12 +93,12 @@ export async function deleteServiceSchedule(scheduleId: string){
     });
 }
 
-export async function checkForExistingServiceSchedule(date: Date): Promise<ServiceScheduleWithRoute|null> {
+export async function checkForExistingServiceSchedule(date: Date): Promise<ServiceScheduleWithRoute | null> {
     return await prisma.serviceSchedule.findFirst({
         where: {
             date: {
                 equals: date.toISOString()
-            }            
+            }
         },
         include: {
             scheduleRoutes: {
@@ -107,23 +136,63 @@ export async function createServiceSchedule(date: Date, provider: Provider, addr
     }) as ServiceScheduleWithRoute;
 }
 
-// export async function createServiceLog(scheduleId: string, userId: string, addressId: string, providerId: string, date: Date, notes: string|null = null) {
-//     return await prisma.serviceLog.create({
-//         data: {
-//             serviceId: serviceId,
-//             billingCycleId: null,
-//             addressId: addressId,
-//             providerId: providerId,
-//             notes: notes,
-//             completed: true,
-//             date: date.toISOString()
-//         }
-//     });
-// }
+export async function completePickup(serviceScheduleRouteId: string, notes: string | null = null, date: Date = new Date(), type: ServiceType = "pickup_recurring"): Promise<ServiceScheduleRouteWithRelations> {
 
+    const serviceScheduleRoute = await getServiceScheduleRouteWithRelations(serviceScheduleRouteId);
+
+    markServiceRouteAsCompleted(serviceScheduleRouteId);
+
+    await createServiceLog(
+        serviceScheduleRouteId,
+        serviceScheduleRoute.serviceSchedule,
+        serviceScheduleRoute.user,
+        serviceScheduleRoute.address,
+        notes,
+        date,
+        type
+    );
+
+    return await getServiceScheduleRouteWithRelations(serviceScheduleRouteId);
+}
+
+export async function markServiceRouteAsCompleted(routeId: string): Promise<ServiceScheduleRoute> {
+    return prisma.serviceScheduleRoute.update({
+        where: {
+            id: routeId
+        },
+        data: {
+            completed: true
+        }
+    });
+}
+
+export async function createServiceLog(
+    serviceScheduleRouteId: string,
+    serviceSchedule: ServiceSchedule,
+    user: User,
+    address: Address,
+    notes: string | null = null,
+    date: Date,
+    serviceType: ServiceType = "pickup_recurring",
+    completed: boolean = true): Promise<ServiceLog> {
+
+    return await prisma.serviceLog.create({
+        data: {
+            type: serviceType,
+            serviceScheduleRouteId: serviceScheduleRouteId,
+            billingCycleId: (await getUserCurrentBillingCycle(user.id))?.id ?? null,
+            addressId: address.id,
+            providerId: serviceSchedule.providerId,
+            notes: notes,
+            completed: completed,
+            createdAt: date.toISOString(),
+            updatedAt: date.toISOString()
+        }
+    });
+}
 
 // Check if a provider is available on a given date
-function providerIsAvailableOnDate(provider: ProviderWithTimeOff|ProviderWithRelations, date: Date): boolean {
+function providerIsAvailableOnDate(provider: ProviderWithTimeOff | ProviderWithRelations, date: Date): boolean {
     const providerAvailability = provider.availability as Availability[];
     for (const availability of providerAvailability) {
         if (availability.day === daysOfTheWeek.find((dow) => dow.number === date.getDay())?.value) {
@@ -139,10 +208,8 @@ function providerIsAvailableOnDate(provider: ProviderWithTimeOff|ProviderWithRel
             return true
         }
     }
-
     return false;
 }
-
 
 function getWeekNumber(date: Date) {
     const d = new Date(+date);
@@ -184,7 +251,7 @@ export async function getUserPickupsForDate(userId: string, date: Date, provider
         return false;
     }).map(async (address: AddressWithPickupPreferences) => {
         // Get nearest provider by address lat/long and provider service radius
-        const provider = await getNearestProviderByAddress(address, providers); 
+        const provider = await getNearestProviderByAddress(address, providers);
 
         return addressScheduleResponse(address, provider?.id);
     }));
@@ -208,26 +275,4 @@ function addressScheduleResponse(address: Address | AddressWithPickupPreferences
         pickupsAllocated: address.pickupsAllocated,
         instructions: address.instructions,
     } as Address & { providerId: string };
-
-    // return {
-    //     id: address.id,
-    //     addressId: address.id,
-    //     providerId: providerId,
-    //     // subscriptionId: user?.subscriptionId,
-    //     // billingCycleId: user?.subscription?.billingCycles.sort((a, b) => {
-    //     //     return a.startDate.getUTCDate() - b.startDate.getUTCDate();
-    //     // })[0]?.id,
-    //     userId: user?.id,
-    //     userName: user?.name,
-    //     street: address.street,
-    //     street2: address.street2,
-    //     city: address.city,
-    //     state: address.state,
-    //     zip: address.zip,
-    //     latitude: address.latitude,
-    //     longitude: address.longitude,
-    //     inServiceArea: address.inServiceArea,
-    //     instructions: address.instructions,
-    // }
-
 }

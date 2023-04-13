@@ -1,25 +1,7 @@
-import {
-  Button,
-  Center,
-  createStyles,
-  Flex,
-  Grid,
-  Group,
-  Space,
-  Stack,
-  Text,
-  Title,
-} from "@mantine/core";
+import { Center, createStyles, Stack, Text, Title } from "@mantine/core";
 import { useListState } from "@mantine/hooks";
-import {
-  IconCheck,
-  IconCheckbox,
-  IconChevronDown,
-  IconGripVertical,
-} from "@tabler/icons";
-import Link from "next/link";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { formatAddress } from "../../lib/services/AddressService";
+import { IconChevronDown } from "@tabler/icons";
+import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { ServiceScheduleRouteWithAddress } from "../../lib/services/api/ApiScheduleService";
 import DraggableScheduledService from "./DraggableScheduledService";
 
