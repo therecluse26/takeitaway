@@ -49,7 +49,9 @@ export default function Account(props: { user: UserWithRelations }) {
       </Container>
 
       <Container>
-        <Title order={4}>Service Addresses</Title>
+        <Title id="service-addresses" order={4}>
+          Service Addresses
+        </Title>
         <AddressList
           user={props.user}
           addresses={props.user.addresses}

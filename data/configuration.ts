@@ -2,7 +2,7 @@ export const USEQUERY_STALETIME = process.env.BROWSER_STALE_TIME ? parseInt(proc
 
 
 export const MAPBOX_CONFIG = {
-    apiKey: process.env.MAPBOX_TOKEN,
+    apiKey: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
 }
 
 export const GEOCODER_CONFIG = {

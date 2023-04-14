@@ -118,7 +118,7 @@ export async function checkForExistingServiceSchedule(date: Date): Promise<Servi
 
 export async function createServiceSchedule(date: Date, provider: Provider, addresses: Address[]): Promise<ServiceScheduleWithRoute> {
     let routeOrder = 0;
-    return await prisma.serviceSchedule.create({
+    const schedule = await prisma.serviceSchedule.create({
         data: {
             providerId: provider.id,
             date: date.toISOString(),
@@ -133,7 +133,27 @@ export async function createServiceSchedule(date: Date, provider: Provider, addr
                 })
             }
         }
-    }) as ServiceScheduleWithRoute;
+    });
+
+    return await prisma.serviceSchedule.findFirstOrThrow({
+        where: {
+            id: schedule.id
+        },
+        include: {
+            scheduleRoutes: {
+                include: {
+                    user: true,
+                    address: true
+                }
+            },
+            provider: {
+                include: {
+                    address: true
+                }
+                
+            }
+        }
+    });
 }
 
 export async function completePickup(serviceScheduleRouteId: string, notes: string | null = null, date: Date = new Date(), type: ServiceType = "pickup_recurring"): Promise<ServiceScheduleRouteWithRelations> {

@@ -5,6 +5,7 @@ import "leaflet-routing-machine";
 import { useMap } from "react-leaflet";
 import { ServiceScheduleRouteWithAddress } from "../../lib/services/api/ApiScheduleService";
 import { ProviderWithAddress } from "../../lib/services/api/ApiProviderService";
+import { MAPBOX_CONFIG } from "../../data/configuration";
 
 L.Marker.prototype.options.icon = L.icon({
   iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
@@ -22,6 +23,7 @@ export default function Routing({
     if (!map) return;
 
     let routingOptions = {
+      router: L.Routing.mapbox(MAPBOX_CONFIG.apiKey ?? "", {}),
       waypoints: [
         L.latLng(
           provider?.address?.latitude ?? -90.0,
@@ -47,7 +49,7 @@ export default function Routing({
       show: true,
       addWaypoints: false,
       fitSelectedRoutes: true,
-      showAlternatives: true,
+      showAlternatives: false,
       draggableWaypoints: false,
       units: "imperial",
     };

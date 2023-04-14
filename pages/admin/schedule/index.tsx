@@ -116,10 +116,19 @@ export default function PickupScheduleIndex() {
                   )}
                 </Flex>
               </Center>
-              {date && <ServiceScheduleRoutes data={pickupsForDate} />}
-              {pickupsForDate.length > 0 && provider && (
-                <RouteMap routes={pickupsForDate} provider={provider} />
+              {date && (
+                <ServiceScheduleRoutes
+                  key="service_schedule_routes"
+                  data={pickupsForDate}
+                  provider={provider}
+                />
               )}
+              {pickupsForDate.filter((pickup) => {
+                return pickup.completed === false;
+              }).length > 0 &&
+                provider && (
+                  <RouteMap routes={pickupsForDate} provider={provider} />
+                )}
             </Stack>
           </Container>
         )}
