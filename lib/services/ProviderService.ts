@@ -4,6 +4,7 @@ import { PaginatedProvidersWithRelations } from './api/ApiProviderService';
 import { Availability } from '../../types/provider';
 import { Prisma, ProviderTimeOff } from '@prisma/client';
 
+
 export async function getProviders({page, recordsPerPage, sortStatus: { columnAccessor: sortAccessor, direction: sortDirection }, searchQuery}
 : { searchQuery: string|null, page: number|null|undefined; recordsPerPage: number; sortStatus: DataTableSortStatus; }): Promise<PaginatedProvidersWithRelations> 
 {
@@ -19,12 +20,20 @@ export async function getProviders({page, recordsPerPage, sortStatus: { columnAc
     }).then(response => response.data);
 }
 
+export async function getAvailableProviders(date: Date) {
+    return await axios.get(`/api/providers/available/${date.toISOString()}`).then(response => response.data);
+}
+
 export async function updateAvailability(providerId: string, availability: Availability[]|null): Promise<void> {
     const validationErrors = validateAvailability(availability);
     if (validationErrors.length > 0) {
         throw validationErrors;
     }
     return await axios.put(`/api/providers/${providerId}/availability`, availability);
+}
+
+export async function createProviderFromUser(userId: string){
+    return await axios.post("/api/users/" + userId + "/create-provider");
 }
 
 export function validateAvailability(availability: Availability[] | null): string[] {
@@ -167,7 +176,7 @@ export function getMonthSchedule(availability: Prisma.JsonArray|Prisma.JsonValue
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
 
-    const parsedAvailability = availability as Availability[];
+    const parsedAvailabilities = availability as Availability[];
 
     // Loop through each day of the month
     for(let i = 1; i <= 31; i++) {
@@ -178,7 +187,7 @@ export function getMonthSchedule(availability: Prisma.JsonArray|Prisma.JsonValue
         const dayNumber = day.getUTCDay();
         
         const dayName = daysOfTheWeek?.find(weekDay => weekDay?.number === dayNumber)?.value;
-        const availabilityForDay = parsedAvailability.find(a => a.day === dayName) as Availability;
+        const availabilityForDay = parsedAvailabilities.find(a => a.day === dayName) as Availability;
 
         // If the day is available, check if the current time is within the availability range
         if(availabilityForDay) {
@@ -281,6 +290,43 @@ export function isAvailable(availability: Prisma.JsonArray|Prisma.JsonValue|null
         if(dayNameToDayOfWeek(parsedAvailability.day) === dayOfWeek)
         {
             return currentTimeWithinRange(parsedAvailability.start, parsedAvailability.end);
+        }
+    });
+
+    if(available) {
+
+        if(timeOff && timeOff.find(t => t.day.getTime() === dateToCheck.getTime())) {
+            return false;
+        }
+        
+        return true;
+    }
+
+    return false;
+}
+
+export function providerIsAvailableOnDate(availability: Prisma.JsonArray|Prisma.JsonValue|null, dateToCheck: Date, timeOff: ProviderTimeOff[]|null): boolean 
+{
+    if (!availability) {
+        return false;
+    }
+
+    const dayOfWeek = dateToCheck.getDay();
+
+    let availabilityArray = Array.isArray(availability) ? availability : [availability];
+
+    availabilityArray = availabilityArray as Array<Availability>;
+
+    const available = availabilityArray.find(a => {
+        if (typeof a === 'undefined' || a === null){
+            return false;
+        }
+       
+        const parsedAvailability = a as Availability;
+        
+        if(dayNameToDayOfWeek(parsedAvailability.day) === dayOfWeek)
+        {
+            return true;
         }
     });
 

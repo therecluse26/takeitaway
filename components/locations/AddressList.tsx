@@ -11,6 +11,7 @@ import {
   Grid,
   Loader,
   Space,
+  Divider,
 } from "@mantine/core";
 import { Address, AddressType, Provider, User } from "@prisma/client";
 import { IconTrash } from "@tabler/icons";
@@ -21,7 +22,7 @@ import { deleteAddress } from "../../lib/services/AddressService";
 import { ProviderWithRelations } from "../../lib/services/api/ApiProviderService";
 import { UserWithRelations } from "../../lib/services/api/ApiUserService";
 import AddressForm from "./AddressForm";
-import AssignPickups from "./AssignPickups";
+import AddressInstructions from "./AddressInstructions";
 
 function getTitleSize(size: string): TitleOrder {
   switch (size) {
@@ -58,7 +59,6 @@ export default function AddressList({
   title,
   showMap = true,
   titleSize = "md",
-  assignPickups = false,
   showPickupCount = true,
   mapHeight = "400px",
   mapWidth = "600px",
@@ -71,7 +71,6 @@ export default function AddressList({
   title?: string;
   showMap?: boolean;
   titleSize?: "xs" | "sm" | "md" | "lg" | "xl";
-  assignPickups?: boolean;
   showPickupCount?: boolean;
   mapHeight?: string;
   mapWidth?: string;
@@ -153,7 +152,7 @@ export default function AddressList({
                             <ServiceRangeBadge
                               withinRange={address.inServiceArea}
                             />
-                            <PickupsBadge />
+                            <PickupsBadge pickups={address.pickupsAllocated} />
                           </>
                         )}
                         {type === "provider" && (
@@ -168,6 +167,9 @@ export default function AddressList({
                     <>
                       {loadedMaps.includes(address.id) ? (
                         <>
+                          <AddressInstructions address={address} />
+
+                          <Space h="xl" />
                           <MapPreview
                             mapHeight={mapHeight}
                             mapWidth={mapWidth}
@@ -177,29 +179,27 @@ export default function AddressList({
                             serviceRadius={provider?.serviceRadius}
                           />
                           <>
-                            <Space h="xl" />
+                            <Divider mt={"lg"} h="xl" />
+
                             {deletingAddresses.includes(address.id) ? (
                               <Loader>Deleting...</Loader>
                             ) : (
-                              <Button
-                                color={"red"}
-                                leftIcon={<IconTrash />}
-                                onClick={() => removeAddress(address)}
-                              >
-                                Delete
-                              </Button>
+                              <>
+                                <Center>
+                                  <Button
+                                    color={"red"}
+                                    leftIcon={<IconTrash />}
+                                    onClick={() => removeAddress(address)}
+                                  >
+                                    Delete
+                                  </Button>
+                                </Center>
+                              </>
                             )}
                           </>
                         </>
                       ) : null}
                     </>
-                  )}
-                  {assignPickups && (
-                    <AssignPickups
-                    // address={address}
-                    // provider={provider}
-                    // user={user}
-                    />
                   )}
                 </Accordion.Panel>
               </Accordion.Item>

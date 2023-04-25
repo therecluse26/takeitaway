@@ -55,6 +55,9 @@ const Permissions: TPermission = new Map([
     ['services:unassign-self', {key: 'services:unassign-self', label: 'Unassign services from self'}],
     ['services:assign-other', {key: 'services:assign-other', label: 'Assign services to other providers'}],
     ['services:unassign-other', {key: 'services:unassign-other', label: 'Unassign services from other providers'}],
+    ['service-logs:read', {key: 'service-logs:read', label: 'View service logs'}],
+    ['service-logs:write', {key: 'service-logs:write', label: 'Create/Modify service logs'}],
+    ['service-logs:delete', {key: 'service-logs:delete', label: 'Delete service logs'}],
 ]);
 
 const RolePermissions: Map<string, string[]> = new Map([
@@ -72,7 +75,10 @@ const RolePermissions: Map<string, string[]> = new Map([
         'services:purchase',
         'schedule:read-basic',
         'schedule:read',
-        'schedule:request']
+        'schedule:request',
+        'service-logs:read',
+        'service-logs:write',
+    ]
     ],
     ['admin', [
         'admin:dashboard',
@@ -88,7 +94,9 @@ const RolePermissions: Map<string, string[]> = new Map([
         'services:delete',
         'schedule:read',
         'schedule:write',
-        'schedule:request'
+        'schedule:request',
+        'service-logs:read',
+        'service-logs:write',
     ]],
 
     ['superadmin', 

@@ -1,11 +1,16 @@
 export const USEQUERY_STALETIME = process.env.BROWSER_STALE_TIME ? parseInt(process.env.BROWSER_STALE_TIME) : 300000;
 
+
+export const MAPBOX_CONFIG = {
+    apiKey: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
+}
+
 export const GEOCODER_CONFIG = {
     provider: 'mapbox',
+    apiKey: MAPBOX_CONFIG.apiKey, // for Mapquest, OpenCage, Google Premier
     // Optional depending on the providers
-    apiKey: process.env.MAPBOX_TOKEN, // for Mapquest, OpenCage, Google Premier
     formatter: null // 'gpx', 'string', ...
-};
+};    
 
 // Stripe config
 export const PAYMENT_CURRENCY = 'usd'

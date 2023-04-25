@@ -3,3 +3,4 @@ export type Availability = {
     start: string;
     end: string;
 }
+

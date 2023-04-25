@@ -18,6 +18,7 @@ import { UserWithRelations } from "../../lib/services/api/ApiUserService";
 import { setUserPickupPreferences } from "../../lib/services/UserService";
 import { PickupPreference } from "../../types/schedule";
 import { MonthWeekdayPicker } from "../scheduling/WeekdayPicker";
+import AddressInstructions from "./AddressInstructions";
 import { PickupsBadge, ServiceRangeBadge } from "./AddressList";
 const Hash = require("object-hash");
 
@@ -174,6 +175,8 @@ export default function AddressServiceAssignmentList({
                     initialPickupPreferences={initialPickupPreferences}
                     center
                   />
+
+                  <AddressInstructions address={address} />
                 </Stack>
               </Accordion.Panel>
             </Accordion.Item>

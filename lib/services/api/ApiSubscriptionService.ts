@@ -1,11 +1,11 @@
-import { PrismaClient, Subscription, Recurrence } from ".prisma/client";
+import { PrismaClient, Subscription, Recurrence, SubscriptionStatus } from ".prisma/client";
 import Stripe from "stripe";
 import { User } from "next-auth/core/types";
 import { getStripeIntegerAsDecimal } from "../../utils/stripe-helpers";
 
 const prisma = new PrismaClient()
 
-export async function stripeSubscriptionExists(subscriptionStripeId: string): Promise<boolean> {  
+export async function stripeSubscriptionExists(subscriptionStripeId: string): Promise<boolean> {
   return await prisma.subscription.count({
     where: {
       stripeId: subscriptionStripeId
@@ -14,7 +14,7 @@ export async function stripeSubscriptionExists(subscriptionStripeId: string): Pr
 }
 
 
-export async function getSubscriptionByStripeId(subscriptionStripeId: string): Promise<Subscription | null> {    
+export async function getSubscriptionByStripeId(subscriptionStripeId: string): Promise<Subscription | null> {
   return await prisma.subscription.findUnique({
     where: {
       stripeId: subscriptionStripeId
@@ -22,7 +22,7 @@ export async function getSubscriptionByStripeId(subscriptionStripeId: string): P
   });
 }
 
-export async function getSubscriptionById(id: string): Promise<Subscription | null> {    
+export async function getSubscriptionById(id: string): Promise<Subscription | null> {
   return await prisma.subscription.findUnique({
     where: {
       id: id
@@ -30,11 +30,47 @@ export async function getSubscriptionById(id: string): Promise<Subscription | nu
   });
 }
 
-export async function saveSubscriptionToUser(stripeSubscription: Stripe.Subscription, user: User): Promise<Subscription>{
+export async function getAllActiveSubscriptions(): Promise<Subscription[]> {
+  return await prisma.subscription.findMany({
+    where: {
+      status: SubscriptionStatus.active,
+      deleted: false
+    }
+  });
+}
+
+export async function getNextBillingCyclesForActiveSubscriptions(): Promise<any[]> {
+  return (await prisma.subscription.findMany({
+    where: {
+      status: 'active',
+      deleted: false
+    },
+    include: {
+      billingCycles: {
+        where: {
+          active: true,
+          endDate: {
+            gte: new Date()
+          }
+        },
+        orderBy: {
+          endDate: 'asc'
+        },
+        take: 1
+      }
+    }
+  }))
+    .map(subscription =>  subscription.billingCycles.length > 0 ? subscription.billingCycles[0] : null)
+    .filter(billingCycle => billingCycle ? true : false);
+}
+
+
+
+export async function saveSubscriptionToUser(stripeSubscription: Stripe.Subscription, user: User): Promise<Subscription> {
 
   const itemTotalPickupCount = stripeSubscription.items?.data.reduce((total: number, item: Stripe.SubscriptionItem) => {
     const product: Stripe.Product = item?.price?.product as Stripe.Product;
-    if(product){
+    if (product) {
       return total + (parseInt(product.metadata.pickupsPerCycle ?? 0) * (item.quantity ?? 1));
     }
     return total;
@@ -45,7 +81,7 @@ export async function saveSubscriptionToUser(stripeSubscription: Stripe.Subscrip
   }, 0);
 
   const localSubscription: Subscription = await prisma.subscription.upsert({
-    where:{
+    where: {
       stripeId: stripeSubscription.id
     },
     update: {
@@ -69,3 +105,4 @@ export async function saveSubscriptionToUser(stripeSubscription: Stripe.Subscrip
   });
   return localSubscription;
 }
+

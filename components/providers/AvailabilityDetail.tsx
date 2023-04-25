@@ -125,10 +125,10 @@ export default function AvailabilityDetail({
             );
           } else {
             setAvailabilityForDay(
-              updatedAvailability,
+              updatedAvailability ?? [],
               weekday,
-              availability.find((a) => a.day === weekday)?.start ?? "00:00:00",
-              availability.find((a) => a.day === weekday)?.end ?? "00:00:00"
+              availability?.find((a) => a.day === weekday)?.start ?? "00:00:00",
+              availability?.find((a) => a.day === weekday)?.end ?? "00:00:00"
             );
           }
         }}
@@ -161,9 +161,13 @@ export default function AvailabilityDetail({
                       updateAvailability(provider?.id, updatedAvailability)
                         .then(() => setEditing(false))
                         .catch((errors) => {
-                          errors.forEach((error: Error) =>
-                            notifyError(400, "api", error)
-                          );
+                          if (errors instanceof Error)
+                            notifyError(400, "api", errors);
+                          else if (errors instanceof Array) {
+                            errors.forEach((error: Error) =>
+                              notifyError(400, "api", error)
+                            );
+                          }
                         })
                         .finally(() => setSaving(false));
                     }}

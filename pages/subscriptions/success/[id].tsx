@@ -17,7 +17,7 @@ import PageContainer from '../../../components/PageContainer';
 import getSessionUserProps from '../../../lib/props/sessionUser';
 import { getSubscriptionById } from '../../../lib/services/api/ApiSubscriptionService';
 
-const redirectLink = '/pickups';
+const redirectLink = '/service-locations';
 
 export default function SubscriptionSuccess(props: {
   subscription: Subscription;

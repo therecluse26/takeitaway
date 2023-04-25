@@ -1,11 +1,9 @@
-import { PrismaClient } from "@prisma/client";
 import { Session } from 'next-auth/core/types';
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import { errorMessages } from "../../../../data/messaging";
 import { userCan } from "../../../../lib/services/PermissionService";
-
-const prisma = new PrismaClient()
+import { deleteAddress, getAddress } from "../../../../lib/services/api/ApiAddressService";
 
 export default async function GetAddress(req: NextApiRequest, res: NextApiResponse) {
 
@@ -25,26 +23,20 @@ export default async function GetAddress(req: NextApiRequest, res: NextApiRespon
         }
 
         res.status(200).json(
-            await prisma.address.findUnique({
-                where: {
-                    id: id
-                },
-            })
+            await getAddress(id)
         );
 
     } else if (req.method === 'DELETE') {
         
-        if (!userCan(session?.user, ["users:write"])) {
+        const address = await getAddress(id);
+        
+        if ( !userCan(session?.user, ["users:write"], address?.userId)) {
             res.status(403).json({ error: errorMessages.api.unauthorized.message });
             return
         }
 
         res.status(200).json(
-            await prisma.address.delete({
-                where: {
-                    id: id
-                },
-            })
+            await deleteAddress(address)
         );
 
     }

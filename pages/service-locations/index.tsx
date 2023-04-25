@@ -16,13 +16,13 @@ export default function Pickups(props: {
   pickupPreferences: PickupPreference[];
 }) {
   return (
-    <PageContainer title="Manage Service Addresses">
+    <PageContainer title="Manage Pickup Preferences">
       <Container>
         <AddressServiceAssignmentList
           addresses={props.user.addresses}
           user={props.user}
           initialPickupPreferences={props.pickupPreferences}
-          maxPickups={props.user.billingCycle?.pickups ?? 0}
+          maxPickups={props.user.subscription?.pickupsPerCycle ?? 0}
         />
       </Container>
     </PageContainer>

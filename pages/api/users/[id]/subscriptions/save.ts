@@ -56,7 +56,7 @@ export default async function handler(
             endDate: lastdayOfMonth(new Date().getFullYear(), new Date().getMonth()),
             amount: savedSub.amount ?? 0,
             active: savedSub.status === SubscriptionStatus.active ?? false,
-            pickupsRemaining: savedSub.pickupsPerCycle ?? 0,
+            pickups: savedSub.pickupsPerCycle ?? 0,
         } as BillingCycleData
 
         await createBillingCycle(billingCycleData)

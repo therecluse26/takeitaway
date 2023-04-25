@@ -155,13 +155,6 @@ export default function UserTable() {
                   sortable: false,
                   visibleMediaQuery: aboveXsMediaQuery,
                 },
-                {
-                  accessor: '_count.subscriptions',
-                  title: 'Subscriptions',
-                  width: 150,
-                  sortable: false,
-                  visibleMediaQuery: aboveXsMediaQuery,
-                },
               ]}
               records={data?.data}
               page={page}

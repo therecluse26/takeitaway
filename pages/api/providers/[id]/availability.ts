@@ -21,6 +21,11 @@ export default async function UpdateAvailability(req: NextApiRequest, res: NextA
     }
 
     const session: Session | null = await getSession({ req });
+    if(!session?.user){
+        res.status(errorMessages.api.unauthorized.code).json({error: errorMessages.api.unauthorized.message});
+        return
+    }
+
     if (!userCan(session?.user, ["providers:write"]) && !(session?.user?.id === req.query.id)) {
         res.status(403).json({error: errorMessages.api.unauthorized.message});
         return

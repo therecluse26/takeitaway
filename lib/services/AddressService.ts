@@ -22,3 +22,7 @@ export async function submitAddress(form: any): Promise<any>{
 export async function deleteAddress(id: string): Promise<any>{
     return await axios.delete(`/api/address/${id}`).then(response => response.data );
 }
+
+export async function saveAddressInstructions(id: string, instructions?: string|null): Promise<any>{
+    return await axios.put(`/api/address/${id}/instructions`, {instructions}).then(response => response.data );
+}
