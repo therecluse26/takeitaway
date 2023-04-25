@@ -55,7 +55,7 @@ export default function Routing({
     };
 
     L.Routing.control(routingOptions).addTo(map);
-  }, [map]);
+  }, [map, provider?.address?.latitude, provider?.address?.longitude, routes]);
 
   return null;
 }

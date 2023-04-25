@@ -1,6 +1,5 @@
 import { Button } from '@mantine/core';
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
 import { GetServerSideProps } from 'next/types';
 import { JSXElementConstructor } from 'react';
 import AddressList from '../../../../components/locations/AddressList';

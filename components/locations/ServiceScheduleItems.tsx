@@ -1,4 +1,4 @@
-import { Center, Group, Space, Stack, Text, Title } from "@mantine/core";
+import { Center, Stack, Text, Title } from "@mantine/core";
 import { useListState } from "@mantine/hooks";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { formatAddress } from "../../lib/services/AddressService";

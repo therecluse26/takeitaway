@@ -33,7 +33,7 @@ const RouteMap = ({
   mapWidth?: string;
   mapZoom?: number;
 }) => {
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading] = useState<boolean>(false);
   const [zoom] = useState(mapZoom);
 
   return (

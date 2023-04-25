@@ -55,14 +55,6 @@ export default function PickupScheduleIndex() {
       });
   };
 
-  const optimizeRoute = async () => {
-    setLoading(true);
-    if (pickupsForDate.length > 0) {
-      // Optimize Route
-    }
-    setLoading(false);
-  };
-
   useEffect(() => {
     if (isBrowser()) {
       setLoading(false);
