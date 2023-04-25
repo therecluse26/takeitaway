@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { SessionProvider } from 'next-auth/react';
 import { NotificationsProvider } from '@mantine/notifications';
+import { Analytics } from '@vercel/analytics/react';
 
 import {
   ColorScheme,
@@ -96,7 +97,10 @@ export default function App({
               <NotificationsProvider>
                 <Layout>
                   <GuardContent authorization={pageProps.authorization}>
-                    <Component {...pageProps} />
+                    <>
+                      <Component {...pageProps} />
+                      <Analytics />
+                    </>
                   </GuardContent>
                 </Layout>
               </NotificationsProvider>
