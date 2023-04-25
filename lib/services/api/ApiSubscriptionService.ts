@@ -1,4 +1,4 @@
-import { PrismaClient, Subscription, Recurrence } from ".prisma/client";
+import { PrismaClient, Subscription, Recurrence, SubscriptionStatus } from ".prisma/client";
 import Stripe from "stripe";
 import { User } from "next-auth/core/types";
 import { getStripeIntegerAsDecimal } from "../../utils/stripe-helpers";
@@ -33,7 +33,7 @@ export async function getSubscriptionById(id: string): Promise<Subscription | nu
 export async function getAllActiveSubscriptions(): Promise<Subscription[]> {
   return await prisma.subscription.findMany({
     where: {
-      status: 'active',
+      status: SubscriptionStatus.active,
       deleted: false
     }
   });
@@ -105,3 +105,4 @@ export async function saveSubscriptionToUser(stripeSubscription: Stripe.Subscrip
   });
   return localSubscription;
 }
+

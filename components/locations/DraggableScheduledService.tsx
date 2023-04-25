@@ -22,7 +22,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { formatAddress } from "../../lib/services/AddressService";
-import { ServiceScheduleRouteWithAddress } from "../../lib/services/api/ApiScheduleService";
+import { ServiceScheduleItemWithAddress } from "../../lib/services/api/ApiScheduleService";
 
 const useStyles = createStyles((theme) => ({
   item: {
@@ -71,7 +71,7 @@ export default function DraggableScheduledService({
   item,
   index,
 }: {
-  item: ServiceScheduleRouteWithAddress;
+  item: ServiceScheduleItemWithAddress;
   index: number;
 }) {
   const { classes, cx } = useStyles();
@@ -81,7 +81,7 @@ export default function DraggableScheduledService({
   const [completedNotes, setCompletedNotes] = useState<string | null>(null);
 
   async function logServiceCompletion(
-    service: ServiceScheduleRouteWithAddress,
+    service: ServiceScheduleItemWithAddress,
     notes: string
   ) {
     setSavingServiceLog(true);

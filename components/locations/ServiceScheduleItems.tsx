@@ -3,18 +3,18 @@ import { useListState } from "@mantine/hooks";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { formatAddress } from "../../lib/services/AddressService";
 import { ProviderWithAddress } from "../../lib/services/api/ApiProviderService";
-import { ServiceScheduleRouteWithAddress } from "../../lib/services/api/ApiScheduleService";
+import { ServiceScheduleItemWithAddress } from "../../lib/services/api/ApiScheduleService";
 import DraggableScheduledService from "./DraggableScheduledService";
 
-interface ServiceScheduleRoutesProps {
-  data: ServiceScheduleRouteWithAddress[];
+interface ServiceScheduleItemsProps {
+  data: ServiceScheduleItemWithAddress[];
   provider: ProviderWithAddress | null;
 }
 
-export function ServiceScheduleRoutes({
+export function ServiceScheduleItems({
   data,
   provider,
-}: ServiceScheduleRoutesProps) {
+}: ServiceScheduleItemsProps) {
   const [state, handlers] = useListState(data);
 
   return (

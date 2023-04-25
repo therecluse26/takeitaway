@@ -10,6 +10,10 @@ export type UserWithAddresses = User & {
   addresses: AddressWithPickupPreferences[];
 }
 
+export type UserWithSubscription = User & {
+  subscription: Subscription | null;
+}
+
 export interface SubscriptionWithBillingCycles extends Subscription {
   billingCycles: BillingCycle[];
 }
@@ -61,6 +65,17 @@ export async function getUserWithAddresses(id: string): Promise<UserWithAddresse
           pickupPreferences: true
         }
       }
+    }
+  });
+}
+
+export async function getUserWithSubscription(id: string): Promise<UserWithSubscription | null> {
+  return await prisma.user.findUnique({
+    where: {
+      id: id
+    },
+    include: {
+      subscription: true
     }
   });
 }

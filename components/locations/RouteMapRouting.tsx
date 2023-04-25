@@ -3,7 +3,7 @@ import L from "leaflet";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import "leaflet-routing-machine";
 import { useMap } from "react-leaflet";
-import { ServiceScheduleRouteWithAddress } from "../../lib/services/api/ApiScheduleService";
+import { ServiceScheduleItemWithAddress } from "../../lib/services/api/ApiScheduleService";
 import { ProviderWithAddress } from "../../lib/services/api/ApiProviderService";
 import { MAPBOX_CONFIG } from "../../data/configuration";
 
@@ -14,7 +14,7 @@ export default function Routing({
   routes,
   provider,
 }: {
-  routes: ServiceScheduleRouteWithAddress[];
+  routes: ServiceScheduleItemWithAddress[];
   provider: ProviderWithAddress;
 }) {
   const map = useMap();
@@ -55,8 +55,6 @@ export default function Routing({
     };
 
     L.Routing.control(routingOptions).addTo(map);
-
-    // map.removeControl(routingControl);
   }, [map]);
 
   return null;

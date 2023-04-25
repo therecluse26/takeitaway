@@ -1,4 +1,4 @@
-import { Address, PrismaClient, Provider, ServiceLog, ServiceSchedule, ServiceScheduleRoute, ServiceType, User } from "@prisma/client";
+import { Address, PrismaClient, Provider, ServiceLog, ServiceSchedule, ServiceScheduleItem, ServiceType, User } from "@prisma/client";
 import { Availability } from "../../../types/provider";
 import { daysOfTheWeek } from "../ProviderService";
 import { AddressWithPickupPreferences } from "./ApiAddressService";
@@ -15,23 +15,23 @@ export type ServiceScheduleWithProvider = ServiceSchedule & {
 
 export type ServiceScheduleWithRoute = ServiceSchedule & {
     provider: ProviderWithAddress;
-    scheduleRoutes: ServiceScheduleRouteWithAddress[];
+    scheduleItems: ServiceScheduleItemWithAddress[];
 }
 
-export type ServiceScheduleRouteWithAddress = ServiceScheduleRoute & {
+export type ServiceScheduleItemWithAddress = ServiceScheduleItem & {
     user: User;
     address: Address;
 }
 
-export type ServiceScheduleRouteWithRelations = ServiceScheduleRoute & {
+export type ServiceScheduleItemWithRelations = ServiceScheduleItem & {
     user: User;
     address: Address;
     serviceSchedule: ServiceScheduleWithProvider;
 }
 
-export async function getServiceScheduleRouteWithRelations(routeId: string): Promise<ServiceScheduleRouteWithRelations> {
+export async function getServiceScheduleItemWithRelations(routeId: string): Promise<ServiceScheduleItemWithRelations> {
 
-    return await prisma.serviceScheduleRoute.findFirstOrThrow({
+    return await prisma.serviceScheduleItem.findFirstOrThrow({
         where: {
             id: routeId
         },
@@ -101,7 +101,7 @@ export async function checkForExistingServiceSchedule(date: Date): Promise<Servi
             }
         },
         include: {
-            scheduleRoutes: {
+            scheduleItems: {
                 include: {
                     user: true,
                     address: true
@@ -123,7 +123,7 @@ export async function createServiceSchedule(date: Date, provider: Provider, addr
             providerId: provider.id,
             date: date.toISOString(),
             count: addresses.length,
-            scheduleRoutes: {
+            scheduleItems: {
                 create: addresses.map((address) => {
                     return {
                         addressId: address.id,
@@ -140,7 +140,7 @@ export async function createServiceSchedule(date: Date, provider: Provider, addr
             id: schedule.id
         },
         include: {
-            scheduleRoutes: {
+            scheduleItems: {
                 include: {
                     user: true,
                     address: true
@@ -156,27 +156,27 @@ export async function createServiceSchedule(date: Date, provider: Provider, addr
     });
 }
 
-export async function completePickup(serviceScheduleRouteId: string, notes: string | null = null, date: Date = new Date(), type: ServiceType = "pickup_recurring"): Promise<ServiceScheduleRouteWithRelations> {
+export async function completePickup(serviceScheduleItemId: string, notes: string | null = null, date: Date = new Date(), type: ServiceType = "pickup_recurring"): Promise<ServiceScheduleItemWithRelations> {
 
-    const serviceScheduleRoute = await getServiceScheduleRouteWithRelations(serviceScheduleRouteId);
+    const serviceScheduleItem = await getServiceScheduleItemWithRelations(serviceScheduleItemId);
 
-    markServiceRouteAsCompleted(serviceScheduleRouteId);
+    markServiceRouteAsCompleted(serviceScheduleItemId);
 
     await createServiceLog(
-        serviceScheduleRouteId,
-        serviceScheduleRoute.serviceSchedule,
-        serviceScheduleRoute.user,
-        serviceScheduleRoute.address,
+        serviceScheduleItemId,
+        serviceScheduleItem.serviceSchedule,
+        serviceScheduleItem.user,
+        serviceScheduleItem.address,
         notes,
         date,
         type
     );
 
-    return await getServiceScheduleRouteWithRelations(serviceScheduleRouteId);
+    return await getServiceScheduleItemWithRelations(serviceScheduleItemId);
 }
 
-export async function markServiceRouteAsCompleted(routeId: string): Promise<ServiceScheduleRoute> {
-    return prisma.serviceScheduleRoute.update({
+export async function markServiceRouteAsCompleted(routeId: string): Promise<ServiceScheduleItem> {
+    return prisma.serviceScheduleItem.update({
         where: {
             id: routeId
         },
@@ -187,7 +187,7 @@ export async function markServiceRouteAsCompleted(routeId: string): Promise<Serv
 }
 
 export async function createServiceLog(
-    serviceScheduleRouteId: string,
+    serviceScheduleItemId: string,
     serviceSchedule: ServiceSchedule,
     user: User,
     address: Address,
@@ -199,7 +199,7 @@ export async function createServiceLog(
     return await prisma.serviceLog.create({
         data: {
             type: serviceType,
-            serviceScheduleRouteId: serviceScheduleRouteId,
+            serviceScheduleItemId: serviceScheduleItemId,
             billingCycleId: (await getUserCurrentBillingCycle(user.id))?.id ?? null,
             addressId: address.id,
             providerId: serviceSchedule.providerId,

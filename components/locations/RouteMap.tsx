@@ -3,7 +3,7 @@ import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer } from "react-leaflet";
 import dynamic from "next/dynamic";
 import { latLng } from "leaflet";
-import { ServiceScheduleRouteWithAddress } from "../../lib/services/api/ApiScheduleService";
+import { ServiceScheduleItemWithAddress } from "../../lib/services/api/ApiScheduleService";
 import { ProviderWithAddress } from "../../lib/services/api/ApiProviderService";
 import Routing from "./RouteMapRouting";
 
@@ -26,7 +26,7 @@ const RouteMap = ({
   mapWidth = "1000px",
   mapZoom = 13,
 }: {
-  routes: ServiceScheduleRouteWithAddress[];
+  routes: ServiceScheduleItemWithAddress[];
   provider: ProviderWithAddress;
   serviceRadius?: number | null;
   mapHeight?: string;

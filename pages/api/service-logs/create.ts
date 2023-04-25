@@ -27,16 +27,16 @@ export default async function handler(
         return
     }
 
-    const serviceScheduleRouteId = req.body?.id as string;
+    const serviceScheduleItemId = req.body?.id as string;
     const notes = req.body.notes as string | null | undefined;
 
-    if (!serviceScheduleRouteId) {
+    if (!serviceScheduleItemId) {
         res.status(400).json({ error: "ID is required" });
         return
     }
 
     // create service log here and mark pickup as completed
-    const serviceLog = await completePickup(serviceScheduleRouteId, notes, new Date(), "pickup_recurring");
+    const serviceLog = await completePickup(serviceScheduleItemId, notes, new Date(), "pickup_recurring");
     
     res.status(200).json(serviceLog);
     return

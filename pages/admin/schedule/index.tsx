@@ -3,12 +3,12 @@ import { DatePicker } from '@mantine/dates';
 import dynamic from 'next/dynamic';
 import { GetServerSideProps } from 'next/types';
 import { JSXElementConstructor, useEffect, useState } from 'react';
-import { ServiceScheduleRoutes } from '../../../components/locations/ServiceScheduleRoutes';
+import { ServiceScheduleItems } from '../../../components/locations/ServiceScheduleItems';
 import PageContainer from '../../../components/PageContainer';
 import { notifyError } from '../../../helpers/notify';
 import { ProviderWithAddress } from '../../../lib/services/api/ApiProviderService';
 import {
-  ServiceScheduleRouteWithAddress,
+  ServiceScheduleItemWithAddress,
   ServiceScheduleWithRoute,
 } from '../../../lib/services/api/ApiScheduleService';
 import { getScheduleForDate } from '../../../lib/services/ScheduleService';
@@ -37,14 +37,14 @@ export default function PickupScheduleIndex() {
   const [provider, setProvider] = useState<ProviderWithAddress | null>(null);
   const [date, setDate] = useState<Date | null>(null);
   const [pickupsForDate, setPickupsForDate] = useState<
-    ServiceScheduleRouteWithAddress[]
+    ServiceScheduleItemWithAddress[]
   >([]);
 
   const getPickupsForDate = async (date: Date, regenerate: boolean = false) => {
     setLoading(true);
     await getScheduleForDate(date, regenerate)
       .then((serviceSchedule: ServiceScheduleWithRoute) => {
-        setPickupsForDate(serviceSchedule.scheduleRoutes ?? []);
+        setPickupsForDate(serviceSchedule.scheduleItems ?? []);
         setProvider(serviceSchedule.provider);
       })
       .catch((error) => {
@@ -117,7 +117,7 @@ export default function PickupScheduleIndex() {
                 </Flex>
               </Center>
               {date && (
-                <ServiceScheduleRoutes
+                <ServiceScheduleItems
                   key="service_schedule_routes"
                   data={pickupsForDate}
                   provider={provider}

@@ -58,7 +58,7 @@ model Address {
   serviceLogs       ServiceLog[]
   Provider          Provider[]
   pickupPreferences PickupPreference[]
-  serviceSchedules  ServiceScheduleRoute[]
+  serviceSchedules  ServiceScheduleItem[]
 
   @@index([userId])
 }
@@ -83,12 +83,12 @@ model ServiceSchedule {
   date           DateTime
   count          Int
   provider       Provider               @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  scheduleRoutes ServiceScheduleRoute[]
+  scheduleItems ServiceScheduleItem[]
 
   @@index([providerId])
 }
 
-model ServiceScheduleRoute {
+model ServiceScheduleItem {
   id              String          @id @default(cuid())
   scheduleId      String
   userId          String
@@ -241,7 +241,7 @@ model ServiceRequest {
 model ServiceLog {
   id                     String                @id @default(cuid())
   type                   ServiceType
-  serviceScheduleRouteId String?
+  serviceScheduleItemId String?
   billingCycleId         String?
   addressId              String
   providerId             String
@@ -255,9 +255,9 @@ model ServiceLog {
   billingCycle           BillingCycle?         @relation(fields: [billingCycleId], references: [id], onDelete: Cascade)
   address                Address               @relation(fields: [addressId], references: [id], onDelete: Cascade)
   provider               Provider              @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  serviceScheduleRoute   ServiceScheduleRoute? @relation(fields: [serviceScheduleRouteId], references: [id], onDelete: Cascade)
+  serviceScheduleItem   ServiceScheduleItem? @relation(fields: [serviceScheduleItemId], references: [id], onDelete: Cascade)
 
-  @@index([serviceScheduleRouteId])
+  @@index([serviceScheduleItemId])
   @@index([billingCycleId])
   @@index([addressId])
   @@index([providerId])
@@ -330,7 +330,7 @@ model User {
   billingAddress    Address?               @relation("billingAddress", fields: [billingAddressId], references: [id])
   provider          Provider?
   pickupPreferences PickupPreference[]
-  serviceSchedules  ServiceScheduleRoute[]
+  serviceSchedules  ServiceScheduleItem[]
 
   @@index([id, name, email])
   @@index([stripeId])
