@@ -1,4 +1,3 @@
-import { sign } from "crypto";
 import { NextApiRequest, NextApiResponse } from "next/types";
 import { STRIPE_CONFIG } from "../../../data/configuration";
 import { errorMessages } from "../../../data/messaging";
