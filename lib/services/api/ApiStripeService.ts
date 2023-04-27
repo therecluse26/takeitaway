@@ -2,13 +2,14 @@ import { Address, PrismaClient, Service, User } from "@prisma/client";
 import { Stripe } from "stripe";
 import { STRIPE_CONFIG } from "../../../data/configuration";
 
-const stripe = new Stripe(STRIPE_CONFIG.stripeApiKey, { 
-    apiVersion: "2022-11-15", 
+export const stripe = new Stripe(STRIPE_CONFIG.stripeApiKey, {
+    apiVersion: "2022-11-15",
     typescript: true
 });
 
 
 const prisma = new PrismaClient();
+
 
 export async function getUserStripeId(user: any): Promise<string | null> {
     if (!user.stripeId) {
@@ -32,7 +33,7 @@ export async function getUserStripeId(user: any): Promise<string | null> {
 
 // Creates/retrieves the stripe checkout session for a user, which handles subscriptions as well as paymentMethod addition
 export async function getCheckoutSession(stripeUserId: string, checkoutData: Stripe.Checkout.SessionCreateParams) {
-    
+
     return await stripe.checkout.sessions.create({
         ...checkoutData,
         payment_method_types: ['card'],
@@ -47,13 +48,13 @@ function buildProductData(service: Service): Stripe.ProductCreateParams {
         serviceId: service.id,
     };
 
-    if(service.perCycle && service.perCycle > 0){
+    if (service.perCycle && service.perCycle > 0) {
         metadata = {
             ...metadata,
             pickupsPerCycle: service.perCycle,
         }
     }
-    
+
     return {
         name: service.name,
         active: true,
@@ -64,7 +65,7 @@ function buildProductData(service: Service): Stripe.ProductCreateParams {
 }
 
 export async function updateCustomerBillingAddress(user: User, address: Address) {
-    
+
     if (!user.stripeId) {
         // Create Stripe Customer
         return getUserStripeId(user);
@@ -80,9 +81,9 @@ export async function updateCustomerBillingAddress(user: User, address: Address)
                 line1: address.street,
                 line2: address.street2,
                 postal_code: address.zip,
-                state: address.state,                
+                state: address.state,
             } as Stripe.AddressParam,
-        } 
+        }
     );
 }
 
@@ -123,7 +124,7 @@ export async function updateStripeProduct(service: Service): Promise<Stripe.Prod
 
 export async function createStripePrice(productId: string, service: Service) {
 
-    
+
     const price: Stripe.PriceCreateParams = {
         product: productId,
         lookup_key: service.id,
@@ -136,7 +137,7 @@ export async function createStripePrice(productId: string, service: Service) {
 
     };
 
-    if(service.type === 'pickup_recurring'){
+    if (service.type === 'pickup_recurring') {
         price.recurring = {
             interval: 'month',
             interval_count: 1,
@@ -182,4 +183,19 @@ export async function createOrUpdateStripeProducts(services: Service[]): Promise
 
     return failures.length > 0 ? Promise.reject(failures) : Promise.resolve();
 
+}
+
+export async function handleWebhook(event: Stripe.Event) {
+    switch (event.type) {
+        case 'invoice.paid':
+            return handleInvoicePaid(event.data);
+        default:
+            console.log(`Unhandled event type ${event.type}`);
+
+    }
+}
+
+async function handleInvoicePaid(data: any) 
+{
+    console.log(data);
 }
