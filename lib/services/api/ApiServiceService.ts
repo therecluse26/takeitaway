@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 export async function getFeaturedServices(): Promise<Service[]> {
     return await prisma.service.findMany({
         where: {
-            featured: true, 
+            featured: true,
             displayed: true
         }
     })
@@ -35,7 +35,7 @@ export async function getServiceById(id: string): Promise<Service> {
         }
     })
 
-    if(!service){
+    if (!service) {
         throw new Error("Service not found");
     }
 
@@ -61,4 +61,38 @@ export async function updateService(service: Service): Promise<Service> {
     })
 
     return updatedService;
+}
+
+export async function countServiceLogsForPastNCycles(subscriptionId: string, cycles: number): Promise<{ allocated: number, used: number, leftover: number }> {
+    const date = new Date();
+    const nBillingCycles = await prisma.billingCycle.findMany({
+        where: {
+            subscriptionId: subscriptionId
+        },
+        orderBy: {
+            startDate: 'desc'
+        },
+        take: cycles.valueOf()
+    });
+
+    const allocated = nBillingCycles.reduce((acc, billingCycle) => {
+        return acc + billingCycle.pickups.valueOf();
+    }, 0);
+
+    const used = await prisma.serviceLog.count({
+        where: {
+            billingCycleId: {
+                in: nBillingCycles.map((billingCycle) => billingCycle.id)
+            },
+            createdAt: {
+                gte: date
+            }
+        }
+    })
+
+    return {
+        allocated: allocated,
+        used: used,
+        leftover: allocated - used
+    };
 }

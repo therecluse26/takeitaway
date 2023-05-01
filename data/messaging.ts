@@ -116,6 +116,10 @@ const errorMessages = {
             code: 400,
             message: "The specified payment method already exists"
         },
+        subscriptionAlreadyExists: {
+            code: 400,
+            message: "The specified subscription already exists"
+        },
         subscriptionNotFound: {
             code: 404,
             message: "No subscription found"

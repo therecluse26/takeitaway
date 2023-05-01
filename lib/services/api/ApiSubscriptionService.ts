@@ -60,7 +60,7 @@ export async function getNextBillingCyclesForActiveSubscriptions(): Promise<any[
       }
     }
   }))
-    .map(subscription =>  subscription.billingCycles.length > 0 ? subscription.billingCycles[0] : null)
+    .map(subscription => subscription.billingCycles.length > 0 ? subscription.billingCycles[0] : null)
     .filter(billingCycle => billingCycle ? true : false);
 }
 
@@ -101,8 +101,9 @@ export async function saveSubscriptionToUser(stripeSubscription: Stripe.Subscrip
       amount: getStripeIntegerAsDecimal(amount),
       createdAt: new Date(),
       updatedAt: new Date()
-    }
+    },
   });
+
   return localSubscription;
 }
 

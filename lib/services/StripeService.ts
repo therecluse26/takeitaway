@@ -8,7 +8,7 @@ import { getSessionUser } from "./UserService";
 import { notifyError } from "../../helpers/notify";
 import { UserWithRelations } from "./api/ApiUserService";
 
-const stripe = new Stripe(STRIPE_CONFIG.stripeApiKey, { apiVersion: "2022-11-15" });
+const stripe = new Stripe(STRIPE_CONFIG.stripeApiKey ?? "", { apiVersion: "2022-11-15" });
 
 const accountDetailsRoute = "/checkout/account-details";
 
