@@ -11,6 +11,8 @@ export type BillingCycleData = {
     amount: number;
     active: boolean;
     pickups: number;
+    stripeInvoiceId: string;
+    stripeInvoiceStatus: string;
 }
 
 export type BillingCycleUpdateData = {
@@ -20,6 +22,8 @@ export type BillingCycleUpdateData = {
     amount?: number;
     active?: boolean;
     pickups?: number;
+    stripeInvoiceId?: string;
+    stripeInvoiceStatus?: string;
 }
 
 export async function createBillingCycle(billingCycle: BillingCycleData): Promise<BillingCycle> {
@@ -77,11 +81,11 @@ export async function getUserMostRecentActiveBillingCycle(userId: string): Promi
 }
 
 export async function generateNextBillingCycle(subscription: Subscription): Promise<BillingCycle | null> {
-    
+
     if (subscription.status !== SubscriptionStatus.active && subscription.status !== SubscriptionStatus.trialing) {
         throw new Error("User subscription is not active");
     }
-   
+
     const previousBillingCycle = await getUserMostRecentActiveBillingCycle(subscription.userId);
     const currentDate = new Date();
     // If billing cycle still has days left, don't generate new billing cycle
@@ -125,7 +129,9 @@ export async function generateNextBillingCycle(subscription: Subscription): Prom
         endDate: newEndDate,
         amount: subscription.amount ?? 0,
         active: true,
-        pickups: pickupsForNextCycle
+        pickups: pickupsForNextCycle,
+        stripeInvoiceId: '',
+        stripeInvoiceStatus: ''
     });
 
     return nextBillingCycle;

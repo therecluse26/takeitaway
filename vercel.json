@@ -1,12 +1,8 @@
 {
-    "crons": [
-      {
-        "path": "/api/cron/generate-billing-cycles?key=dG1vN0ZyTndMUzlvQGgmcDJFdTh4UFR2UzZAN2NZc3hDWUZLUGFzZSZ6UUVCckslY0NaTHJSRCpzd2RlRnRIVA==",
-        "schedule": "0 1 * * *"
-      },
-      {
-        "path": "/api/cron/generate-pickup-schedule-for-today?key=dG1vN0ZyTndMUzlvQGgmcDJFdTh4UFR2UzZAN2NZc3hDWUZLUGFzZSZ6UUVCckslY0NaTHJSRCpzd2RlRnRIVA==",
-        "schedule": "0 2 * * *"
-      }
-    ]
-  }
+  "crons": [
+    {
+      "path": "/api/cron/generate-pickup-schedule-for-today?key=dG1vN0ZyTndMUzlvQGgmcDJFdTh4UFR2UzZAN2NZc3hDWUZLUGFzZSZ6UUVCckslY0NaTHJSRCpzd2RlRnRIVA==",
+      "schedule": "0 2 * * *"
+    }
+  ]
+}

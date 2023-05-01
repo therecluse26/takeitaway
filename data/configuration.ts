@@ -1,3 +1,7 @@
+export const SUBSCRIPTIONS = {
+    rolloverBillingCycles: 3
+}
+
 export const USEQUERY_STALETIME = process.env.BROWSER_STALE_TIME ? parseInt(process.env.BROWSER_STALE_TIME) : 300000;
 
 
@@ -10,7 +14,7 @@ export const GEOCODER_CONFIG = {
     apiKey: MAPBOX_CONFIG.apiKey, // for Mapquest, OpenCage, Google Premier
     // Optional depending on the providers
     formatter: null // 'gpx', 'string', ...
-};    
+};
 
 // Stripe config
 export const PAYMENT_CURRENCY = 'usd'

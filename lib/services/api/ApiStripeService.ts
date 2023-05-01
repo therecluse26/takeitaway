@@ -1,21 +1,27 @@
 import { Address, PrismaClient, Service, User } from "@prisma/client";
 import { Stripe } from "stripe";
-import { STRIPE_CONFIG } from "../../../data/configuration";
+import { STRIPE_CONFIG, SUBSCRIPTIONS } from "../../../data/configuration";
+import { getStripeIntegerAsDecimal } from "../../utils/stripe-helpers";
+import { countServiceLogsForPastNCycles } from "./ApiServiceService";
 
-export const stripe = new Stripe(STRIPE_CONFIG.stripeApiKey, {
+export const stripe = new Stripe(STRIPE_CONFIG.stripeApiKey ?? "", {
     apiVersion: "2022-11-15",
     typescript: true
 });
 
-
 const prisma = new PrismaClient();
 
+type StripeWebhookResponse = {
+    message: string,
+    success: boolean,
+    data?: object
+}
 
 export async function getUserStripeId(user: any): Promise<string | null> {
     if (!user.stripeId) {
         const stripeUser = await stripe.customers.create({
             email: user.email,
-            name: user.name
+            name: user.name,
         });
         await prisma.user.update({
             where: {
@@ -37,7 +43,9 @@ export async function getCheckoutSession(stripeUserId: string, checkoutData: Str
     return await stripe.checkout.sessions.create({
         ...checkoutData,
         payment_method_types: ['card'],
-        customer: stripeUserId,
+        customer: stripeUserId, customer_update: {
+            address: 'auto',
+        },
     });
 }
 
@@ -185,17 +193,135 @@ export async function createOrUpdateStripeProducts(services: Service[]): Promise
 
 }
 
-export async function handleWebhook(event: Stripe.Event) {
+export async function handleWebhook(event: Stripe.Event): Promise<StripeWebhookResponse> {
     switch (event.type) {
+        case 'invoice.created':
+        case 'invoice.finalized':
+        case 'invoice.finalization_failed':
         case 'invoice.paid':
-            return handleInvoicePaid(event.data);
+        case 'invoice.payment_action_required':
+        case 'invoice.payment_failed':
+        case 'invoice.upcoming':
+        case 'invoice.updated':
+            return await handleInvoiceUpdate(event.data);
         default:
-            console.log(`Unhandled event type ${event.type}`);
-
+            return {
+                message: "Unhandled event type",
+                success: false,
+            }
     }
 }
 
-async function handleInvoicePaid(data: any) 
-{
-    console.log(data);
+async function handleInvoiceUpdate(data: any): Promise<StripeWebhookResponse> {
+
+    let tries = 0;
+
+    try {
+
+        const user = await prisma.user.findFirstOrThrow({
+            where: {
+                stripeId: data.object.customer,
+            },
+            include: {
+                subscription: true,
+            }
+        });
+
+        let subscription = user.subscription;
+
+        // If we don't have a subscription, try up to 5 times, waiting 1.5 seconds between each try
+        // Necessary because of async nature of Stripe webhooks
+        if (!subscription) {
+            while (tries < 5) {
+                tries++;
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                subscription = await prisma.subscription.findFirst({
+                    where: {
+                        userId: user.id,
+                    }
+                });
+                if (subscription) {
+                    break;
+                }
+            }
+        }
+
+        if (!subscription) {
+            throw Error("User does not have a subscription");
+        }
+
+        const currentBillingCycle = await prisma.billingCycle.findFirst({
+            where: {
+                subscriptionId: subscription.id,
+                active: true,
+            }
+        });
+
+        // const pickupsToAdd = currentBillingCycle ? currentBillingCycle.pickups : 0;
+
+        if (currentBillingCycle) {
+            await prisma.billingCycle.update({
+                where: {
+                    id: currentBillingCycle.id,
+                },
+                data: {
+                    active: false,
+                }
+            });
+        }
+
+        const rolloverBillingCycles = SUBSCRIPTIONS.rolloverBillingCycles || 0;
+
+        const serviceLogCounts = await countServiceLogsForPastNCycles(subscription.id, rolloverBillingCycles);
+
+        const billingCycle = await prisma.billingCycle.upsert({
+            where: {
+                stripeInvoiceId: data.object.id
+            },
+            create: {
+                userId: user.id,
+                subscriptionId: subscription.id,
+                stripeInvoiceId: data.object.id,
+                stripeInvoiceStatus: data.object.status,
+                startDate: new Date(data.object.period_start * 1000),
+                endDate: new Date(data.object.period_end * 1000),
+                amount: getStripeIntegerAsDecimal(data.object.amount_due),
+                active: data.object.status === 'paid',
+                pickups: subscription.pickupsPerCycle + serviceLogCounts.leftover,
+            },
+            update: {
+                userId: user.id,
+                subscriptionId: subscription.id,
+                stripeInvoiceStatus: data.object.status,
+                startDate: new Date(data.object.period_start * 1000),
+                endDate: new Date(data.object.period_end * 1000),
+                active: data.object.status === 'paid',
+            }
+        });
+
+        if (!billingCycle) {
+            await prisma.failedRequest.create({
+                data: {
+                    type: 'billingCycle',
+                    data: JSON.stringify(data),
+                }
+            });
+
+            throw Error("Error creating billing cycle")
+        }
+
+        return {
+            message: "Invoice Updated",
+            success: true,
+            data: billingCycle
+        }
+    } catch (e) {
+
+        return {
+            message: e as string,
+            success: false,
+        }
+    }
+
 }
