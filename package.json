@@ -14,7 +14,7 @@
     "db-pull": "npx prisma db pull",
     "db-seed": "npx prisma db seed",
     "postinstall": "npx prisma generate",
-    "vercel-build": "prisma generate && prisma migrate deploy && next build",
+    "vercel-build": "prisma generate && prisma migrate deploy && next build"
   },
   "dependencies": {
     "@emotion/react": "^11.9.3",
