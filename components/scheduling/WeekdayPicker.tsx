@@ -37,7 +37,7 @@ const WeekdayPicker = ({
   showWeekNumber?: boolean;
   weekNumber?: number;
   disabledWeekdays?: Weekday[];
-  // eslint-disable-next-line unused-imports/no-unused-vars
+  // eslint-disable-next-line no-unused-vars
   onChange?: (addressId: string, weekNumber: number, value: Weekday[]) => void;
   pickupsRemaining?: number;
   initialPickupPreferences?: AnyPickupPreference[];
