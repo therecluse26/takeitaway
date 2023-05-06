@@ -1,1 +1,4 @@
-This is a starter template for [Learn Next.js](https://nextjs.org/learn).
+# Take It Away
+
+Service-based ecommerce platform
+

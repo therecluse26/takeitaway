@@ -1,0 +1,25 @@
+version: '3.9'
+
+services:
+  mysql:
+    image: mysql:8.0
+    logging:
+      driver: 'none' # disable saving logs
+    environment:
+      MYSQL_ROOT_PASSWORD: password123
+      MYSQL_DATABASE: takeitaway
+      MYSQL_USER: takeitaway
+      MYSQL_PASSWORD: password123
+    volumes:
+      - mysql-takeitaway:/var/lib/mysql
+    ports:
+      - 3306:3306
+  mailhog:
+    image: mailhog/mailhog
+    logging:
+      driver: 'none' # disable saving logs
+    ports:
+      - 1025:1025 # smtp server
+      - 8025:8025 # web ui
+volumes:
+  mysql-takeitaway:
