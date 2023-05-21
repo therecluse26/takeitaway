@@ -1,7 +1,6 @@
-import { PrismaClient, BillingCycle, SubscriptionStatus, Subscription } from "@prisma/client";
+import { BillingCycle, SubscriptionStatus, Subscription } from "@prisma/client";
 import day from "dayjs";
-
-const prisma = new PrismaClient()
+import prisma from "../../prismadb";
 
 export type BillingCycleData = {
     userId: string;

@@ -1,15 +1,14 @@
-import { Address, PrismaClient, Service, User } from "@prisma/client";
+import { Address, Service, User } from "@prisma/client";
 import { Stripe } from "stripe";
 import { STRIPE_CONFIG, SUBSCRIPTIONS } from "../../../data/configuration";
 import { getStripeIntegerAsDecimal } from "../../utils/stripe-helpers";
 import { countServiceLogsForPastNCycles } from "./ApiServiceService";
+import prisma from "../../prismadb";
 
 export const stripe = new Stripe(STRIPE_CONFIG.stripeApiKey ?? "", {
     apiVersion: "2022-11-15",
     typescript: true
 });
-
-const prisma = new PrismaClient();
 
 type StripeWebhookResponse = {
     message: string,

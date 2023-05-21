@@ -1,4 +1,4 @@
-import { Address, PrismaClient, Provider, ServiceLog, ServiceSchedule, ServiceScheduleItem, ServiceType, User } from "@prisma/client";
+import { Address, Provider, ServiceLog, ServiceSchedule, ServiceScheduleItem, ServiceType, User } from "@prisma/client";
 import { Availability } from "../../../types/provider";
 import { daysOfTheWeek } from "../ProviderService";
 import { AddressWithPickupPreferences } from "./ApiAddressService";
@@ -6,8 +6,7 @@ import { getUserCurrentBillingCycle } from "./ApiBillingCycleService";
 import { getNearestProviderByAddress, getProvidersWithAvailability, ProviderWithAddress, ProviderWithRelations, ProviderWithTimeOff } from "./ApiProviderService";
 import { getNextBillingCyclesForActiveSubscriptions } from "./ApiSubscriptionService";
 import { getUserWithAddresses, UserWithAddresses } from "./ApiUserService";
-
-const prisma = new PrismaClient();
+import prisma from "../../prismadb";
 
 export type ServiceScheduleWithProvider = ServiceSchedule & {
     provider: Provider;
@@ -150,7 +149,7 @@ export async function createServiceSchedule(date: Date, provider: Provider, addr
                 include: {
                     address: true
                 }
-                
+
             }
         }
     });

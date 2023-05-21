@@ -1,7 +1,6 @@
-import { PrismaClient, Service } from "@prisma/client";
+import { Service } from "@prisma/client";
 import { createStripeProduct } from "./ApiStripeService";
-
-const prisma = new PrismaClient();
+import prisma from "../../prismadb";
 
 export async function getFeaturedServices(): Promise<Service[]> {
     return await prisma.service.findMany({

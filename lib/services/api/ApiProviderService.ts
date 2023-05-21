@@ -1,17 +1,16 @@
-import { PrismaClient, Address, User, Provider, ProviderTimeOff } from "@prisma/client";
+import { Address, User, Provider, ProviderTimeOff } from "@prisma/client";
 import { PaginatedResults } from "../../../types/pagination";
 import { Availability } from "../../../types/provider";
 import { Prisma } from '@prisma/client'
 import { geocodeAddress, getMilesBetweenCoordinates } from "./ApiAddressService";
-
-const prisma = new PrismaClient()
+import prisma from "../../prismadb";
 
 export type ProviderWithAddress = Provider & {
-  address: Address; 
+  address: Address;
 }
 
 export type ProviderWithTimeOff = Provider & {
-  timeOff: ProviderTimeOff[]|null;
+  timeOff: ProviderTimeOff[] | null;
 }
 
 export type ProviderWithUser = Provider & {
@@ -28,13 +27,13 @@ export function formatAddress(address: Address): string {
   return address.street + ", " + address.city + ", " + address.state + " " + address.zip
 }
 
-export async function updateAvailability(id: string, availability: Availability[]): Promise<Provider|null> {
+export async function updateAvailability(id: string, availability: Availability[]): Promise<Provider | null> {
   return await prisma.provider.update({
     where: {
       id: id
     },
     data: {
-     availability: availability
+      availability: availability
     }
   });
 }
@@ -52,7 +51,7 @@ export async function getAllProvidersWithAddress(): Promise<ProviderWithAddress[
   });
 }
 
-export async function getProviderWithAddress(id: string): Promise<ProviderWithAddress|null> {
+export async function getProviderWithAddress(id: string): Promise<ProviderWithAddress | null> {
   return await prisma.provider.findUnique({
     where: {
       id: id
@@ -63,7 +62,7 @@ export async function getProviderWithAddress(id: string): Promise<ProviderWithAd
   });
 }
 
-export async function getProviderWithRelations(id: string): Promise<ProviderWithRelations|null> {
+export async function getProviderWithRelations(id: string): Promise<ProviderWithRelations | null> {
   return await prisma.provider.findUnique({
     where: {
       id: id
@@ -82,12 +81,12 @@ export async function getProviderWithRelations(id: string): Promise<ProviderWith
   });
 }
 
-export async function getProvidersWithAvailability(date: Date): Promise<ProviderWithTimeOff[]|ProviderWithRelations[]> {
+export async function getProvidersWithAvailability(date: Date): Promise<ProviderWithTimeOff[] | ProviderWithRelations[]> {
   return await prisma.provider.findMany({
     where: {
       availability: {
         not: undefined || null || []
-      } 
+      }
     },
     include: {
       user: true,
@@ -120,7 +119,7 @@ export async function getUnpaginatedProvidersCount(unpaginatedQuery: any) {
 }
 
 export async function createProviderFromUser(user: User): Promise<Provider> {
-  const providerData =  {
+  const providerData = {
     userId: user.id,
     addressId: user.billingAddressId ?? undefined,
     serviceRadius: 10,
@@ -128,7 +127,7 @@ export async function createProviderFromUser(user: User): Promise<Provider> {
     updatedAt: new Date(),
     availability: Prisma.DbNull,
     deleted: false,
-  }  as Prisma.ProviderCreateManyInput
+  } as Prisma.ProviderCreateManyInput
 
   return await prisma.provider.create({
     data: providerData,
@@ -146,13 +145,12 @@ export async function deleteProvider(id: string): Promise<boolean> {
   }).then(() => true);
 }
 
-export async function getNearestProviderByAddress(address: Address, providers: ProviderWithRelations[]): Promise<Provider>
-{
+export async function getNearestProviderByAddress(address: Address, providers: ProviderWithRelations[]): Promise<Provider> {
   let geocodedAddress = address;
-  if(!geocodedAddress.latitude || !geocodedAddress.longitude) {
+  if (!geocodedAddress.latitude || !geocodedAddress.longitude) {
     // Geocode address
     geocodedAddress = await geocodeAddress(address);
-  } 
+  }
 
   if (!geocodedAddress.latitude || !geocodedAddress.longitude) {
     // If geocoding fails, throw error
@@ -161,12 +159,12 @@ export async function getNearestProviderByAddress(address: Address, providers: P
 
   const providersWithDistance = providers.map(async (provider) => {
 
-    if(!provider.address.latitude || !provider.address.longitude) {
+    if (!provider.address.latitude || !provider.address.longitude) {
       // Geocode address
       provider.address = await geocodeAddress(provider.address);
     }
 
-    if(!provider.address.latitude || !provider.address.longitude) {
+    if (!provider.address.latitude || !provider.address.longitude) {
       // If geocoding fails, throw error
       throw new Error("Could not geocode address for provider with id: " + provider.id + "");
     }
@@ -175,7 +173,7 @@ export async function getNearestProviderByAddress(address: Address, providers: P
       provider: provider,
       distance: getMilesBetweenCoordinates(geocodedAddress.latitude ?? -90.0000, geocodedAddress.longitude ?? 0.0000, provider.address.latitude ?? 90.0000, provider.address.longitude ?? 0.0000)
     }
-  }) as Promise<{provider: Provider, distance: Number}>[];
+  }) as Promise<{ provider: Provider, distance: Number }>[];
 
   const nearestProvider = await providersWithDistance.reduce((prev: any, current: any) => (prev.distance < current.distance) ? prev : current);
 

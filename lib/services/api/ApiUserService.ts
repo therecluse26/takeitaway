@@ -1,10 +1,9 @@
-import { PrismaClient, PaymentMethod as UserPaymentMethod, Address, Subscription, BillingCycle, PickupPreference, Provider } from "@prisma/client";
+import { PaymentMethod as UserPaymentMethod, Address, Subscription, BillingCycle, PickupPreference, Provider } from "@prisma/client";
 import { PaymentMethod } from "@stripe/stripe-js";
 import { User } from "next-auth/core/types";
-import {User as PrismaUser} from "@prisma/client"
+import { User as PrismaUser } from "@prisma/client"
 import { AddressWithPickupPreferences } from "./ApiAddressService";
-
-const prisma = new PrismaClient()
+import prisma from "../../prismadb";
 
 export type UserWithAddresses = User & {
   addresses: AddressWithPickupPreferences[];
@@ -256,7 +255,7 @@ export async function deleteAccount(user: User): Promise<boolean> {
   }).then(() => true);
 }
 
-export async function saveUserPickupPreferences(userId: string, preferences: PickupPreference[]): Promise<UserWithRelations|null> {
+export async function saveUserPickupPreferences(userId: string, preferences: PickupPreference[]): Promise<UserWithRelations | null> {
 
   const updatePickupCountQueries = preferences.map(preference => {
     return updateAddressPickupsAllocatedCount(preference.addressId,

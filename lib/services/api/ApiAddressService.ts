@@ -1,11 +1,11 @@
-import { Address, PickupPreference, PrismaClient, User } from "@prisma/client";
+import { Address, PickupPreference, User } from "@prisma/client";
 import NodeGeocoder, { Options } from 'node-geocoder';
 import { GEOCODER_CONFIG } from "../../../data/configuration";
 import { formatAddress } from "../AddressService";
 import { getAllProvidersWithAddress } from "./ApiProviderService";
 import { updateCustomerBillingAddress } from "./ApiStripeService";
 
-const prisma = new PrismaClient()
+import prisma from "../../prismadb";
 
 export type AddressWithPickupPreferences = Address & {
   pickupPreferences: PickupPreference[]
@@ -43,7 +43,7 @@ export async function geocodeAddress(address: Address | string): Promise<Address
 
     const { latitude, longitude, city, countryCode, state, zipcode } = geocodeResult[0];
 
-    if(await addressIsWithinServiceArea(address)){
+    if (await addressIsWithinServiceArea(address)) {
       address.inServiceArea = true;
     } else {
       address.inServiceArea = false;
@@ -98,7 +98,7 @@ export async function updateBillingAddress(userId: string, address: Address): Pr
   return user;
 }
 
-export async function saveAddressInstructions(id: string, instructions?: string|null): Promise<Address> {
+export async function saveAddressInstructions(id: string, instructions?: string | null): Promise<Address> {
   return await prisma.address.update({
     where: { id },
     data: { instructions },
@@ -107,12 +107,12 @@ export async function saveAddressInstructions(id: string, instructions?: string|
 
 export async function addressIsWithinServiceArea(address: Address): Promise<boolean> {
 
-  if(!address.latitude || !address.longitude) {
+  if (!address.latitude || !address.longitude) {
     return false;
   }
 
   for (const provider of await getAllProvidersWithAddress()) {
-    if(!provider.address.latitude || !provider.address.longitude) {
+    if (!provider.address.latitude || !provider.address.longitude) {
       continue;
     }
 
@@ -123,25 +123,25 @@ export async function addressIsWithinServiceArea(address: Address): Promise<bool
 
     return false;
   }
-  
+
 
   // Find provider nearest to address
   // and check if address is within serviceRadius
   return true;
 }
 
-export async function getProviderNearestAddress(address: Address): Promise<Address|null> {
+export async function getProviderNearestAddress(address: Address): Promise<Address | null> {
 
-  if(!address.latitude || !address.longitude) {
+  if (!address.latitude || !address.longitude) {
     return null;
   }
 
-  let nearestProvider: Address|null = null;
+  let nearestProvider: Address | null = null;
   let nearestDistance = 0;
 
   for (const provider of await getAllProvidersWithAddress()) {
 
-    if(!provider.address.latitude || !provider.address.longitude) {
+    if (!provider.address.latitude || !provider.address.longitude) {
       continue;
     }
 
@@ -164,18 +164,18 @@ function deg2rad(deg: number) {
 }
 
 // https://en.wikipedia.org/wiki/Haversine_formula
-export function getMilesBetweenCoordinates(lat1: number,lon1: number,lat2: number,lon2: number) {
+export function getMilesBetweenCoordinates(lat1: number, lon1: number, lat2: number, lon2: number) {
   var R = 6371; // Radius of the earth in km
 
-  var dLat = deg2rad(lat2-lat1); 
+  var dLat = deg2rad(lat2 - lat1);
 
-  var dLon = deg2rad(lon2-lon1); 
+  var dLon = deg2rad(lon2 - lon1);
 
-  var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
-    Math.sin(dLon/2) * Math.sin(dLon/2);
+  var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
 
-  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
   var d = R * c; // Distance in km
 

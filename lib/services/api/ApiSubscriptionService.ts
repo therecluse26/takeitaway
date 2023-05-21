@@ -1,9 +1,8 @@
-import { PrismaClient, Subscription, Recurrence, SubscriptionStatus } from ".prisma/client";
+import { Subscription, Recurrence, SubscriptionStatus } from ".prisma/client";
 import Stripe from "stripe";
 import { User } from "next-auth/core/types";
 import { getStripeIntegerAsDecimal } from "../../utils/stripe-helpers";
-
-const prisma = new PrismaClient()
+import prisma from "../../prismadb";
 
 export async function stripeSubscriptionExists(subscriptionStripeId: string): Promise<boolean> {
   return await prisma.subscription.count({
