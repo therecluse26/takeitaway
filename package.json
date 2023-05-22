@@ -3,7 +3,7 @@
   "scripts": {
     "lint": "next lint",
     "dev": "next dev",
-    "build": "next build && npx prisma db seed",
+    "build": "next build",
     "start": "next start",
     "docker-up": "docker compose up -d",
     "docker-down": "docker compose down",
@@ -14,7 +14,7 @@
     "db-pull": "npx prisma db pull",
     "db-seed": "npx prisma db seed",
     "postinstall": "npx prisma generate",
-    "vercel-build": "prisma generate && prisma db push && next build"
+    "vercel-build": "prisma generate && prisma db push && next build && npm run db-seed"
   },
   "dependencies": {
     "@emotion/react": "^11.9.3",
