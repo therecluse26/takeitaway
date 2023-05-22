@@ -21,44 +21,54 @@ async function main() {
 
     // Create superadmin user
     if (process.env.SUPERADMIN_EMAIL) {
-        const superAdmin = await prisma.user.create({
-            data: {
-                name: process.env.SUPERADMIN_NAME ?? "Super Admin",
-                email: process.env.SUPERADMIN_EMAIL,
-                emailVerified: new Date(),
-                // image: faker.image.avatar(),
-                role: RoleEnum.superadmin,
-            }
-        })
 
-        const address = await prisma.address.create({
-            data: {
-                street: process.env.SUPERADMIN_ADDRESS_STREET ?? "123 Main St",
-                city: process.env.SUPERADMIN_ADDRESS_CITY ?? "Phoenix",
-                state: process.env.SUPERADMIN_ADDRESS_STATE ?? "AZ",
-                zip: process.env.SUPERADMIN_ADDRESS_ZIP ?? "85001",
-                country: process.env.SUPERADMIN_ADDRESS_COUNTRY ?? "US",
-                latitude: 33.4484,
-                longitude: -112.0740,
-                userId: superAdmin.id,
-            }
-        })
+        const existingSuperAdmin = await prisma.user.findFirst({
 
-        await prisma.provider.create({
-            data: {
-                userId: superAdmin.id,
-                addressId: address.id,
-                serviceRadius: 30,
-                availability: [
-                    { "day": "monday", "start": "08:00", "end": "17:00" },
-                    { "day": "tuesday", "start": "08:00", "end": "17:00" },
-                    { "day": "wednesday", "start": "08:00", "end": "17:00" },
-                    { "day": "thursday", "start": "08:00", "end": "17:00" },
-                    { "day": "friday", "start": "08:00", "end": "17:00" }
-                ]
+            where: {
+                email: process.env.SUPERADMIN_EMAIL
             }
-        })
+        });
 
+        if (!existingSuperAdmin) {
+
+            const superAdmin = await prisma.user.create({
+                data: {
+                    name: process.env.SUPERADMIN_NAME ?? "Super Admin",
+                    email: process.env.SUPERADMIN_EMAIL,
+                    emailVerified: new Date(),
+                    // image: faker.image.avatar(),
+                    role: RoleEnum.superadmin,
+                }
+            })
+
+            const address = await prisma.address.create({
+                data: {
+                    street: process.env.SUPERADMIN_ADDRESS_STREET ?? "123 Main St",
+                    city: process.env.SUPERADMIN_ADDRESS_CITY ?? "Phoenix",
+                    state: process.env.SUPERADMIN_ADDRESS_STATE ?? "AZ",
+                    zip: process.env.SUPERADMIN_ADDRESS_ZIP ?? "85001",
+                    country: process.env.SUPERADMIN_ADDRESS_COUNTRY ?? "US",
+                    latitude: 33.4484,
+                    longitude: -112.0740,
+                    userId: superAdmin.id,
+                }
+            })
+
+            await prisma.provider.create({
+                data: {
+                    userId: superAdmin.id,
+                    addressId: address.id,
+                    serviceRadius: 30,
+                    availability: [
+                        { "day": "monday", "start": "08:00", "end": "17:00" },
+                        { "day": "tuesday", "start": "08:00", "end": "17:00" },
+                        { "day": "wednesday", "start": "08:00", "end": "17:00" },
+                        { "day": "thursday", "start": "08:00", "end": "17:00" },
+                        { "day": "friday", "start": "08:00", "end": "17:00" }
+                    ]
+                }
+            })
+        }
     }
 
 
