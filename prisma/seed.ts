@@ -19,7 +19,7 @@ function createAddresses(count: number): Array<Address> {
 
 async function main() {
 
-    if (process.env.SEED_DATABASE == "true") {
+    if (!!process.env.SEED_DATABASE === true) {
 
         // Create superadmin user
         if (process.env.SUPERADMIN_EMAIL) {
@@ -33,12 +33,19 @@ async function main() {
 
             if (!existingSuperAdmin) {
 
-                const superAdmin = await prisma.user.create({
-                    data: {
+                const superAdmin = await prisma.user.upsert({
+                    where: {
+                        email: process.env.SUPERADMIN_EMAIL
+                    },
+                    update: {
+                        name: process.env.SUPERADMIN_NAME ?? "Super Admin",
+                        emailVerified: new Date(),
+                        role: RoleEnum.superadmin,
+                    },
+                    create: {
                         name: process.env.SUPERADMIN_NAME ?? "Super Admin",
                         email: process.env.SUPERADMIN_EMAIL,
                         emailVerified: new Date(),
-                        // image: faker.image.avatar(),
                         role: RoleEnum.superadmin,
                     }
                 })
