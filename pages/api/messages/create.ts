@@ -4,7 +4,7 @@ import { NextApiRequest, NextApiResponse } from 'next/types'
 import captchaConfig from '../../../config/hcaptcha.config'
 import { createMessage } from '../../../lib/services/api/ApiMessageService'
 
-export default withHCaptcha((req: NextApiRequest, res: NextApiResponse) => {
+export default withHCaptcha(async (req: NextApiRequest, res: NextApiResponse) => {
 
   try {
     if (!req.body) {
@@ -17,13 +17,13 @@ export default withHCaptcha((req: NextApiRequest, res: NextApiResponse) => {
       phone: req.body.phone || null,
       city: req.body.city || null,
     } as Message
-  
-    createMessage(message)
+
+    await createMessage(message)
 
     res.status(200).json({ message: 'Message created' })
 
   } catch (error: any) {
     res.status(500).json(error)
   }
- 
+
 }, captchaConfig)
