@@ -1,7 +1,7 @@
 import { Container, createStyles, Grid, Title } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import React, { FC, useEffect, useState } from "react";
-import BackgroundVideo from "../BackgroundVideo";
+import BackgroundImage from "../BackgroundImage";
 
 const useStyles = createStyles((theme) => ({
   headerContainer: {
@@ -52,12 +52,11 @@ const HomepageBanner: FC = () => {
   return (
     <>
       {loaded && (
-        <BackgroundVideo
-          sources={[
-            { url: "/images/takeitaway_hero.webm", mime: "video/webm" },
-            { url: "/images/takeitaway_hero.mp4", mime: "video/mp4" },
-          ]}
-          posterUrl={"/images/takeitaway_hero_firstframe.jpg"}
+        <BackgroundImage
+          width={1400}
+          height={788}
+          url={"/images/takeitaway_header_image-1.jpg"}
+          alt={"Take It Away"}
         >
           <div className={classes.dotMatrix}>
             <Container
@@ -89,7 +88,7 @@ const HomepageBanner: FC = () => {
               </Grid>
             </Container>
           </div>
-        </BackgroundVideo>
+        </BackgroundImage>
       )}
     </>
   );
