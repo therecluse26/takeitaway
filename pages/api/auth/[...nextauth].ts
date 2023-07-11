@@ -12,7 +12,7 @@ import EmailProvider from "next-auth/providers/email"
 import AzureADProvider from "next-auth/providers/azure-ad";
 import LinkedInProvider from "next-auth/providers/linkedin";
 import Auth0Provider from "next-auth/providers/auth0";
-
+import TwitterProvider from "next-auth/providers/twitter";
 
 async function getUserCount(): Promise<number> {
     return await prisma.user.count();
@@ -73,6 +73,19 @@ function buildProviders(){
                 })
             )
         }
+
+    // Add Twitter provider if credentials are set
+    if( process.env.TWITTER_CLIENT_ID &&
+        process.env.TWITTER_CLIENT_SECRET ){
+            providers.push(
+                TwitterProvider({
+                    clientId: process.env.TWITTER_CLIENT_ID,
+                    clientSecret: process.env.TWITTER_CLIENT_SECRET,
+                    allowDangerousEmailAccountLinking: true
+                })
+            )
+        }
+        
     // Add Azure AD provider if credentials are set
     if( process.env.AZURE_AD_CLIENT_ID &&
         process.env.AZURE_AD_CLIENT_SECRET &&

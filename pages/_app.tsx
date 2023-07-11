@@ -43,7 +43,10 @@ export default function App({
 
   return (
     <div suppressHydrationWarning>
-      <SessionProvider session={session}>
+      <SessionProvider
+        session={session}
+        refetchInterval={5 * 60} // 5 minutes
+      >
         <QueryClientProvider client={queryClient}>
           <ColorSchemeProvider
             colorScheme={colorScheme}
